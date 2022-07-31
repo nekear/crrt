@@ -24,6 +24,8 @@ public class User {
         this(null, email, username, surname, patronymic, Roles.DEFAULT, null);
     }
 
+    public User(){} // for reflective parser
+
     public Object getId() {
         return id;
     }
@@ -84,4 +86,24 @@ public class User {
     public String toString() {
         return this.id + " -> " + this.email;
     }
+
+    // TODO:: add comparing encoded id (String) to decoded id (Integer)
+    @Override
+    public boolean equals(final Object obj) {
+        if(obj == null)
+            return false;
+
+        if(!(obj instanceof User))
+            return false;
+
+        User incoming = (User) obj;
+        if(this.id != null && incoming.getId() != null)
+            return this.id.equals(incoming.getId());
+
+        if(this.email != null && incoming.getEmail() != null)
+            return this.email.equalsIgnoreCase(incoming.getEmail());
+
+        return true;
+    }
+
 }
