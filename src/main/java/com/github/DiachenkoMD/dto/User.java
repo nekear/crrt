@@ -20,8 +20,8 @@ public class User {
         this.avatarPath = avatarPath;
     }
 
-    public User(String email, String username, String surname, String patronymic, Roles role) {
-        this(null, email, username, surname, patronymic, role, null);
+    public User(String email, String username, String surname, String patronymic) {
+        this(null, email, username, surname, patronymic, Roles.DEFAULT, null);
     }
 
     public Object getId() {

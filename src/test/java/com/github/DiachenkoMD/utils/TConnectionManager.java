@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class ConnectionManager {
+public class TConnectionManager {
     private static Connection con;
 
     public static Connection getConnection(){
@@ -15,7 +15,15 @@ public class ConnectionManager {
         try{
             Class.forName("org.h2.Driver");
 
-            con = DriverManager.getConnection("jdbc:h2:~/crrt_test", "tester", "");
+            System.out.println(
+                    PropertiesManager.get("test.db.url") + " - " + PropertiesManager.get("test.db.username") + " - " + PropertiesManager.get("test.db.password")
+            );
+
+            con = DriverManager.getConnection(
+                    PropertiesManager.get("test.db.url"),
+                    PropertiesManager.get("test.db.username"),
+                    PropertiesManager.get("test.db.password")
+            );
 
             return con;
         }catch (ClassNotFoundException | SQLException e){

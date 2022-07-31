@@ -6,6 +6,5 @@ import java.util.List;
 
 public interface UsersDAO {
     List<User> getAll();
-
-    boolean addUser();
+    User create(User user, String password);
 }
