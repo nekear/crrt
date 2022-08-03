@@ -74,10 +74,20 @@ public class UserService_test {
 
             when(_usersDao.doesExist(processedUser)).thenReturn(false);
 
+            User _user = mock(User.class); // mock for bypassing if check
+            when(_usersDao.register(processedUser, encrypt(password))).thenReturn(_user);
+            when(_user.getId()).thenReturn("1");
+
+            String confirmationCode = Utils.generateRandomString(12);
+            when(_usersDao.generateConfirmationCode()).thenReturn(confirmationCode);
+            when(_usersDao.setConfirmationCode(eq(email), eq(confirmationCode))).thenReturn(true);
+
             usersService.registerUser(_req, _resp);
 
             verify(_usersDao).doesExist(processedUser);
             verify(_usersDao).register(processedUser, encrypt(password));
+            verify(_usersDao).generateConfirmationCode();
+            verify(_usersDao).setConfirmationCode(eq(email), eq(confirmationCode));
 
             verify(_session).setAttribute(_sessionKey.capture(), _sessionStatusValue.capture());
 
@@ -110,7 +120,7 @@ public class UserService_test {
         }
 
         @ParameterizedTest
-        @DisplayName("Password fail validation")
+        @DisplayName("Failing validation")
         @MethodSource("provideInvalidParameters")
         void testUserDataFailValidation(String value, TValidationCategories category) throws IOException {
             if(category != TValidationCategories.email)

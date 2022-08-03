@@ -31,65 +31,6 @@ public class Status {
     public boolean add(String text, boolean isTranslation, HashMap<String, String> substitutes, StatusStates state){
         return data.add(new StatusText(text, isTranslation, substitutes, state));
     }
-
-    /**
-     * Stores status` text, state and isTranslation (say whether the {@link #convert(String) convert(String)} method should replace translation keyword or not).
-     */
-    private class StatusText{
-        public StatusStates state = StatusStates.SUCCESS;
-        public String text;
-
-        /**
-         * "String text" variable might contain some developer specified text or just a keyword from translation properties file. This variable tells the {@link #convert(String) convert(String)} method:
-         * "should it replace this text with a translation or not".
-         */
-        public boolean isTranslation;
-
-        /**
-         * Substitutes used to substitute some data into the "String text" variable. <br/>
-         * That`s why we can embed some things like "email" into translation files.
-         */
-        private final HashMap<String, String> substitutes = new HashMap<>();
-
-        public StatusText(String text, boolean isTranslation, HashMap<String, String> substitutes, StatusStates state){
-            this.text = text;
-            this.isTranslation = isTranslation;
-            this.substitutes.putAll(substitutes);
-            this.state = state;
-        }
-
-        public StatusText(String text, boolean isTranslation, StatusStates state){
-            this.text = text;
-            this.isTranslation = isTranslation;
-            this.state = state;
-        }
-
-        /**
-         * Converting current StatusText to String representation.
-         * @param lang - accepts language (en, ua, etc.) that text will be translated into if needed
-         * @return String representation of Status, including replaced in-text variables.
-         */
-        public String convert(String lang) {
-            String preparedText;
-            if(isTranslation){
-                ResourceBundle translations = ResourceBundle.getBundle("langs.i18n_"+lang);
-
-                preparedText = translations.getString(text);
-            }else{
-                preparedText = text;
-            }
-
-            for(Map.Entry<String, String> subs : substitutes.entrySet()){
-                String key = subs.getKey();
-                String value = subs.getValue();
-
-                preparedText = preparedText.replaceAll("<"+key+">", value);
-            }
-
-            return preparedText;
-        }
-    }
-
     // related methods
 
     /**
@@ -116,7 +57,7 @@ public class Status {
     public StatusStates getState(int index){
         if(index < data.size()){
             StatusText st = data.get(index);
-            return st.state;
+            return st.getState();
         }else{
             return null;
         }

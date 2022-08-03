@@ -1,5 +1,10 @@
 package com.github.DiachenkoMD.controllers;
 
+import com.github.DiachenkoMD.dto.ValidationParameters;
+import com.github.DiachenkoMD.exceptions.DescriptiveException;
+import com.github.DiachenkoMD.exceptions.ExceptionReason;
+import com.github.DiachenkoMD.sevices.UsersService;
+import com.sun.mail.util.DecodingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,21 +17,17 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
+import static com.github.DiachenkoMD.utils.Utils.validate;
+
 @WebServlet("/login")
 public class SignInController extends HttpServlet {
-    private static final Logger logger = LogManager.getLogger(SignInController.class);
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        getServletContext().getRequestDispatcher("/views/login.jsp").forward(req, resp);
+    }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String requestData = req.getReader().lines().collect(Collectors.joining());
-
-        JSONObject acquiredData = new JSONObject(requestData);
-
-        String email = acquiredData.getString("email");
-        String password = acquiredData.getString("password");
-
-        resp.setContentType("text/plain");
-        resp.setStatus(500);
-        resp.getWriter().write("This is an exception!");
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp){
+        new UsersService().login(req, resp);
     }
 }

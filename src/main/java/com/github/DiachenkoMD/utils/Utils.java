@@ -142,9 +142,10 @@ public class Utils {
             return false;
 
         Pattern pattern = null;
+
         switch (parameter){
             case NAME -> pattern = Pattern.compile("[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+");
-            case EMAIL -> pattern = Pattern.compile("[a-zA-Z_0-9]+\\\\@[a-zA-Z_0-9]+\\\\.[a-zA-Z]+");
+            case EMAIL -> pattern = Pattern.compile("\\w+@[a-zA-Z0-9]+\\.[a-z]+");
             case PASSWORD -> pattern = Pattern.compile("(?=.*\\d)[a-zA-Z\\d]{4,}$");
         }
 
@@ -160,6 +161,10 @@ public class Utils {
         String salt = ResourceBundle.getBundle("app").getString("salt");
 
         return new String(BCrypt.withDefaults().hash(6, salt.getBytes(), value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+    }
+
+    public static boolean encryptedCompare(String value, String encrypted){
+        return BCrypt.verifyer().verify(value.getBytes(StandardCharsets.UTF_8), encrypted.getBytes(StandardCharsets.UTF_8)).verified;
     }
 
     public static String getIfNotEmpty(String value){
@@ -239,8 +244,8 @@ public class Utils {
                 Roles.byIndex(rs.getInt("role_id")),
                 rs.getString("avatar_path"),
                 rs.getFloat("balance"),
-                rs.getString("conf_code")
+                rs.getString("conf_code"),
+                rs.getString("password")
         );
     }
-
 }

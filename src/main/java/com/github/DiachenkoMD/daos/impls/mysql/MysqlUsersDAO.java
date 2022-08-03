@@ -55,6 +55,7 @@ public class MysqlUsersDAO implements UsersDAO {
             }
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
