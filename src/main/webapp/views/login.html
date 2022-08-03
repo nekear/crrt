@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- Design libs -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/modules/argon/argon.min.css">
+
+  <!--  Custom  -->
+  <link rel="stylesheet" href="../assets/css/globals.css">
+  <link rel="stylesheet" href="../assets/css/colorize.css">
+  <link rel="stylesheet" href="../assets/css/mdx.css">
+  <link rel="stylesheet" href="../assets/css/sign_rel.css">
+
+  <link rel="stylesheet" href="../assets/css/media.css">
+  <title>Login | CRRT.</title>
+
+  <!--  Jquery  -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <!--  Custom  -->
+  <script src="../assets/js/mdx.js"></script>
+  <script src="../assets/js/login.js" defer></script>
+</head>
+<body>
+
+<div class="content">
+  <div class="spinning-pattern">
+    <img src="../assets/imgs/patterns/Spinning%20Road%20Pattern.svg" alt="carrent spinning road pattern">
+  </div>
+  <div class="spinning-pattern">
+    <img src="../assets/imgs/patterns/Spinning%20Car%20Pattern.svg" alt="carrent spinning car pattern">
+  </div>
+
+  <div class="pos-wrapper row">
+    <div class="sign-phrase-container col-lg-3">
+      <div class="logo">
+        <a href="index.html"><img src="../assets/imgs/CRRT.svg" alt="carrent crrt logo"></a>
+      </div>
+      <div class="phrase">
+        <h1>98%</h1>
+        <h5>клієнтів залишилися задоволені</h5>
+        <h6>- crrt.com</h6>
+      </div>
+    </div>
+    <div class="sign-process-container col-lg-9" id="app">
+      <h1>Увійдіть в свій акаунт</h1>
+      <h6>Отримайте можливість взяти в аренду будь-яке авто з нашого великого каталогу</h6>
+      <div class="sign-inputs-container">
+        <div class="input-item">
+          <input type="email" class="form-control" placeholder="Email"
+                 v-model.trim="input_tips.email_sign.inputData"
+                 :data-validation-highlight="validationHighlighter.email_sign"
+                 @focus="input_tips.email_sign.isFocused = true"
+                 @blur="input_tips.email_sign.isFocused = false"
+          >
+          <div class="input-tips" v-if="('email_sign' in input_tips) && input_tips.email_sign.isFocused">
+            <div v-for="tip in input_tips.email_sign.checks"
+                 :data-level="tip.configs.level"
+                 :data-valid="tip.isValid">
+              {{tip.message}}
+            </div>
+          </div>
+        </div>
+<!--        <div class="input-item">-->
+<!--          <input type="password" class="form-control" placeholder="Password" id="pass_sign">-->
+<!--          <div data-for="pass_sign" class="input-tips">-->
+<!--            <div data-level="high" data-trigger="min-symbols" value="4" data-valid="true">Пароль має містити не менше 4 символів</div>-->
+<!--            <div data-level="medium" data-trigger="min-symbols" value="4" data-valid="false">Some medium shit here</div>-->
+<!--            <div data-level="high" data-trigger="min-letters" value="1" data-valid="false">Пароль має містити хоча б 1 літеру</div>-->
+<!--          </div>-->
+<!--        </div>-->
+        <div class="input-item">
+          <input type="password" class="form-control" placeholder="Password"
+                 v-model.trim="input_tips.pass_sign.inputData"
+                 :data-validation-highlight="validationHighlighter.pass_sign"
+                 @focus="input_tips.pass_sign.isFocused = true"
+                 @blur="input_tips.pass_sign.isFocused = false"
+          >
+            <div class="input-tips" v-if="('pass_sign' in input_tips) && input_tips.pass_sign.isFocused">
+              <div v-for="tip in input_tips.pass_sign.checks"
+                   :data-level="tip.configs.level"
+                   :data-valid="tip.isValid">
+                {{tip.message}}
+              </div>
+            </div>
+        </div>
+        <div class="input-item">
+          <button class="mdx-md-button button-blue button-bordered"  data-ripple="#1890FF" @click="login()">
+            Увійти
+          </button>
+        </div>
+        <div class="mdx-divider solid mt-4 mb-4"></div>
+        <div class="sub-sign-info">
+          <span>Ще не маєте акаунту?</span> <a href="/register.html" class="mdx-hover-underline-animation">Створити</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Design libs-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/modules/argon/argon.min.js"></script>
+<script src="https://unpkg.com/vue@3"></script>
+</body>
+</html>
