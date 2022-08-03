@@ -39,9 +39,17 @@
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
-      <version>5.0.0</version>
+      <version>6.0.0</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/javax.servlet.jsp/javax.servlet.jsp-api -->
+    <dependency>
+      <groupId>jakarta.servlet.jsp</groupId>
+      <artifactId>jakarta.servlet.jsp-api</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+
 
     <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
     <dependency>
@@ -80,6 +88,41 @@
       <artifactId>json</artifactId>
       <version>20220320</version>
     </dependency>
+
+    <dependency>
+      <groupId>at.favre.lib</groupId>
+      <artifactId>bcrypt</artifactId>
+      <version>0.9.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/javax.servlet.jsp.jstl/jstl-api -->
+    <dependency>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/javax.servlet/jstl -->
+    <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.18.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.sun.mail/jakarta.mail -->
+    <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>jakarta.mail</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+
 
   </dependencies>
 

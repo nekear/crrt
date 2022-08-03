@@ -1,0 +1,16 @@
+<taglib>
+    <tlib-version>2.0</tlib-version>
+    <jsp-version>3.0</jsp-version>
+    <short-name>CRRT Tag Lib</short-name>
+
+    <tag>
+        <name>Icon</name>
+        <tag-class>com.github.DiachenkoMD.tag_handlers.IconTagHandler</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>type</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+</taglib>

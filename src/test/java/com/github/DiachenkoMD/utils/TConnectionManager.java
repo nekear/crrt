@@ -3,7 +3,15 @@ package com.github.DiachenkoMD.utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ResourceBundle;
 
+/**
+ * Provides a bunch of methods to create better readability of JUnit DAO Extensions. <br />
+ * Extensions use <ul>
+ *     <li>{@link #openConnection() openConnection} to return available connection</li>
+ *     <li>{@link #getConnection() getConnection} to open new connection. (if not closed, previous connection will be lost)</li>
+ *     <li>{@link #closeConnection() closeConnection}to close existing connection.</li>
+ */
 public class TConnectionManager {
     private static Connection con;
 
@@ -15,14 +23,16 @@ public class TConnectionManager {
         try{
             Class.forName("org.h2.Driver");
 
-            System.out.println(
-                    PropertiesManager.get("test.db.url") + " - " + PropertiesManager.get("test.db.username") + " - " + PropertiesManager.get("test.db.password")
-            );
+            ResourceBundle appPropsBundle = ResourceBundle.getBundle("app");
+
+            String url = appPropsBundle.getString("test.db.url");
+            String username = appPropsBundle.getString("test.db.username");
+            String password = appPropsBundle.getString("test.db.password");
 
             con = DriverManager.getConnection(
-                    PropertiesManager.get("test.db.url"),
-                    PropertiesManager.get("test.db.username"),
-                    PropertiesManager.get("test.db.password")
+                    url,
+                    username,
+                    password
             );
 
             return con;

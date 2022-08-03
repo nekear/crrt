@@ -14,10 +14,13 @@ public class DatabaseOperationsExtension implements BeforeAllCallback, AfterAllC
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
-        connection = TConnectionManager.openConnection();
+        Class<?> testClass = extensionContext.getRequiredTestClass();
+        if (testClass.getEnclosingClass() == null) {
+            connection = TConnectionManager.openConnection();
 
-        TDatabaseManager.destroy(connection);
-        TDatabaseManager.init(connection);
+            TDatabaseManager.destroy(connection);
+            TDatabaseManager.init(connection);
+        }
     }
 
     @Override
@@ -28,7 +31,10 @@ public class DatabaseOperationsExtension implements BeforeAllCallback, AfterAllC
 
     @Override
     public void afterAll(ExtensionContext extensionContext) throws Exception {
-        TConnectionManager.closeConnection();
+        Class<?> testClass = extensionContext.getRequiredTestClass();
+        if (testClass.getEnclosingClass() == null) {
+            TConnectionManager.closeConnection();
+        }
     }
 
     @Override

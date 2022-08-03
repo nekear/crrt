@@ -5,7 +5,6 @@ import java.util.Properties;
 
 public class PropertiesManager {
     private static Properties props;
-
     static {
         reload();
     }

@@ -10,4 +10,10 @@
         <res-auth>Container</res-auth>
     </resource-ref>
 
+    <jsp-config>
+        <taglib>
+            <taglib-uri>crrt</taglib-uri>
+            <taglib-location>tlds/crrttags.tld</taglib-location>
+        </taglib>
+    </jsp-config>
 </web-app>

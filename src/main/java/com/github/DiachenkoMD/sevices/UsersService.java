@@ -2,22 +2,28 @@ package com.github.DiachenkoMD.sevices;
 
 import com.github.DiachenkoMD.daos.DBTypes;
 import com.github.DiachenkoMD.daos.factories.DAOFactory;
-import com.github.DiachenkoMD.daos.factories.MysqlDAOFactory;
 import com.github.DiachenkoMD.daos.prototypes.UsersDAO;
-import com.github.DiachenkoMD.dto.User;
-import com.github.DiachenkoMD.utils.Utils;
+import com.github.DiachenkoMD.dto.*;
+import com.github.DiachenkoMD.exceptions.DescriptiveException;
+
+import static com.github.DiachenkoMD.utils.Utils.*;
+
+import com.github.DiachenkoMD.exceptions.ExceptionReason;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.json.JSONObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Iterator;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UsersService {
 
+    private static final Logger logger = LogManager.getLogger(UsersService.class);
     private final UsersDAO usersDAO;
 
     public UsersService(){
@@ -29,11 +35,110 @@ public class UsersService {
         this.usersDAO = usersDAO;
     }
 
-    public boolean registerUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String jsonBody = new BufferedReader(new InputStreamReader(req.getInputStream())).lines().collect(Collectors.joining("\n"));
+    /**
+     * Service method for registering new users. In it`s <i>req</i> body should have json-data containing at least <i>email</i> and <i>password</i>. <br/>
+     * Additionally, may contain <i>firstname</i>, <i>surname</i> and <i>patronymic</i>. <br/>
+     * Incoming json-body should better contain unique (not already registered) email, otherwise this method will try to redirect to <i>/status</i> page and, additionally,
+     * add cookie with <i>name="login_prg_message"</i> and <i>value="{some value from translation file}"</i>
+     * @param req HttpServletRequest instance coming from controller
+     * @param resp HttpServletResponse instance coming from controller
+     */
+    public void registerUser(HttpServletRequest req, HttpServletResponse resp) {
 
-        User registeringUser = Utils.flatJsonParser(jsonBody, User.class);
+        logger.debug("Method entered from " + req.getRemoteAddr());
 
-        return true;
+        try {
+            // Gathering data from parameters
+            String email = req.getParameter("email");
+            String firstname = getIfNotEmpty(req.getParameter("firstname"));
+            String surname = getIfNotEmpty(req.getParameter("surname"));
+            String patronymic = getIfNotEmpty(req.getParameter("patronymic"));
+            String password = getIfNotEmpty(req.getParameter("password"));
+
+            logger.debug("Acquired values: {} {} {} {} {}", email ,firstname, surname, patronymic, password);
+
+            // Validating data (email and password are always validated and firstname, surname and patronymic validate only if we got them from params)
+            if (validate(email, ValidationParameters.EMAIL))
+                throw new DescriptiveException("Email validation failed", ExceptionReason.VALIDATION_ERROR);
+            if (firstname != null && !validate(firstname, ValidationParameters.NAME))
+                throw new DescriptiveException("Username validation failed", ExceptionReason.VALIDATION_ERROR);
+            if (surname != null && !validate(surname, ValidationParameters.NAME))
+                throw new DescriptiveException("Surname validation failed", ExceptionReason.VALIDATION_ERROR);
+            if (patronymic != null && !validate(patronymic, ValidationParameters.NAME))
+                throw new DescriptiveException("Patronymic validation failed", ExceptionReason.VALIDATION_ERROR);
+
+            if (!validate(password, ValidationParameters.PASSWORD))
+                throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
+
+            // Creating User entity to send it to appropriate method later
+            User registeringUser = new User(email, firstname, surname, patronymic);
+
+            // Checking user for existence
+            boolean doesExist = usersDAO.doesExist(registeringUser);
+            if (doesExist)
+                throw new DescriptiveException(new HashMap<>(Map.of("email", email)), ExceptionReason.EMAIL_EXISTS);
+
+            // Registering new user (method returns original user entity + newly created id included)
+            User registeredUserEntity = usersDAO.register(registeringUser, encrypt(password));
+
+            if(registeredUserEntity.getId() != null){
+                String confirmationCode = usersDAO.generateConfirmationCode();
+
+                if(usersDAO.setConfirmationCode(registeringUser.getEmail(), confirmationCode)){
+                    emailNotify(registeringUser, "Account confirmation email from CRRT", "You can confirm your code at http://localhost:8080/crrt_war/confirmation?code="+confirmationCode);
+                }else{
+                    throw new DescriptiveException(new HashMap<>(Map.of("email", email, "code", confirmationCode)), ExceptionReason.CONFIRMATION_CODE_ERROR);
+                }
+            }
+
+            req.getSession().setAttribute("login_prg_message", new Status("sign_up.verify_email", true, new HashMap<>(Map.of("email", email)), StatusStates.SUCCESS));
+        }catch (DescriptiveException e){
+            logger.error(String.format("Caught an error because of %s", e.getReason()));
+
+            // DescriptiveException class has execute() method which accepts execution condition and action to be executed (which is Runnable by its nature)
+            e.execute(ExceptionReason.EMAIL_EXISTS, () -> req.getSession().setAttribute("login_prg_message", new Status("sign_up.email_exists", true, e.getArguments(), StatusStates.ERROR)));
+            e.execute(ExceptionReason.VALIDATION_ERROR, () -> req.getSession().setAttribute("login_prg_message", new Status("sign.validation_failed", true, StatusStates.ERROR)));
+            e.execute(ExceptionReason.CONFIRMATION_CODE_ERROR, () -> {
+                logger.debug("Error setting code {} to {}", e.getArg("code"), e.getArg("email"));
+
+                req.getSession().setAttribute("login_prg_message", new Status("global.unexpectedError", true, StatusStates.ERROR));
+            });
+        }catch (RuntimeException e){
+            logger.error("Unexpected error", e);
+            req.getSession().setAttribute("login_prg_message", new Status("global.unexpectedError", true, StatusStates.ERROR));
+        }
+
+        try {
+            resp.sendRedirect("status");
+        }catch (IOException ignored){}
+    }
+
+    public void confirmUserEmail(HttpServletRequest req, HttpServletResponse resp){
+        String code = req.getParameter("code");
+
+        try{
+            if(code == null)
+                throw new DescriptiveException(ExceptionReason.CONFIRMATION_CODE_EMPTY);
+
+            ExtendedUser user = usersDAO.getUserByConfirmationCode(code);
+
+            if(user == null)
+                throw new DescriptiveException(ExceptionReason.CONFIRMATION_NO_SUCH_CODE);
+
+            if(!usersDAO.setConfirmationCode(user.getEmail(), null))
+                throw new DescriptiveException(ExceptionReason.CONFIRMATION_PROCESS_ERROR);
+
+            req.setAttribute("conf_res", new Status("email_conf.conf_success", true, StatusStates.SUCCESS));
+        }catch (DescriptiveException e){
+            e.execute(ExceptionReason.CONFIRMATION_CODE_EMPTY, () -> req.setAttribute("conf_res", new Status("email_conf.code_empty", true, StatusStates.ERROR)));
+            e.execute(ExceptionReason.CONFIRMATION_NO_SUCH_CODE, () -> req.setAttribute("conf_res", new Status("email_conf.no_such_code", true, StatusStates.ERROR)));
+            e.execute(ExceptionReason.CONFIRMATION_PROCESS_ERROR, () -> req.setAttribute("conf_res", new Status("email_conf.process_error", true, StatusStates.ERROR)));
+        }
+
+        try{
+            req.getServletContext().getRequestDispatcher("/views/confirmation.jsp").forward(req, resp);
+        }catch (IOException | ServletException e){
+            logger.error(e);
+        }
     }
 }

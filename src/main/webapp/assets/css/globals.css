@@ -1,0 +1,93 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;600;700&display=swap");
+* {
+  margin: 0;
+}
+
+body {
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+}
+
+.pagination .page-link {
+  border-radius: 5px !important;
+  -webkit-transition: 0.15s;
+  transition: 0.15s;
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+}
+
+footer {
+  background: #000;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 6rem;
+}
+footer .left-content {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+footer .left-content .logo {
+  margin-bottom: 20px;
+}
+footer .left-content .description {
+  color: #fff;
+  margin-bottom: 30px;
+}
+footer .left-content .description span {
+  color: #76CDD8;
+  font-weight: 500;
+}
+footer .left-content .date {
+  color: #fff;
+  font-weight: 200;
+}
+footer .right-content .copy-item + .copy-item {
+  margin-top: 20px;
+}
+footer .right-content .copy-item .title {
+  color: #989898;
+}
+footer .right-content .copy-item .content {
+  border: 2px solid #555555;
+  background: #2B2B2B;
+  border-radius: 5px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 0.6rem 1rem;
+  margin-top: 5px;
+  cursor: pointer;
+}
+footer .right-content .copy-item .content .text {
+  color: #ffffff;
+  font-weight: 400;
+  margin-right: 15px;
+  -webkit-transition: 0.25s;
+  transition: 0.25s;
+}
+footer .right-content .copy-item .content .copy-icon {
+  margin-top: -4px;
+}
+footer .right-content .copy-item .content:hover .text {
+  color: #007aff;
+}
