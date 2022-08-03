@@ -6,45 +6,6 @@ const validationPatterns = {
     "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
 }
 
-const js_localization = {
-    globals:{
-        unnecessaryField: "Це поле не є обов'язковим"
-    },
-    inputs:{
-        email: {
-            placeholder: "Пошта",
-            checks: [
-                "Пошта має мати коректний вигляд"
-            ]
-        },
-        firstname: {
-            placeholder: "Ім'я",
-            checks: [
-                "Ім'я не може містити цифр або спеціальних символів"
-            ],
-        },
-        surname: {
-            placeholder: "Прізвище",
-            checks: [
-                "Прізвище не може містити цифр або спеціальних символів"
-            ],
-        },
-        patronymic: {
-            placeholder: "По батькові",
-            checks: [
-                "По батькові не може містити цифр або спеціальних символів"
-            ],
-        },
-        password: {
-            placeholder: "Пароль",
-            checks: [
-                "Пароль має містити не менше 4 символів",
-                "Пароль має містити хоча б 1 літеру"
-            ],
-        },
-    }
-}
-
 const app = createApp({
     data() {
         return {

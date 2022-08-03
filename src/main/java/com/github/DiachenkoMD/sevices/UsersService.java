@@ -9,17 +9,20 @@ import com.github.DiachenkoMD.exceptions.DescriptiveException;
 import static com.github.DiachenkoMD.utils.Utils.*;
 
 import com.github.DiachenkoMD.exceptions.ExceptionReason;
-import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class UsersService {
 
@@ -44,7 +47,7 @@ public class UsersService {
      * @param resp HttpServletResponse instance coming from controller
      */
     public void registerUser(HttpServletRequest req, HttpServletResponse resp) {
-
+        
         logger.debug("Method entered from " + req.getRemoteAddr());
 
         try {
@@ -58,7 +61,7 @@ public class UsersService {
             logger.debug("Acquired values: {} {} {} {} {}", email ,firstname, surname, patronymic, password);
 
             // Validating data (email and password are always validated and firstname, surname and patronymic validate only if we got them from params)
-            if (validate(email, ValidationParameters.EMAIL))
+            if (!validate(email, ValidationParameters.EMAIL))
                 throw new DescriptiveException("Email validation failed", ExceptionReason.VALIDATION_ERROR);
             if (firstname != null && !validate(firstname, ValidationParameters.NAME))
                 throw new DescriptiveException("Username validation failed", ExceptionReason.VALIDATION_ERROR);
@@ -93,7 +96,7 @@ public class UsersService {
 
             req.getSession().setAttribute("login_prg_message", new Status("sign_up.verify_email", true, new HashMap<>(Map.of("email", email)), StatusStates.SUCCESS));
         }catch (DescriptiveException e){
-            logger.error(String.format("Caught an error because of %s", e.getReason()));
+            logger.error(String.format("Caught an error because of %s", e.getReason()), e);
 
             // DescriptiveException class has execute() method which accepts execution condition and action to be executed (which is Runnable by its nature)
             e.execute(ExceptionReason.EMAIL_EXISTS, () -> req.getSession().setAttribute("login_prg_message", new Status("sign_up.email_exists", true, e.getArguments(), StatusStates.ERROR)));
@@ -139,6 +142,66 @@ public class UsersService {
             req.getServletContext().getRequestDispatcher("/views/confirmation.jsp").forward(req, resp);
         }catch (IOException | ServletException e){
             logger.error(e);
+        }
+    }
+
+    public void login(HttpServletRequest req, HttpServletResponse resp){
+        try{
+            String requestData = req.getReader().lines().collect(Collectors.joining());
+
+            JSONObject acquiredData = new JSONObject(requestData);
+
+            String email = acquiredData.getString("email");
+            String password = acquiredData.getString("password");
+
+            logger.debug("Email: {} and password: {}", email, password);
+
+            if(!validate(email, ValidationParameters.EMAIL))
+                throw new DescriptiveException("Email validation failed", ExceptionReason.VALIDATION_ERROR);
+
+            if(!validate(password, ValidationParameters.PASSWORD))
+                throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
+
+            ExtendedUser user = usersDAO.get(email);
+
+            if(user == null)
+                throw new DescriptiveException("User with such email was not found", ExceptionReason.LOGIN_USER_NOT_FOUND);
+
+            if(user.getConfirmationCode() != null)
+                throw new DescriptiveException("This account was not confirmed by email", ExceptionReason.LOGIN_NOT_CONFIRMED);
+
+            if(!encryptedCompare(password, user.getPassword()))
+                throw new DescriptiveException("Password or email are invalid", ExceptionReason.LOGIN_WRONG_PASSWORD);
+
+            req.getSession().setAttribute("auth", (User) user);
+
+            resp.setStatus(200);
+            resp.getWriter().flush();
+        }catch (DescriptiveException | IOException e){
+            AtomicReference<String> exceptionToClient = new AtomicReference<>("");
+
+            if(e instanceof DescriptiveException){
+                logger.error(e);
+
+                DescriptiveException desc_e = (DescriptiveException) e;
+
+                desc_e.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("login.validation_failed", true, StatusStates.ERROR).convert("en")));
+                desc_e.execute(ExceptionReason.LOGIN_USER_NOT_FOUND, () -> exceptionToClient.set(new StatusText("login.incorrect_data", true, StatusStates.ERROR).convert("en")));
+                desc_e.execute(ExceptionReason.LOGIN_NOT_CONFIRMED, () -> exceptionToClient.set(new StatusText("login.account_not_confirmed", true, StatusStates.ERROR).convert("en")));
+                desc_e.execute(ExceptionReason.LOGIN_WRONG_PASSWORD, () -> exceptionToClient.set(new StatusText("login.incorrect_data", true, StatusStates.ERROR).convert("en")));
+
+            }else {
+                exceptionToClient.set(new StatusText("global.unexpectedError", true, StatusStates.ERROR).convert("en"));
+                logger.error(e);
+            }
+
+            try{
+                resp.setStatus(500);
+                resp.getWriter().write(exceptionToClient.get());
+                resp.getWriter().flush();
+            }catch (IOException io_e){
+                logger.error(io_e);
+            }
         }
     }
 }
