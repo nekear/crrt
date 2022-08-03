@@ -1,0 +1,14 @@
+.form-control {
+  background-color: rgb(28, 28, 30);
+  color: rgb(152, 152, 157);
+  border-color: #353538;
+}
+.form-control:focus {
+  background-color: rgb(28, 28, 30);
+}
+.form-control[disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+  background-color: rgb(28, 28, 30);
+  border-color: #353538;
+}

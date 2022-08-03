@@ -4,6 +4,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Provides methods to set up database before tests. <br />
+ * For outside use available only {@link #init(Connection) init(Connection)} and {@link #destroy(Connection) destroy(Connection)} methods.
+ */
 public class TDatabaseManager {
     public static void init(Connection con){
         initUsersTable(con);
@@ -25,6 +29,7 @@ public class TDatabaseManager {
                 "`avatar_path` VARCHAR(255) NULL DEFAULT NULL,\n" +
                 "`balance` MEDIUMINT(9) NOT NULL DEFAULT '0',\n" +
                 "`role_id` TINYINT(4) NOT NULL DEFAULT '1',\n" +
+                "`conf_code` TINYTEXT NULL,\n"+
                 "`ts_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
                 "PRIMARY KEY (`id`),\n" +
                 "UNIQUE INDEX `email` (`email`)\n" +

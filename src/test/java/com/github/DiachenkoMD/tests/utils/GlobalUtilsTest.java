@@ -1,9 +1,12 @@
 package com.github.DiachenkoMD.tests.utils;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.github.DiachenkoMD.dto.ExtendedUser;
 import com.github.DiachenkoMD.dto.Roles;
 import com.github.DiachenkoMD.dto.User;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.github.DiachenkoMD.dto.ValidationParameters;
 import com.github.DiachenkoMD.utils.Utils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,6 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 @DisplayName("Global utils")
@@ -164,5 +168,23 @@ public class GlobalUtilsTest {
         public void incorrectCapitalizationTest(){
             assertThrows(IllegalArgumentException.class, () -> Utils.capitalize(null));
         }
+    }
+
+    // TODO: REMOVE ON PRODUCTION
+    @Test
+    @DisplayName("Testing password protection")
+    public void testPasswordProtection(){
+        String myPassword = "helloworld1234";
+        String encrypted = Utils.encrypt(myPassword);
+
+        System.out.println("Encrypted: " + encrypted);
+
+        assertTrue(Utils.encryptedCompare(myPassword, encrypted));
+    }
+
+    @Test
+    @DisplayName("Testing validation on cyrillic")
+    public void testValidation(){
+        assertTrue(Utils.validate("Привет", ValidationParameters.NAME));
     }
 }

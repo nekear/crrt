@@ -1,14 +1,14 @@
 package com.github.DiachenkoMD.dto;
 
 public class User {
-    private Object id;
-    private String email;
-    private String username;
-    private String surname;
-    private String patronymic;
-    private Roles role;
+    protected Object id;
+    protected String email;
+    protected String username;
+    protected String surname;
+    protected String patronymic;
+    protected Roles role;
 
-    private String avatarPath;
+    protected String avatarPath;
 
     public User(Object id, String email, String username, String surname, String patronymic, Roles role, String avatarPath) {
         this.id = id;
