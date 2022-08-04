@@ -28,6 +28,6 @@ public class SignInController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp){
-        new UsersService().login(req, resp);
+        new UsersService().loginUser(req, resp);
     }
 }

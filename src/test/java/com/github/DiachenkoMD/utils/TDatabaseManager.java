@@ -23,7 +23,7 @@ public class TDatabaseManager {
                 "`id` INT(11) NOT NULL AUTO_INCREMENT,\n" +
                 "`email` VARCHAR(100) NOT NULL,\n" +
                 "`password` VARCHAR(255) NOT NULL,\n" +
-                "`username` VARCHAR(255) NULL,\n" +
+                "`firstname` VARCHAR(255) NULL,\n" +
                 "`surname` VARCHAR(255) NULL,\n" +
                 "`patronymic` VARCHAR(255) NULL,\n" +
                 "`avatar_path` VARCHAR(255) NULL DEFAULT NULL,\n" +

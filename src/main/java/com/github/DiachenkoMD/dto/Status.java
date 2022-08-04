@@ -63,6 +63,14 @@ public class Status {
         }
     }
 
+    public StatusText getClean(int index){
+        if(index < data.size()){
+            return data.get(index);
+        }else{
+            return null;
+        }
+    }
+
     /**
      * Allows to get text representations of all statuses specified in the current object
      * @param lang - language to translate into

@@ -1,30 +1,39 @@
 package com.github.DiachenkoMD.dto;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class User {
     protected Object id;
     protected String email;
-    protected String username;
+    protected String firstname;
     protected String surname;
     protected String patronymic;
     protected Roles role;
-
     protected String avatarPath;
+    protected double balance;
 
-    public User(Object id, String email, String username, String surname, String patronymic, Roles role, String avatarPath) {
+    protected String confirmationCode;
+    protected String password;
+
+    public User(Object id, String email, String firstname, String surname, String patronymic, Roles role, String avatarPath, double balance, String confirmationCode, String password) {
         this.id = id;
         this.email = email;
-        this.username = username;
+        this.firstname = firstname;
         this.surname = surname;
         this.patronymic = patronymic;
         this.role = role;
         this.avatarPath = avatarPath;
+        this.balance = balance;
+        this.confirmationCode = confirmationCode;
+        this.password = password;
     }
 
-    public User(String email, String username, String surname, String patronymic) {
-        this(null, email, username, surname, patronymic, Roles.DEFAULT, null);
+    public User(String email, String firstname, String surname, String patronymic) {
+        this(null, email, firstname, surname, patronymic, Roles.DEFAULT, null, 0, null, null);
     }
 
-    public User(){} // for reflective parser
+    public User(){} // for reflective parser and testing
 
     public Object getId() {
         return id;
@@ -42,12 +51,12 @@ public class User {
         this.email = email;
     }
 
-    public String getUsername() {
-        return username;
+    public String getFirstname() {
+        return firstname;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFirstname(String username) {
+        this.firstname = username;
     }
 
     public String getSurname() {
@@ -82,6 +91,30 @@ public class User {
         this.avatarPath = avatarPath;
     }
 
+    public double getBalance() {
+        return balance;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public String getConfirmationCode() {
+        return confirmationCode;
+    }
+
+    public void setConfirmationCode(String confirmationCode) {
+        this.confirmationCode = confirmationCode;
+    }
+
     @Override
     public String toString() {
         return this.id + " -> " + this.email;
@@ -106,4 +139,18 @@ public class User {
         return true;
     }
 
+    public static User getFromRS(ResultSet rs) throws SQLException {
+        return new User(
+                rs.getInt("id"),
+                rs.getString("email"),
+                rs.getString("firstname"),
+                rs.getString("surname"),
+                rs.getString("patronymic"),
+                Roles.byIndex(rs.getInt("role_id")),
+                rs.getString("avatar_path"),
+                rs.getFloat("balance"),
+                rs.getString("conf_code"),
+                rs.getString("password")
+        );
+    }
 }

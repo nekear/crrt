@@ -1,23 +1,30 @@
 package com.github.DiachenkoMD.tests.utils;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
-import com.github.DiachenkoMD.dto.ExtendedUser;
 import com.github.DiachenkoMD.dto.Roles;
 import com.github.DiachenkoMD.dto.User;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import com.github.DiachenkoMD.dto.ValidationParameters;
+import com.github.DiachenkoMD.exceptions.DescriptiveException;
+import com.github.DiachenkoMD.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.utils.Utils;
+import com.github.DiachenkoMD.utils.flow_notifier.FlowNotifier;
+import com.github.DiachenkoMD.utils.flow_notifier.Listener;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
-
+@ExtendWith({MockitoExtension.class})
 @DisplayName("Global utils")
 public class GlobalUtilsTest {
 
@@ -29,12 +36,12 @@ public class GlobalUtilsTest {
         public void testWithPresentOnly(){
             String testingJsonObject = "{\n" +
                     "    \"email\": \"some@gmail.com\",\n" +
-                    "    \"username\": \"user1\"\n" +
+                    "    \"firstname\": \"user1\"\n" +
                     "}";
 
             User expectedUser = new User();
             expectedUser.setEmail("some@gmail.com");
-            expectedUser.setUsername("user1");
+            expectedUser.setFirstname("user1");
 
             assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, User.class), expectedUser));
         }
@@ -44,13 +51,13 @@ public class GlobalUtilsTest {
         public void testWithPresentAndNot(){
             String testingJsonObject = "{\n" +
                     "    \"email\": \"some2@gmail.com\",\n" +
-                    "    \"username\": \"user2\",\n" +
+                    "    \"firstname\": \"user2\",\n" +
                     "    \"notPresentField1\": \"11.11.11\"\n" +
                     "}";
 
             User expectedUser = new User();
             expectedUser.setEmail("some2@gmail.com");
-            expectedUser.setUsername("user2");
+            expectedUser.setFirstname("user2");
 
             assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, User.class), expectedUser));
         }
@@ -66,6 +73,7 @@ public class GlobalUtilsTest {
             assertNull(Utils.flatJsonParser(testingJsonObject, User.class));
         }
     }
+
 
 
     @Nested
@@ -98,8 +106,8 @@ public class GlobalUtilsTest {
                             new User(null, null, null, null)
                     ),
                     Arguments.of(
-                            new User(null, null, null, null, null, Roles.ADMIN, null),
-                            new User(null, null, null, null, null, Roles.ADMIN, null)
+                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null, null),
+                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null, null)
                     ),
                     Arguments.of(
                             new ForComparing(1, 0),
@@ -123,12 +131,12 @@ public class GlobalUtilsTest {
                             new User("martin@gmail.com", null, null, "martevich")
                     ),
                     Arguments.of(
-                            new User("somecryptedid", null, null, null, null, null, null),
+                            new User("somecryptedid", null, null, null, null, null, null, 0, null, null),
                             new User(null, null, null, null)
                     ),
                     Arguments.of(
-                            new User(null, null, null, null, null, Roles.DEFAULT, null),
-                            new User(null, null, null, null, null, Roles.ADMIN, null)
+                            new User(null, null, null, null, null, Roles.DEFAULT, null, 0, null, null),
+                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null, null)
                     ),
                     Arguments.of(
                             new ForComparing(0, 10.0),
@@ -186,5 +194,23 @@ public class GlobalUtilsTest {
     @DisplayName("Testing validation on cyrillic")
     public void testValidation(){
         assertTrue(Utils.validate("Привет", ValidationParameters.NAME));
+    }
+
+    @Captor
+    private ArgumentCaptor<DescriptiveException> argumentCaptor;
+    @Test
+    public void testFlowNotifier(){
+        FlowNotifier fn = new FlowNotifier();
+
+        Listener<DescriptiveException> _listener = mock(Listener.class);
+
+        fn.addListener(DescriptiveException.class, _listener);
+
+
+        fn.omit_e(new DescriptiveException("Fucking validationg failed", ExceptionReason.VALIDATION_ERROR));
+
+        verify(_listener).ping(argumentCaptor.capture());
+
+        assertEquals(argumentCaptor.getValue().getReason(), ExceptionReason.VALIDATION_ERROR);
     }
 }

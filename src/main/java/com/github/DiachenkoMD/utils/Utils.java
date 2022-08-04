@@ -1,14 +1,12 @@
 package com.github.DiachenkoMD.utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import com.github.DiachenkoMD.dto.ExtendedUser;
 import com.github.DiachenkoMD.dto.Roles;
 import com.github.DiachenkoMD.dto.User;
 import com.github.DiachenkoMD.dto.ValidationParameters;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.servlet.http.Cookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -16,7 +14,6 @@ import org.json.JSONObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -232,20 +229,5 @@ public class Utils {
             logger.info("MAIL SUBJECT: " + subject);
             logger.info("MAIL BODY: " + data);
         }
-    }
-
-    public static ExtendedUser formExtendedUser(ResultSet rs) throws SQLException {
-        return new ExtendedUser(
-                rs.getInt("id"),
-                rs.getString("email"),
-                rs.getString("username"),
-                rs.getString("surname"),
-                rs.getString("patronymic"),
-                Roles.byIndex(rs.getInt("role_id")),
-                rs.getString("avatar_path"),
-                rs.getFloat("balance"),
-                rs.getString("conf_code"),
-                rs.getString("password")
-        );
     }
 }
