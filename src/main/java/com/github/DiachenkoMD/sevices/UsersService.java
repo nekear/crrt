@@ -9,6 +9,7 @@ import com.github.DiachenkoMD.exceptions.DescriptiveException;
 import static com.github.DiachenkoMD.utils.Utils.*;
 
 import com.github.DiachenkoMD.exceptions.ExceptionReason;
+import com.github.DiachenkoMD.utils.flow_notifier.FlowNotifier;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,14 +29,19 @@ public class UsersService {
 
     private static final Logger logger = LogManager.getLogger(UsersService.class);
     private final UsersDAO usersDAO;
+    private final FlowNotifier fn;
 
     public UsersService(){
         DAOFactory factory = DAOFactory.getFactory(DBTypes.MYSQL);
         usersDAO = factory.getUsersDAO();
+        this.fn = new FlowNotifier();
+
+        fn.addListener(DescriptiveException.class, e -> logger.error(String.format("Caught an error because of %s", e.getReason()), e));
     }
 
-    public UsersService(UsersDAO usersDAO){
+    public UsersService(UsersDAO usersDAO, FlowNotifier fn){
         this.usersDAO = usersDAO;
+        this.fn = fn;
     }
 
     /**
@@ -49,7 +55,7 @@ public class UsersService {
     public void registerUser(HttpServletRequest req, HttpServletResponse resp) {
         
         logger.debug("Method entered from " + req.getRemoteAddr());
-
+        
         try {
             // Gathering data from parameters
             String email = req.getParameter("email");
@@ -84,23 +90,24 @@ public class UsersService {
             // Registering new user (method returns original user entity + newly created id included)
             User registeredUserEntity = usersDAO.register(registeringUser, encrypt(password));
 
-            if(registeredUserEntity.getId() != null){
-                String confirmationCode = usersDAO.generateConfirmationCode();
+            if(registeredUserEntity == null || registeredUserEntity.getId() == null)
+                throw new DescriptiveException("Error while registering user", ExceptionReason.REGISTRATION_PROCESS_ERROR);
 
-                if(usersDAO.setConfirmationCode(registeringUser.getEmail(), confirmationCode)){
-                    emailNotify(registeringUser, "Account confirmation email from CRRT", "You can confirm your code at http://localhost:8080/crrt_war/confirmation?code="+confirmationCode);
-                }else{
-                    throw new DescriptiveException(new HashMap<>(Map.of("email", email, "code", confirmationCode)), ExceptionReason.CONFIRMATION_CODE_ERROR);
-                }
-            }
+            String confirmationCode = usersDAO.generateConfirmationCode();
+
+            if(!usersDAO.setConfirmationCode(registeringUser.getEmail(), confirmationCode))
+                throw new DescriptiveException(new HashMap<>(Map.of("email", email, "code", confirmationCode)), ExceptionReason.CONFIRMATION_CODE_ERROR);
+
+            emailNotify(registeringUser, "Account confirmation email from CRRT", "You can confirm your code at http://localhost:8080/crrt_war/confirmation?code="+confirmationCode);
 
             req.getSession().setAttribute("login_prg_message", new Status("sign_up.verify_email", true, new HashMap<>(Map.of("email", email)), StatusStates.SUCCESS));
         }catch (DescriptiveException e){
-            logger.error(String.format("Caught an error because of %s", e.getReason()), e);
+            fn.omit_e(e);
 
             // DescriptiveException class has execute() method which accepts execution condition and action to be executed (which is Runnable by its nature)
             e.execute(ExceptionReason.EMAIL_EXISTS, () -> req.getSession().setAttribute("login_prg_message", new Status("sign_up.email_exists", true, e.getArguments(), StatusStates.ERROR)));
             e.execute(ExceptionReason.VALIDATION_ERROR, () -> req.getSession().setAttribute("login_prg_message", new Status("sign.validation_failed", true, StatusStates.ERROR)));
+            e.execute(ExceptionReason.REGISTRATION_PROCESS_ERROR, () -> req.getSession().setAttribute("login_prg_message", new Status("global.unexpectedError", true, StatusStates.ERROR)));
             e.execute(ExceptionReason.CONFIRMATION_CODE_ERROR, () -> {
                 logger.debug("Error setting code {} to {}", e.getArg("code"), e.getArg("email"));
 
@@ -123,7 +130,7 @@ public class UsersService {
             if(code == null)
                 throw new DescriptiveException(ExceptionReason.CONFIRMATION_CODE_EMPTY);
 
-            ExtendedUser user = usersDAO.getUserByConfirmationCode(code);
+            User user = usersDAO.getUserByConfirmationCode(code);
 
             if(user == null)
                 throw new DescriptiveException(ExceptionReason.CONFIRMATION_NO_SUCH_CODE);
@@ -145,7 +152,7 @@ public class UsersService {
         }
     }
 
-    public void login(HttpServletRequest req, HttpServletResponse resp){
+    public void loginUser(HttpServletRequest req, HttpServletResponse resp){
         try{
             String requestData = req.getReader().lines().collect(Collectors.joining());
 
@@ -162,7 +169,7 @@ public class UsersService {
             if(!validate(password, ValidationParameters.PASSWORD))
                 throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
 
-            ExtendedUser user = usersDAO.get(email);
+            User user = usersDAO.get(email);
 
             if(user == null)
                 throw new DescriptiveException("User with such email was not found", ExceptionReason.LOGIN_USER_NOT_FOUND);
@@ -173,7 +180,7 @@ public class UsersService {
             if(!encryptedCompare(password, user.getPassword()))
                 throw new DescriptiveException("Password or email are invalid", ExceptionReason.LOGIN_WRONG_PASSWORD);
 
-            req.getSession().setAttribute("auth", (User) user);
+            req.getSession().setAttribute("auth", user);
 
             resp.setStatus(200);
             resp.getWriter().flush();

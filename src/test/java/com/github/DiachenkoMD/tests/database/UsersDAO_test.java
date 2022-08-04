@@ -2,14 +2,12 @@ package com.github.DiachenkoMD.tests.database;
 
 import com.github.DiachenkoMD.daos.impls.mysql.MysqlUsersDAO;
 import com.github.DiachenkoMD.daos.prototypes.UsersDAO;
-import com.github.DiachenkoMD.dto.ExtendedUser;
 import com.github.DiachenkoMD.dto.User;
 import com.github.DiachenkoMD.extensions.ConnectionParameterResolverExtension;
 import com.github.DiachenkoMD.extensions.DatabaseOperationsExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -84,7 +82,7 @@ public class UsersDAO_test {
             assertNotNull(current);
 
             // Checking for not having credentials set
-            assertNull(current.getUsername());
+            assertNull(current.getFirstname());
             assertNull(current.getSurname());
             assertNull(current.getPatronymic());
         }
@@ -97,15 +95,33 @@ public class UsersDAO_test {
 
         usersDAO.register(newUser, "random_pass");
 
-        ExtendedUser registered = usersDAO.get(newUser.getEmail());
+        User registered = usersDAO.get(newUser.getEmail());
 
         assertNotNull(registered.getId());
+        assertNotNull(registered.getFirstname());
+        assertNotNull(registered.getSurname());
+        assertNotNull(registered.getPatronymic());
+    }
+
+    @Test
+    @DisplayName("getAll")
+    void getAllUsersTest(){
+        assertEquals(usersDAO.getAll().size(), 0);
+
+        User newUser = new User("test@gmail.com", "Firstname", "Surname", "Patronymic");
+        User newUser2 = new User("test2@gmail.com", "Firstname", "Surname", "Patronymic");
+
+        usersDAO.register(newUser, "random_pass");
+        usersDAO.register(newUser2, "random_pass");
+
+        assertEquals(usersDAO.getAll().size(), 2);
     }
     @Test
     @DisplayName("generateConfirmationCode")
     void generateUserCodeTest(){
         assertNotNull(usersDAO.generateConfirmationCode());
     }
+
 
     @Test
     @DisplayName("setConfirmationCode")
@@ -114,36 +130,21 @@ public class UsersDAO_test {
 
         usersDAO.register(newUser, "random_pass");
 
-        ExtendedUser registered = usersDAO.get(newUser.getEmail());
+        User registered = usersDAO.get(newUser.getEmail());
 
         assertNull(registered.getConfirmationCode());
 
-        String generatedCode = usersDAO.generateConfirmationCode();
-
-        assertTrue(usersDAO.setConfirmationCode(registered.getEmail(), generatedCode));
-
-        assertEquals(usersDAO.get(registered.getEmail()).getConfirmationCode(), generatedCode);
-    }
-
-    @Test
-    @DisplayName("wipingConfirmationCode")
-    void wipingConfirmationCodeTest(){
-        User newUser = new User("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
-
-        usersDAO.register(newUser, "random_pass");
-
-        ExtendedUser registered = usersDAO.get(newUser.getEmail());
-
-        assertNull(registered.getConfirmationCode());
-
+        // Setting some random code
         String generatedCode = usersDAO.generateConfirmationCode();
 
         assertTrue(usersDAO.setConfirmationCode(registered.getEmail(), generatedCode));
 
         assertEquals(usersDAO.get(registered.getEmail()).getConfirmationCode(), generatedCode);
 
+        // Wiping code (setting null)
         assertTrue(usersDAO.setConfirmationCode(registered.getEmail(), null));
 
         assertNull(usersDAO.get(registered.getEmail()).getConfirmationCode());
     }
+
 }

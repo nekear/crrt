@@ -1,19 +1,14 @@
 package com.github.DiachenkoMD.daos.impls.mysql;
 
 import com.github.DiachenkoMD.daos.prototypes.UsersDAO;
-import com.github.DiachenkoMD.dto.ExtendedUser;
-import com.github.DiachenkoMD.dto.Roles;
 import com.github.DiachenkoMD.dto.User;
-import com.github.DiachenkoMD.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.UnaryOperator;
 
-import static com.github.DiachenkoMD.utils.Utils.formExtendedUser;
 import static com.github.DiachenkoMD.utils.Utils.generateRandomString;
 
 public class MysqlUsersDAO implements UsersDAO {
@@ -29,13 +24,13 @@ public class MysqlUsersDAO implements UsersDAO {
     public User register(User user, String password) {
         logger.debug("Using: " + con);
         try(
-                PreparedStatement stmt = con.prepareStatement("INSERT INTO tbl_users (email, password, username, surname, patronymic) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement stmt = con.prepareStatement("INSERT INTO tbl_users (email, password, firstname, surname, patronymic) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
         ){
 
             int index = 0;
             stmt.setString(++index, user.getEmail());
             stmt.setString(++index, password);
-            stmt.setString(++index, user.getUsername());
+            stmt.setString(++index, user.getFirstname());
             stmt.setString(++index, user.getSurname());
             stmt.setString(++index, user.getPatronymic());
 
@@ -59,48 +54,17 @@ public class MysqlUsersDAO implements UsersDAO {
             throw new RuntimeException(e);
         }
     }
-
     public List<User> getAll(){
-        return getAll(User.class);
-    }
-    public <T extends User> List<T> getAll(Class<T> parseTo){
        logger.debug("Using: " + con);
         try(
             PreparedStatement stmt = con.prepareStatement("SELECT * FROM tbl_users");
             ResultSet rs = stmt.executeQuery();
         ){
 
-            List<T> foundUsers = new ArrayList<>();
+            List<User> foundUsers = new ArrayList<>();
 
-            if(parseTo == ExtendedUser.class){
-                while(rs.next()){
-                    ExtendedUser extendedUser = new ExtendedUser(
-                            rs.getInt("id"),
-                            rs.getString("email"),
-                            rs.getString("username"),
-                            rs.getString("surname"),
-                            rs.getString("patronymic"),
-                            Roles.byIndex(rs.getInt("role_id")),
-                            rs.getString("avatar_path")
-                    );
-
-                    extendedUser.setBalance(rs.getFloat("balance"));
-                    extendedUser.setConfirmationCode(rs.getString("conf_code"));
-                }
-            }else if(parseTo == User.class){
-                while(rs.next()){
-                    foundUsers.add(
-                            (T) new User(
-                                rs.getInt("id"),
-                                rs.getString("email"),
-                                rs.getString("username"),
-                                rs.getString("surname"),
-                                rs.getString("patronymic"),
-                                Roles.byIndex(rs.getInt("role_id")),
-                                rs.getString("avatar_path")
-                            )
-                    );
-                }
+            while(rs.next()){
+                foundUsers.add(User.getFromRS(rs));
             }
 
             return foundUsers;
@@ -128,15 +92,15 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public ExtendedUser get(String email) {
+    public User get(String email) {
         try(
             PreparedStatement stmt = con.prepareStatement("SELECT * FROM tbl_users WHERE email=?");
         ){
             stmt.setString(1, email);
-            ExtendedUser user = null;
+            User user = null;
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next()){
-                    user = formExtendedUser(rs);
+                    user = User.getFromRS(rs);
                 }
             }
             return user;
@@ -180,15 +144,15 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public ExtendedUser getUserByConfirmationCode(String code) {
-        ExtendedUser user = null;
+    public User getUserByConfirmationCode(String code) {
+        User user = null;
 
         try(PreparedStatement stmt = con.prepareStatement("SELECT * FROM tbl_users WHERE conf_code=?")){
             stmt.setString(1, code);
 
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next())
-                    user = formExtendedUser(rs);
+                    user = User.getFromRS(rs);
             }
 
         }catch (SQLException e){
