@@ -1,23 +1,28 @@
 package com.github.DiachenkoMD.utils;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
  * Provides methods to set up database before tests. <br />
- * For outside use available only {@link #init(Connection) init(Connection)} and {@link #destroy(Connection) destroy(Connection)} methods.
+ * For outside use available only {@link #init(DataSource) init(DataSource)} and {@link #setup() setup()} + {@link #destroy() destroy()} methods.
  */
 public class TDatabaseManager {
-    public static void init(Connection con){
-        initUsersTable(con);
+    private static DataSource ds;
+    public static void init(DataSource ds){
+        TDatabaseManager.ds = ds;
+    }
+    public static void setup(){
+        initUsersTable();
     }
 
-    public static void destroy(Connection con){
-        dropUsersTable(con);
+    public static void destroy(){
+        dropUsersTable();
     }
 
-    private static void initUsersTable(Connection con){
+    private static void initUsersTable(){
         exec(
         "CREATE TABLE IF NOT EXISTS `tbl_users` (\n" +
                 "`id` INT(11) NOT NULL AUTO_INCREMENT,\n" +
@@ -34,21 +39,21 @@ public class TDatabaseManager {
                 "PRIMARY KEY (`id`),\n" +
                 "UNIQUE INDEX `email` (`email`)\n" +
                 ");",
-                con,
                 "initUsersTable"
         );
     }
 
-    private static void dropUsersTable(Connection con){
+    private static void dropUsersTable(){
         exec(
                 "DROP TABLE IF EXISTS tbl_users;",
-                con,
                 "dropUsersTable"
         );
     }
 
-    private static void exec(String query, Connection con, String callerName){
-        try(Statement stmt = con.createStatement()){
+    private static void exec(String query, String callerName){
+        try(
+            Connection con = ds.getConnection();
+            Statement stmt = con.createStatement()){
             stmt.executeUpdate(query);
         }catch(SQLException e){
             throw new IllegalArgumentException(String.format("Exception when executing query from %s...", callerName), e);
