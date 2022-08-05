@@ -1,44 +1,20 @@
 package com.github.DiachenkoMD.extensions;
 
-import com.github.DiachenkoMD.utils.TConnectionManager;
 import com.github.DiachenkoMD.utils.TDatabaseManager;
+import com.github.DiachenkoMD.utils.TDatasourceManager;
 import org.junit.jupiter.api.extension.*;
 
-import java.sql.Connection;
-import java.sql.Savepoint;
-
-public class DatabaseOperationsExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback {
-
-    private Connection connection;
-    private Savepoint savepoint;
+public class DatabaseOperationsExtension implements BeforeAllCallback, BeforeEachCallback {
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
-        Class<?> testClass = extensionContext.getRequiredTestClass();
-        if (testClass.getEnclosingClass() == null) {
-            connection = TConnectionManager.openConnection();
-
-            TDatabaseManager.destroy(connection);
-            TDatabaseManager.init(connection);
-        }
+        TDatabaseManager.init(TDatasourceManager.getDataSource());
     }
 
     @Override
     public void beforeEach(ExtensionContext extensionContext) throws Exception {
-        connection.setAutoCommit(false);
-        savepoint = connection.setSavepoint("extensionSP");
+        TDatabaseManager.destroy();
+        TDatabaseManager.setup();
     }
 
-    @Override
-    public void afterAll(ExtensionContext extensionContext) throws Exception {
-        Class<?> testClass = extensionContext.getRequiredTestClass();
-        if (testClass.getEnclosingClass() == null) {
-            TConnectionManager.closeConnection();
-        }
-    }
-
-    @Override
-    public void afterEach(ExtensionContext extensionContext) throws Exception {
-        connection.rollback(savepoint);
-    }
 }

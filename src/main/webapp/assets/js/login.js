@@ -144,6 +144,7 @@ const app = createApp({
                 .then(function (response) {
                     console.log(response);
                     Notiflix.Notify.success(js_localization.notiflix.login_success);
+                    document.location.href = "http://localhost:8080/crrt_war/profile";
                 })
                 .catch(function (error) {
                     console.log(error);

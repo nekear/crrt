@@ -1,17 +1,16 @@
 package com.github.DiachenkoMD.tests.utils;
 
-import com.github.DiachenkoMD.dto.Roles;
-import com.github.DiachenkoMD.dto.User;
+import com.github.DiachenkoMD.entities.dto.Roles;
+import com.github.DiachenkoMD.entities.dto.User;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.github.DiachenkoMD.dto.ValidationParameters;
-import com.github.DiachenkoMD.exceptions.DescriptiveException;
-import com.github.DiachenkoMD.exceptions.ExceptionReason;
-import com.github.DiachenkoMD.utils.Utils;
-import com.github.DiachenkoMD.utils.flow_notifier.FlowNotifier;
-import com.github.DiachenkoMD.utils.flow_notifier.Listener;
+import com.github.DiachenkoMD.entities.dto.ValidationParameters;
+import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
+import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
+import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.pinger.Listener;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -198,19 +197,4 @@ public class GlobalUtilsTest {
 
     @Captor
     private ArgumentCaptor<DescriptiveException> argumentCaptor;
-    @Test
-    public void testFlowNotifier(){
-        FlowNotifier fn = new FlowNotifier();
-
-        Listener<DescriptiveException> _listener = mock(Listener.class);
-
-        fn.addListener(DescriptiveException.class, _listener);
-
-
-        fn.omit_e(new DescriptiveException("Fucking validationg failed", ExceptionReason.VALIDATION_ERROR));
-
-        verify(_listener).ping(argumentCaptor.capture());
-
-        assertEquals(argumentCaptor.getValue().getReason(), ExceptionReason.VALIDATION_ERROR);
-    }
 }
