@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="com.github.DiachenkoMD.utils.JSLS" %>
+<%@ page import="com.github.DiachenkoMD.web.utils.JSLS" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="crrt" uri="crrt" %>
