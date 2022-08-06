@@ -6,7 +6,6 @@ const validationPatterns = {
     "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
 }
 
-
 const app = createApp({
     data() {
         return {
@@ -125,8 +124,6 @@ const app = createApp({
             }
         },
         login(){
-            console.log(js_localization);
-
             let isEverythingOkay = true;
             const inputs_list = this.input_list;
             Object.keys(inputs_list).forEach(el => {
@@ -141,15 +138,15 @@ const app = createApp({
                     email: this.input_list.email.inputData,
                     password: this.input_list.password.inputData
                 })
-                .then(function (response) {
-                    console.log(response);
-                    Notiflix.Notify.success(js_localization.notiflix.login_success);
-                    document.location.href = "http://localhost:8080/crrt_war/profile";
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    Notiflix.Notify.failure(error.response.data);
-                });
+                    .then(function (response) {
+                        console.log(response);
+                        Notiflix.Notify.success(js_localization.notiflix.login_success);
+                        document.location.href = "http://localhost:8080/crrt_war/profile";
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        Notiflix.Notify.failure(error.response.data);
+                    });
             }
         },
         closeAlert(){

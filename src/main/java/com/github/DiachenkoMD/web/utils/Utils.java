@@ -1,23 +1,23 @@
 package com.github.DiachenkoMD.web.utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.github.DiachenkoMD.entities.dto.Roles;
 import com.github.DiachenkoMD.entities.dto.User;
 import com.github.DiachenkoMD.entities.dto.ValidationParameters;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.Cookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import javax.management.relation.Role;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Utils {
@@ -175,13 +175,13 @@ public class Utils {
      * @param value
      * @return
      */
-    public static String getIfNotEmpty(String value){
+    public static String cleanGetParameter(String value){
         if(value == null)
             return null;
         if(value.isBlank())
             return null;
 
-        return value;
+        return value.trim();
     }
 
     public static String generateRandomString(int bound){
@@ -244,5 +244,25 @@ public class Utils {
             logger.info("MAIL SUBJECT: {}", subject);
             logger.info("MAIL BODY: {}", data);
         }
+    }
+
+    public static Optional<Cookie> getCookieFromArray(String name, Cookie[] cookies){
+        Optional<Cookie[]> cookiesArray = Optional.ofNullable(cookies).filter(item -> item.length > 0);
+
+        return cookiesArray.flatMap(value -> Arrays.stream(value).filter(cookie -> cookie.getName().equalsIgnoreCase(name)).findFirst());
+    }
+
+    public static String getRoleTranslation(Roles role){
+        String trans = null;
+
+        switch (role){
+            case ANY -> trans = "roles.any";
+            case DEFAULT -> trans = "roles.default";
+            case DRIVER -> trans = "roles.driver";
+            case MANAGER -> trans = "roles.manager";
+            case ADMIN -> trans = "roles.admin";
+        }
+
+        return trans;
     }
 }
