@@ -24,6 +24,7 @@ public class EmailConfirmationController extends HttpServlet {
     private UsersService usersService;
     @Override
     public void init(ServletConfig config) throws ServletException {
+        super.init(config);
         usersService = ((UsersService) getServletContext().getAttribute("users_service"));
     }
 

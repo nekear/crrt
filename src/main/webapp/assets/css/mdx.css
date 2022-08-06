@@ -91,7 +91,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background-color: rgb(152, 152, 157);
+  background-color: var(--systemGray_default);
 }
 
 .inline-checkbox {
@@ -195,7 +195,7 @@
   width: 40px;
   height: 22px;
   display: block;
-  background: rgb(28, 28, 30);
+  background: var(--systemGray6_default);
   border-radius: 12px;
   -webkit-transition: background 0.2s ease;
   transition: background 0.2s ease;
@@ -205,9 +205,9 @@
   top: 0;
   left: 0;
   display: block;
-  background: rgb(36, 36, 38);
+  background: var(--systemGray6_accessible);
   border-radius: 50%;
-  border: 1px solid #353538;
+  border: 1px solid var(--borderColor_accessible);
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
 }
@@ -242,9 +242,9 @@
 .mdx-btn {
   /*padding: 12px 18px; */
   outline: none !important;
-  border: 1px solid rgb(125, 122, 255);
+  border: 1px solid var(--systemIndigo_accessible);
   border-radius: 4px;
-  color: rgb(125, 122, 255);
+  color: var(--systemIndigo_accessible);
   -ms-flex-negative: 0;
       flex-shrink: 0;
   font-weight: 500;
@@ -269,7 +269,7 @@
   transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
 }
 .mdx-btn:after {
-  background: rgb(94, 92, 230);
+  background: var(--systemIndigo_default);
   content: "";
   height: 155px;
   left: -75px;
@@ -317,20 +317,20 @@
   background-color: #d84040;
 }
 .mdx-flat-button.button-blue {
-  background-color: rgb(64, 156, 255);
+  background-color: var(--systemBlue_accessible);
 }
 .mdx-flat-button.button-blue:hover {
-  background-color: rgb(10, 132, 255);
+  background-color: var(--systemBlue_default);
 }
 .mdx-flat-button.button-green {
-  background-color: rgb(48, 219, 91);
+  background-color: var(--systemGreen_accessible);
 }
 .mdx-flat-button.button-green:hover {
-  background-color: rgb(48, 209, 88);
+  background-color: var(--systemGreen_default);
 }
 .mdx-flat-button.disabled {
-  color: rgb(174, 174, 178);
-  background-color: rgba(174, 174, 178, 0.26);
+  color: var(--systemGray_accessible);
+  background-color: rgba(var(--a-systemGray_accessible), 0.26);
   pointer-events: none;
   cursor: not-allowed;
   -webkit-user-select: none;
@@ -440,7 +440,7 @@
   position: relative;
 }
 .mdx-fs-modal ~ .modal-backdrop {
-  background-color: rgb(36, 36, 38);
+  background-color: var(--systemGray6_accessible);
   opacity: 1;
   -webkit-animation-name: fadeIn;
           animation-name: fadeIn;
@@ -476,7 +476,7 @@
   -ms-flex-align: center;
   -webkit-box-align: center;
           align-items: center;
-  background: #353538;
+  background: var(--borderColor_accessible);
   border-radius: 50%;
   padding: 0.5rem;
   margin: 0 !important;
@@ -484,7 +484,7 @@
 .mdx-fs-modal [aria-label=Close] i {
   -webkit-transform: scale(1.1);
           transform: scale(1.1);
-  color: rgb(64, 156, 255);
+  color: var(--systemBlue_accessible);
 }
 
 .mdx-divider {
@@ -492,7 +492,7 @@
   height: 1px;
 }
 .mdx-divider.solid {
-  background: #353538;
+  background: var(--borderColor_accessible);
   width: 100%;
 }
 .mdx-divider.transparent:before {
@@ -516,9 +516,9 @@
   height: 14px;
   -webkit-transform: rotate(45deg);
           transform: rotate(45deg);
-  background-color: rgb(36, 36, 38);
-  border-bottom: 1px solid #353538;
-  border-right: 1px solid #353538;
+  background-color: var(--systemGray6_accessible);
+  border-bottom: 1px solid var(--borderColor_accessible);
+  border-right: 1px solid var(--borderColor_accessible);
 }
 
 .mdx-md-button {
@@ -538,76 +538,76 @@
   border-radius: 4px;
 }
 .mdx-md-button.button-blue {
-  color: rgb(64, 156, 255);
+  color: var(--systemBlue_accessible);
 }
 .mdx-md-button.button-blue:hover {
-  background-color: rgba(64, 156, 255, 0.26);
+  background-color: rgba(var(--a-systemBlue_accessible), 0.26);
 }
 .mdx-md-button.button-blue.button-bordered {
-  border: 2px solid rgba(64, 156, 255, 0.26);
+  border: 2px solid rgba(var(--a-systemBlue_accessible), 0.26);
 }
 .mdx-md-button.button-blue.button-filled {
-  background-color: rgba(64, 156, 255, 0.26);
+  background-color: rgba(var(--a-systemBlue_accessible), 0.26);
 }
 .mdx-md-button.button-red {
-  color: rgb(255, 105, 97);
+  color: var(--systemRed_accessible);
 }
 .mdx-md-button.button-red:hover {
-  background-color: rgba(255, 105, 97, 0.26);
+  background-color: rgba(var(--a-systemRed_accessible), 0.26);
 }
 .mdx-md-button.button-red.button-bordered {
-  border: 2px solid rgba(255, 105, 97, 0.26);
+  border: 2px solid rgba(var(--a-systemRed_accessible), 0.26);
 }
 .mdx-md-button.button-red.button-filled {
-  background-color: rgba(255, 105, 97, 0.26);
+  background-color: rgba(var(--a-systemRed_accessible), 0.26);
 }
 .mdx-md-button.button-pink {
-  color: rgb(255, 55, 95);
+  color: var(--systemPink_default);
 }
 .mdx-md-button.button-pink:hover {
-  background-color: rgba(255, 55, 95, 0.26);
+  background-color: rgba(var(--a-systemPink_default), 0.26);
 }
 .mdx-md-button.button-pink.button-bordered {
-  border: 2px solid rgba(255, 55, 95, 0.26);
+  border: 2px solid rgba(var(--a-systemPink_default), 0.26);
 }
 .mdx-md-button.button-pink.button-filled {
-  background-color: rgba(255, 55, 95, 0.26);
+  background-color: rgba(var(--a-systemPink_default), 0.26);
 }
 .mdx-md-button.button-green {
-  color: rgb(48, 219, 91);
+  color: var(--systemGreen_accessible);
 }
 .mdx-md-button.button-green:hover {
-  background-color: rgba(48, 219, 91, 0.26);
+  background-color: rgba(var(--a-systemGreen_accessible), 0.26);
 }
 .mdx-md-button.button-green.button-bordered {
-  border: 2px solid rgba(48, 219, 91, 0.26);
+  border: 2px solid rgba(var(--a-systemGreen_accessible), 0.26);
 }
 .mdx-md-button.button-green.button-filled {
-  background-color: rgba(48, 219, 91, 0.26);
+  background-color: rgba(var(--a-systemGreen_accessible), 0.26);
 }
 .mdx-md-button.button-reversed {
-  color: rgb(174, 174, 178);
+  color: var(--systemGray_accessible);
 }
 .mdx-md-button.button-reversed:hover {
-  background-color: rgba(174, 174, 178, 0.26);
+  background-color: rgba(var(--a-systemGray_accessible), 0.26);
 }
 .mdx-md-button.button-reversed.button-bordered {
-  border: 2px solid rgba(174, 174, 178, 0.26);
+  border: 2px solid rgba(var(--a-systemGray_accessible), 0.26);
 }
 .mdx-md-button.button-reversed.button-filled {
-  background-color: rgba(174, 174, 178, 0.26);
+  background-color: rgba(var(--a-systemGray_accessible), 0.26);
 }
 .mdx-md-button.button-indigo {
-  color: rgb(125, 122, 255);
+  color: var(--systemIndigo_accessible);
 }
 .mdx-md-button.button-indigo:hover {
-  background-color: rgba(125, 122, 255, 0.26);
+  background-color: rgba(var(--a-systemIndigo_accessible), 0.26);
 }
 .mdx-md-button.button-indigo.button-bordered {
-  border: 1px solid rgba(125, 122, 255, 0.26);
+  border: 1px solid rgba(var(--a-systemIndigo_accessible), 0.26);
 }
 .mdx-md-button.button-indigo.button-filled {
-  background-color: rgba(125, 122, 255, 0.26);
+  background-color: rgba(var(--a-systemIndigo_accessible), 0.26);
 }
 .mdx-md-button.button-slide-hover:hover {
   -webkit-transform: translate3d(0, -1px, 0);
@@ -648,16 +648,16 @@
   pointer-events: none;
   cursor: crosshair;
   opacity: 0.6;
-  color: rgb(174, 174, 178);
+  color: var(--systemGray_accessible);
 }
 .mdx-md-button:disabled:hover, .mdx-md-button[disabled]:hover {
-  background-color: rgba(174, 174, 178, 0.26);
+  background-color: rgba(var(--a-systemGray_accessible), 0.26);
 }
 .mdx-md-button:disabled.button-bordered, .mdx-md-button[disabled].button-bordered {
-  border: 2px solid rgba(174, 174, 178, 0.26);
+  border: 2px solid rgba(var(--a-systemGray_accessible), 0.26);
 }
 .mdx-md-button:disabled.button-filled, .mdx-md-button[disabled].button-filled {
-  background-color: rgba(174, 174, 178, 0.26);
+  background-color: rgba(var(--a-systemGray_accessible), 0.26);
 }
 
 .mdx-button {
@@ -756,9 +756,9 @@
   opacity: 0;
 }
 .mdx-radio [type=radio]:checked ~ label {
-  border-color: rgb(94, 92, 230);
+  border-color: var(--systemIndigo_default);
   background-color: rgba(97, 154, 234, 0.16);
-  color: rgb(174, 174, 178);
+  color: var(--systemGray_accessible);
 }
 .mdx-radio [type=radio]:checked ~ label:before {
   will-change: transform, border-width, border-color;
@@ -803,18 +803,18 @@
   height: 62px;
   padding: 0 20px;
   border-radius: 6px;
-  border: 1px solid #353538;
+  border: 1px solid var(--borderColor_accessible);
   background-color: transparent;
   -webkit-transition: all 0.15s ease-in;
   transition: all 0.15s ease-in;
-  color: rgb(152, 152, 157);
+  color: var(--systemGray_default);
 }
 .mdx-radio label:hover {
-  border-color: rgb(125, 122, 255);
+  border-color: var(--systemIndigo_accessible);
   background-color: rgba(97, 154, 234, 0.16);
 }
 .mdx-radio label:hover > span {
-  border-color: rgb(152, 152, 157);
+  border-color: var(--systemGray_default);
 }
 .mdx-radio label:before, .mdx-radio label:after {
   position: absolute;
@@ -845,7 +845,7 @@
   width: 20px;
   height: 20px;
   border-radius: 20px;
-  border: 2px solid #353538;
+  border: 2px solid var(--borderColor_accessible);
   background: none;
 }
 
@@ -932,7 +932,7 @@
   display: none;
   content: attr(data-fill-error-alert);
   margin-top: 10px;
-  color: rgb(255, 55, 95);
+  color: var(--systemPink_default);
   font-size: 14px;
   margin-bottom: 10px;
 }
@@ -968,7 +968,7 @@
   top: 3px;
   left: 2px;
   fill: none;
-  stroke: #353538;
+  stroke: var(--borderColor_accessible);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -985,7 +985,7 @@
   content: "";
   width: 15px;
   height: 100%;
-  background: rgb(125, 122, 255);
+  background: var(--systemIndigo_accessible);
   display: block;
   -webkit-transform: scale(0);
           transform: scale(0);
@@ -997,12 +997,12 @@
   padding-left: 8px;
 }
 .mdx-square-checkbox:hover span:first-child {
-  border-color: rgb(125, 122, 255);
+  border-color: var(--systemIndigo_accessible);
 }
 
 .input-mdx-square-checkbox:checked + .mdx-square-checkbox span:first-child {
-  background: rgb(125, 122, 255);
-  border-color: rgb(125, 122, 255);
+  background: var(--systemIndigo_accessible);
+  border-color: var(--systemIndigo_accessible);
   -webkit-animation: check-wave 0.4s ease;
           animation: check-wave 0.4s ease;
 }
@@ -1094,9 +1094,9 @@
   top: 30px;
   left: 30px;
   border-radius: 2px;
-  border: 1px solid #353538;
+  border: 1px solid var(--borderColor_accessible);
   padding: 5px;
-  background: rgb(28, 28, 30);
+  background: var(--systemGray6_default);
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   min-width: 300px;
@@ -1111,13 +1111,13 @@
   -webkit-transition: 0.15s;
   transition: 0.15s;
   cursor: pointer;
-  color: rgb(174, 174, 178);
+  color: var(--systemGray_accessible);
   border-radius: 6px;
   margin: 5px 0;
-  border: 1px solid #353538;
+  border: 1px solid var(--borderColor_accessible);
 }
 .mdx-modality .modality-body ul li:hover {
-  background: rgb(36, 36, 38);
+  background: var(--systemGray6_accessible);
 }
 
 .mdx-password-wrap {
@@ -1134,7 +1134,7 @@
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
-  color: rgb(152, 152, 157);
+  color: var(--systemGray_default);
   cursor: pointer;
   opacity: 0.7;
   -webkit-transition: 0.15s;
@@ -1170,11 +1170,11 @@
           justify-content: flex-start;
 }
 .mdx-checkbox-wrap .mdx-toggle:before {
-  background-color: rgb(36, 36, 38);
+  background-color: var(--systemGray6_accessible);
 }
 .mdx-checkbox-wrap .hsc-text {
   margin-left: 10px;
-  color: rgb(174, 174, 178);
+  color: var(--systemGray_accessible);
   font-size: 14px;
   opacity: 0.6;
 }
@@ -1185,9 +1185,9 @@
   position: absolute;
   top: 100%;
   left: 0;
-  background: rgb(28, 28, 30);
+  background: var(--systemGray6_accessible);
   padding: 10px;
-  border: 1px solid #3d3d3d;
+  border: 1px solid var(--borderColor_accessible);
   border-radius: 5px;
   z-index: 20;
 }
@@ -1202,7 +1202,7 @@
   left: 0;
 }
 .input-tips [data-valid=false][data-level=high] {
-  color: rgb(255, 100, 130);
+  color: var(--systemPink_default);
 }
 .input-tips [data-valid=false][data-level=high]:before {
   content: "×";
@@ -1210,7 +1210,7 @@
           transform: translate(-50%, -50%) scale(1.6);
 }
 .input-tips [data-valid=false][data-level=medium] {
-  color: rgb(255, 214, 10);
+  color: var(--systemYellow_default);
 }
 .input-tips [data-valid=false][data-level=medium]:before {
   content: "⚠";
@@ -1218,7 +1218,7 @@
           transform: translate(-50%, -50%);
 }
 .input-tips [data-valid=true] {
-  color: rgb(48, 209, 88);
+  color: var(--systemGreen_default);
 }
 .input-tips [data-valid=true]:before {
   content: "✓";
@@ -1227,5 +1227,5 @@
 }
 
 [data-validation-highlight=true] {
-  border-color: rgb(255, 100, 130);
+  border-color: var(--systemPink_accessible);
 }

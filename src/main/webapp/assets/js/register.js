@@ -6,6 +6,7 @@ const validationPatterns = {
     "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
 }
 
+
 const app = createApp({
     data() {
         return {

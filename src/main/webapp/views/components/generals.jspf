@@ -1,0 +1,14 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="l" tagdir="/WEB-INF/tags" %>
+
+<l:resolveLocale />
+
+<c:set var="lang" value="${requestScope.get('endLocale')}" scope="page" />
+
+<fmt:setLocale value="${lang}" />
+<fmt:setBundle basename="langs.i18n"/>
+
+<c:set var="assets" value="${pageContext.request.contextPath}/assets/" scope="page" />
+

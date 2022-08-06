@@ -9,7 +9,6 @@ import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
@@ -50,17 +49,18 @@ public class UsersService {
         logger.debug("Method entered from {}", req.getRemoteAddr());
 
         // Gathering data from parameters
-        String email = req.getParameter(REQ_EMAIL);
-        String firstname = getIfNotEmpty(req.getParameter(REQ_FIRSTNAME));
-        String surname = getIfNotEmpty(req.getParameter(REQ_SURNAME));
-        String patronymic = getIfNotEmpty(req.getParameter(REQ_PATRONYMIC));
-        String password = getIfNotEmpty(req.getParameter(REQ_PASSWORD));
+        String email = cleanGetParameter(req.getParameter(REQ_EMAIL));
+        String firstname = cleanGetParameter(req.getParameter(REQ_FIRSTNAME));
+        String surname = cleanGetParameter(req.getParameter(REQ_SURNAME));
+        String patronymic = cleanGetParameter(req.getParameter(REQ_PATRONYMIC));
+        String password = cleanGetParameter(req.getParameter(REQ_PASSWORD));
 
         logger.debug("Acquired values: {} {} {} {} {}", email ,firstname, surname, patronymic, password);
 
         // Validating data (email and password are always validated and firstname, surname and patronymic validate only if we got them from params)
         if (!validate(email, ValidationParameters.EMAIL))
             throw new DescriptiveException("Email validation failed", ExceptionReason.VALIDATION_ERROR);
+
         if (firstname != null && !validate(firstname, ValidationParameters.NAME))
             throw new DescriptiveException("Username validation failed", ExceptionReason.VALIDATION_ERROR);
         if (surname != null && !validate(surname, ValidationParameters.NAME))

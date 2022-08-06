@@ -1,14 +1,14 @@
 .form-control {
-  background-color: rgb(28, 28, 30);
-  color: rgb(152, 152, 157);
-  border-color: #353538;
+  background-color: var(--systemGray6_default);
+  color: var(--systemGray_default);
+  border-color: var(--borderColor_accessible);
 }
 .form-control:focus {
-  background-color: rgb(28, 28, 30);
+  background-color: var(--systemGray6_default);
 }
 .form-control[disabled] {
   pointer-events: none;
   opacity: 0.5;
-  background-color: rgb(28, 28, 30);
-  border-color: #353538;
+  background-color: var(--systemGray6_default);
+  border-color: var(--borderColor_accessible);
 }

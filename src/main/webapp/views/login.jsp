@@ -4,13 +4,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="crrt" uri="crrt" %>
 
-<c:set var="lang" value="${(sessionScope.get('lang') ? sessionScope.get('lang') : 'en')}" scope="page" />
-
-<fmt:setBundle basename="langs.i18n"/>
-<fmt:setLocale value="${lang}" />
+<%@ include file="components/generals.jspf"%>
 
 <!doctype html>
-<html lang="en">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport"
@@ -19,26 +16,27 @@
 
   <!-- Design libs -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/modules/argon/argon.min.css">
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/modules/notiflix/notiflix-3.2.5.min.css">
+  <link rel="stylesheet" href="${assets}modules/argon/argon.min.css">
+  <link rel="stylesheet" href="${assets}modules/notiflix/notiflix-3.2.5.min.css">
 
   <!--  Custom  -->
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/globals.css">
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/colorize.css">
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/mdx.css">
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sign_rel.css">
+  <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
+  <link rel="stylesheet" href="${assets}css/globals.css">
+  <link rel="stylesheet" href="${assets}css/colorize.css">
+  <link rel="stylesheet" href="${assets}css/mdx.css">
+  <link rel="stylesheet" href="${assets}css/sign_rel.css">
 
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/media.css">
+  <link rel="stylesheet" href="${assets}css/media.css">
   <title>Login | CRRT.</title>
 
   <!--  Jquery  -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
   <!--  Custom  -->
-  <script src="${pageContext.request.contextPath}/assets/js/mdx.js"></script>
-  <script src="${pageContext.request.contextPath}/assets/modules/notiflix/notiflix-3.2.5.min.js"></script>
-  <script src="${pageContext.request.contextPath}/assets/js/global.js"></script>
-  <script src="${pageContext.request.contextPath}/assets/js/login.js" defer></script>
+  <script src="${assets}js/mdx.js"></script>
+  <script src="${assets}modules/notiflix/notiflix-3.2.5.min.js"></script>
+  <script src="${assets}js/global.js"></script>
+  <script src="${assets}js/login.js" defer></script>
 
   <script>
     const js_localization = <%=JSLS.forLoginPage((String) pageContext.getAttribute("lang"))%>;
@@ -48,16 +46,16 @@
 
 <div class="content">
   <div class="spinning-pattern">
-    <img src="${pageContext.request.contextPath}/assets/imgs/patterns/Spinning%20Road%20Pattern.svg" alt="carrent spinning road pattern">
+    <img src="${assets}imgs/patterns/Spinning%20Road%20Pattern.svg" alt="carrent spinning road pattern">
   </div>
   <div class="spinning-pattern">
-    <img src="${pageContext.request.contextPath}/assets/imgs/patterns/Spinning%20Car%20Pattern.svg" alt="carrent spinning car pattern">
+    <img src="${assets}imgs/patterns/Spinning%20Car%20Pattern.svg" alt="carrent spinning car pattern">
   </div>
 
   <div class="pos-wrapper row">
     <div class="sign-phrase-container col-lg-3">
       <div class="logo">
-        <a href="index.html"><img src="${pageContext.request.contextPath}/assets/imgs/CRRT.svg" alt="carrent crrt logo"></a>
+        <a href="index.html"><img src="${assets}imgs/CRRT.svg" alt="carrent crrt logo"></a>
       </div>
       <div class="phrase">
         <h1>98%</h1>
@@ -102,7 +100,7 @@
 <!-- Design libs-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="${pageContext.request.contextPath}/assets/modules/argon/argon.min.js"></script>
+<script src="${assets}modules/argon/argon.min.js"></script>
 <script src="https://unpkg.com/vue@3"></script>
 </body>
 </html>

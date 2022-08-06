@@ -17,7 +17,6 @@ import java.util.ResourceBundle;
 @WebListener
 public class ContextListener implements ServletContextListener {
     private static final Logger logger = LogManager.getLogger(ContextListener.class);
-
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext ctx = sce.getServletContext();

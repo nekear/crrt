@@ -50,7 +50,7 @@
   font-size: 18px;
   font-family: "Montserrat", "Segoe UI", sans-serif;
   font-weight: 400;
-  color: #fff;
+  color: var(--ascentColor);
 }
 .content .pos-wrapper .status-data > div {
   text-align: center;
@@ -59,20 +59,20 @@
   margin-top: 15px;
 }
 .content .pos-wrapper .status-data[data-status=success] svg path[fill="#000"] {
-  fill: rgb(48, 209, 88);
+  fill: var(--systemGreen_default);
 }
 .content .pos-wrapper .status-data[data-status=success] svg path[fill="#001"] {
-  fill: rgba(48, 219, 91, 0.3);
+  fill: rgba(var(--a-systemGreen_accessible), 0.3);
 }
 .content .pos-wrapper .status-data[data-status=success] .status-title {
-  color: rgb(48, 209, 88);
+  color: var(--systemGreen_default);
 }
 .content .pos-wrapper .status-data[data-status=error] svg [fill="#000"] {
-  fill: rgb(255, 69, 58);
+  fill: var(--systemRed_default);
 }
 .content .pos-wrapper .status-data[data-status=error] svg [fill="#001"] {
-  fill: rgba(255, 105, 97, 0.3);
+  fill: rgba(var(--a-systemRed_accessible), 0.3);
 }
 .content .pos-wrapper .status-data[data-status=error] .status-title {
-  color: rgb(255, 105, 97);
+  color: var(--systemRed_accessible);
 }
