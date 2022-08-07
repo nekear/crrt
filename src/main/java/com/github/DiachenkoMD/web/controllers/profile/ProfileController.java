@@ -1,8 +1,6 @@
-package com.github.DiachenkoMD.web.controllers;
+package com.github.DiachenkoMD.web.controllers.profile;
 
 import com.github.DiachenkoMD.web.services.UsersService;
-import com.github.DiachenkoMD.web.utils.Utils;
-import com.github.DiachenkoMD.web.utils.pinger.Pinger;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

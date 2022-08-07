@@ -1,8 +1,8 @@
-package com.github.DiachenkoMD.web.services.daos.factories;
+package com.github.DiachenkoMD.web.daos.factories;
 
 
-import com.github.DiachenkoMD.web.services.daos.DBTypes;
-import com.github.DiachenkoMD.web.services.daos.prototypes.UsersDAO;
+import com.github.DiachenkoMD.web.daos.DBTypes;
+import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;

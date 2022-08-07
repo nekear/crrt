@@ -37,6 +37,8 @@ public class EmailConfirmationController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
             usersService.confirmUserEmail(req, resp);
+
+            req.setAttribute(END_CONFIRMATION_RESPONSE, new Status("email_conf.conf_success", true, StatusStates.SUCCESS));
         }catch (DescriptiveException e){
             e.execute(ExceptionReason.CONFIRMATION_CODE_EMPTY, () -> req.setAttribute(END_CONFIRMATION_RESPONSE, new Status("email_conf.code_empty", true, StatusStates.ERROR)));
             e.execute(ExceptionReason.CONFIRMATION_NO_SUCH_CODE, () -> req.setAttribute(END_CONFIRMATION_RESPONSE, new Status("email_conf.no_such_code", true, StatusStates.ERROR)));

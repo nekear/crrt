@@ -8,4 +8,6 @@
             driverClassName="com.mysql.cj.jdbc.Driver"
             username="root" password=""
     />
+
+    <Manager pathname="SESSIONS.ser" />
 </Context>

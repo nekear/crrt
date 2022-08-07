@@ -1,5 +1,6 @@
 package com.github.DiachenkoMD.web.controllers;
 
+import com.github.DiachenkoMD.entities.Constants;
 import com.github.DiachenkoMD.entities.dto.Status;
 import com.github.DiachenkoMD.entities.dto.StatusStates;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
@@ -16,6 +17,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @WebServlet("/register")
@@ -51,24 +54,23 @@ public class SignUpController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{
-            usersService.registerUser(req, resp);
+            String registeredEmail = usersService.registerUser(req, resp);
+
+            req.getSession().setAttribute(Constants.END_PRG_STATUS, new Status("sign_up.verify_email", true, new HashMap<>(Map.of("email", registeredEmail)), StatusStates.SUCCESS));
         }catch (DescriptiveException e){
             // DescriptiveException class has execute() method which accepts execution condition and action to be executed (which is Runnable by its nature)
-            e.execute(ExceptionReason.EMAIL_EXISTS, () -> req.getSession().setAttribute("login_prg_message", new Status("sign_up.email_exists", true, e.getArguments(), StatusStates.ERROR)));
-            e.execute(ExceptionReason.VALIDATION_ERROR, () -> req.getSession().setAttribute("login_prg_message", new Status("sign.validation_failed", true, StatusStates.ERROR)));
-            e.execute(ExceptionReason.REGISTRATION_PROCESS_ERROR, () -> req.getSession().setAttribute("login_prg_message", new Status("global.unexpectedError", true, StatusStates.ERROR)));
-            e.execute(ExceptionReason.CONFIRMATION_CODE_ERROR, () -> {
-                logger.debug("Error setting code {} to {}", e.getArg("code"), e.getArg("email"));
-
-                req.getSession().setAttribute("login_prg_message", new Status("global.unexpectedError", true, StatusStates.ERROR));
-            });
+            e.execute(ExceptionReason.VALIDATION_ERROR, () -> req.getSession().setAttribute(Constants.END_PRG_STATUS, new Status("sign.validation_failed")));
+            e.execute(ExceptionReason.EMAIL_EXISTS, () -> req.getSession().setAttribute(Constants.END_PRG_STATUS, new Status("sign_up.email_exists")));
+            e.execute(ExceptionReason.REGISTRATION_PROCESS_ERROR, () -> req.getSession().setAttribute(Constants.END_PRG_STATUS, new Status("global.unexpectedError")));
         }catch (Exception e){
             logger.error("Unexpected error", e);
-            req.getSession().setAttribute("login_prg_message", new Status("global.unexpectedError", true, StatusStates.ERROR));
+            req.getSession().setAttribute(Constants.END_PRG_STATUS, new Status("global.unexpectedError"));
         }
 
         try {
             resp.sendRedirect("status");
-        }catch (IOException ignored){}
+        }catch (IOException e){
+            logger.error("Strange redirect to /status error: {}", e.getMessage());
+        }
     }
 }

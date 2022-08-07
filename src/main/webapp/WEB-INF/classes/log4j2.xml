@@ -2,7 +2,7 @@
 <Configuration status="WARN">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d{yyyy.MM.dd HH:mm:ss}] %highlight{[%p]} %C{1}.%M(): %msg%n" charset="windows-1251"/>
+            <PatternLayout pattern="[%d{yyyy.MM.dd HH:mm:ss}] %highlight{[%p]} [%L] %C{1}.%M(): %msg%n" charset="windows-1251"/>
         </Console>
     </Appenders>
 

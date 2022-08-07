@@ -23,6 +23,12 @@ public class StatusText{
      */
     private final HashMap<String, String> substitutes = new HashMap<>();
 
+    public StatusText(String text){
+        this.text = text;
+        this.isTranslation = true;
+        this.state = StatusStates.ERROR;
+    }
+
     public StatusText(String text, boolean isTranslation, HashMap<String, String> substitutes, StatusStates state){
         this.text = text;
         this.isTranslation = isTranslation;

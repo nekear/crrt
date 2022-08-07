@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="java.util.ResourceBundle" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="crrt" uri="crrt" %>
@@ -7,10 +6,6 @@
 
 <%@ include file="components/generals.jspf"%>
 
-<%
-    ResourceBundle i18n = ResourceBundle.getBundle("langs.i18n_"+pageContext.getAttribute("lang"));
-    pageContext.setAttribute("i18n", i18n);
-%>
 
 <!doctype html>
 <html lang="${lang}">
@@ -24,6 +19,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="${assets}modules/argon/argon.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="${assets}modules/notiflix/notiflix-3.2.5.min.css">
+
     <!--  Custom  -->
     <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
@@ -38,8 +35,20 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
     <!--  Custom  -->
+    <script src="${assets}modules/notiflix/notiflix-3.2.5.min.js"></script>
+    <script src="${assets}js/global.js"></script>
     <script src="${assets}js/mdx.js"></script>
     <script src="${assets}js/profile.js" defer></script>
+
+    <script>
+        const incomingUserData = {
+            firstname: "${user.firstname}",
+            surname: "${user.surname}",
+            patronymic: "${user.patronymic}"
+        };
+        const userBalance = ${user.balance};
+        const avatar = "${userAvatarPath}";
+    </script>
 </head>
 <body>
 
@@ -57,15 +66,15 @@
                         <div class="profile-canvas-item">
                             <h5><fmt:message key="page.profile.avatar.title" /></h5>
                             <form action="#" class="avatar-add-photo-form">
-                                <div class="profile-avatar cover-bg-type" style="background-image: url('imgs/car_preview.jpg')">
+                                <div class="profile-avatar cover-bg-type" :style="avatar">
                                 </div>
                                 <div class="profile-avatar-settings">
                                     <div class="pas-buttons">
-                                        <input type="file" style="display: none" class="avatar-add-photo-input" name="avatar">
+                                        <input type="file" style="display: none" class="avatar-add-photo-input" name="avatar" id="avatar-file-input">
                                         <button class="mdx-md-button button-bordered button-blue avatar-add-photo-button">
                                             <fmt:message key="page.profile.avatar.change_button" />
                                         </button>
-                                        <button class="mdx-md-button button-bordered button-reversed delete-avatar-button ml-2"><fmt:message key="page.profile.avatar.delete_button" /></button>
+                                        <div class="mdx-md-button button-bordered button-reversed delete-avatar-button ml-2" @click="deleteAvatar()"><fmt:message key="page.profile.avatar.delete_button" /></div>
                                     </div>
                                     <div class="pas-description">
                                         <fmt:message key="page.profile.avatar.upload_info" />
@@ -117,10 +126,10 @@
                             <h5><fmt:message key="page.profile.balance.title" /></h5>
                         </div>
                         <div class="money-replenishment mb-3">
-                            <input type="number" class="form-control" v-model="moneyReplenishmentNumber">
+                            <input type="number" class="form-control" v-model="balanceReplenishmentNumber">
                         </div>
                         <div>
-                            <button class="mdx-flat-button button-blue" :class="{disabled: moneyReplenishmentNumber <= 0}" @click="replenishMoney()"><fmt:message key="pages.buttons.replenish" /></button>
+                            <button class="mdx-flat-button button-blue" :class="{disabled: balanceReplenishmentNumber <= 0}" @click="replenishBalance()"><fmt:message key="pages.buttons.replenish" /></button>
                         </div>
                     </div>
                 </div>
@@ -131,6 +140,7 @@
 </div>
 <!-- Design libs-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="${assets}modules/argon/argon.min.js"></script>
 <script src="https://unpkg.com/vue@3"></script>
 </body>
