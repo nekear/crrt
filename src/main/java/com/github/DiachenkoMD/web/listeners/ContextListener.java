@@ -1,9 +1,9 @@
 package com.github.DiachenkoMD.web.listeners;
 
 import com.github.DiachenkoMD.web.services.UsersService;
-import com.github.DiachenkoMD.web.services.daos.DBTypes;
-import com.github.DiachenkoMD.web.services.daos.factories.DAOFactory;
-import com.github.DiachenkoMD.web.services.daos.prototypes.UsersDAO;
+import com.github.DiachenkoMD.web.daos.DBTypes;
+import com.github.DiachenkoMD.web.daos.factories.DAOFactory;
+import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.web.utils.pinger.Pinger;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
@@ -17,7 +17,6 @@ import java.util.ResourceBundle;
 @WebListener
 public class ContextListener implements ServletContextListener {
     private static final Logger logger = LogManager.getLogger(ContextListener.class);
-
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext ctx = sce.getServletContext();

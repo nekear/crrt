@@ -1,0 +1,72 @@
+<%@ page import="com.github.DiachenkoMD.web.utils.Utils" %>
+<%@ page import="java.text.DecimalFormat" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%
+    String login = currentUser.getEmail().split("@")[0];
+    pageContext.setAttribute("login", login);
+    pageContext.setAttribute("roleTranslation", Utils.getRoleTranslation(currentUser.getRole()));
+%>
+<div class="navigation">
+    <header>
+        <div class="logo">
+            <svg width="108" height="27" viewBox="0 0 108 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14.048 26.432C12.104 26.432 10.292 26.12 8.612 25.496C6.956 24.848 5.516 23.936 4.292 22.76C3.068 21.584 2.108 20.204 1.412 18.62C0.74 17.036 0.404 15.296 0.404 13.4C0.404 11.504 0.74 9.764 1.412 8.18C2.108 6.596 3.068 5.216 4.292 4.04C5.54 2.864 6.992 1.964 8.648 1.34C10.304 0.691999 12.116 0.368 14.084 0.368C16.268 0.368 18.236 0.752 19.988 1.52C21.764 2.264 23.252 3.368 24.452 4.832L20.708 8.288C19.844 7.304 18.884 6.572 17.828 6.092C16.772 5.588 15.62 5.336 14.372 5.336C13.196 5.336 12.116 5.528 11.132 5.912C10.148 6.296 9.296 6.848 8.576 7.568C7.856 8.288 7.292 9.14 6.884 10.124C6.5 11.108 6.308 12.2 6.308 13.4C6.308 14.6 6.5 15.692 6.884 16.676C7.292 17.66 7.856 18.512 8.576 19.232C9.296 19.952 10.148 20.504 11.132 20.888C12.116 21.272 13.196 21.464 14.372 21.464C15.62 21.464 16.772 21.224 17.828 20.744C18.884 20.24 19.844 19.484 20.708 18.476L24.452 21.932C23.252 23.396 21.764 24.512 19.988 25.28C18.236 26.048 16.256 26.432 14.048 26.432ZM28.3903 26V0.799998H39.2983C41.5543 0.799998 43.4983 1.172 45.1303 1.916C46.7623 2.636 48.0223 3.68 48.9103 5.048C49.7983 6.416 50.2423 8.048 50.2423 9.944C50.2423 11.816 49.7983 13.436 48.9103 14.804C48.0223 16.148 46.7623 17.18 45.1303 17.9C43.4983 18.62 41.5543 18.98 39.2983 18.98H31.6303L34.2223 16.424V26H28.3903ZM44.4103 26L38.1103 16.856H44.3383L50.7103 26H44.4103ZM34.2223 17.072L31.6303 14.336H38.9743C40.7743 14.336 42.1183 13.952 43.0063 13.184C43.8943 12.392 44.3383 11.312 44.3383 9.944C44.3383 8.552 43.8943 7.472 43.0063 6.704C42.1183 5.936 40.7743 5.552 38.9743 5.552H31.6303L34.2223 2.78V17.072ZM54.863 26V0.799998H65.771C68.027 0.799998 69.971 1.172 71.603 1.916C73.235 2.636 74.495 3.68 75.383 5.048C76.271 6.416 76.715 8.048 76.715 9.944C76.715 11.816 76.271 13.436 75.383 14.804C74.495 16.148 73.235 17.18 71.603 17.9C69.971 18.62 68.027 18.98 65.771 18.98H58.103L60.695 16.424V26H54.863ZM70.883 26L64.583 16.856H70.811L77.183 26H70.883ZM60.695 17.072L58.103 14.336H65.447C67.247 14.336 68.591 13.952 69.479 13.184C70.367 12.392 70.811 11.312 70.811 9.944C70.811 8.552 70.367 7.472 69.479 6.704C68.591 5.936 67.247 5.552 65.447 5.552H58.103L60.695 2.78V17.072ZM86.2041 26V5.552H78.1401V0.799998H100.1V5.552H92.0361V26H86.2041ZM103.771 26.288C102.811 26.288 101.983 25.964 101.287 25.316C100.615 24.644 100.279 23.792 100.279 22.76C100.279 21.728 100.615 20.9 101.287 20.276C101.983 19.628 102.811 19.304 103.771 19.304C104.755 19.304 105.583 19.628 106.255 20.276C106.927 20.9 107.263 21.728 107.263 22.76C107.263 23.792 106.927 24.644 106.255 25.316C105.583 25.964 104.755 26.288 103.771 26.288Z" fill="white"/>
+            </svg>
+        </div>
+        <nav>
+            <div class="lang-switcher">
+                <div id="lang-switcher-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                    <img src="${assets}imgs/flags/${lang.equalsIgnoreCase("en") ? 'england' : 'ukraine'}.svg" alt="flag">
+                </div>
+                <ul class="dropdown-menu" aria-labelledby="lang-switcher-dropdown">
+                    <li><a class="dropdown-item" href="?lang=ua">
+                        <img src="${assets}imgs/flags/ukraine.svg" alt="flag">
+                        <span>Українська</span>
+                    </a></li>
+                    <li><a class="dropdown-item" href="?lang=en">
+                        <img src="${assets}imgs/flags/england.svg" alt="flag">
+                        <span>English</span>
+                    </a></li>
+                </ul>
+            </div>
+            <div class="profile-dropdown-wrapper">
+                <div id="profile-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                    <div class="profile-short-info">
+                        <div class="user-mail">
+                            ${login}
+                        </div>
+                        <div class="user-role">
+                            <fmt:message key="${roleTranslation}" />
+                        </div>
+                    </div>
+                    <div class="profile-icon" id="header-profile-avatar" style="background-image:url('${userAvatarPath}')"></div>
+                </div>
+                <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
+                    <li class="balance">
+                        Balance: <span id="balance-amount">${user.balance}</span>
+                    </li>
+                    <li class="link-to-page">
+                        <a class="dropdown-item" href="admin">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 15.9999V7.9999C20.9996 7.64918 20.9071 7.30471 20.7315 7.00106C20.556 6.69742 20.3037 6.44526 20 6.2699L13 2.2699C12.696 2.09437 12.3511 2.00195 12 2.00195C11.6489 2.00195 11.304 2.09437 11 2.2699L4 6.2699C3.69626 6.44526 3.44398 6.69742 3.26846 7.00106C3.09294 7.30471 3.00036 7.64918 3 7.9999V15.9999C3.00036 16.3506 3.09294 16.6951 3.26846 16.9987C3.44398 17.3024 3.69626 17.5545 4 17.7299L11 21.7299C11.304 21.9054 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9054 13 21.7299L20 17.7299C20.3037 17.5545 20.556 17.3024 20.7315 16.9987C20.9071 16.6951 20.9996 16.3506 21 15.9999Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3.26953 6.95996L11.9995 12.01L20.7295 6.95996" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 22.08V12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Admin-panel</span>
+                        </a>
+                    </li>
+                    <li class="link-to-page">
+                        <a class="dropdown-item" href="exit">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 17L21 12L16 7" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 12H9" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span><fmt:message key="pages.buttons.exit.short" /> </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+</div>

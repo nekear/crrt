@@ -1,6 +1,8 @@
 package com.github.DiachenkoMD.entities.dto;
 
-public enum Roles {
+import java.io.Serializable;
+
+public enum Roles implements Serializable {
     ANY(0),
     DEFAULT(1),
     DRIVER(2),

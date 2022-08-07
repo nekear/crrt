@@ -417,20 +417,20 @@
 }
 
 .pagination .page-link {
-  background: rgba(0, 0, 0, 0.8);
-  color: rgb(242, 242, 247);
-  border: 3px solid #ccc;
+  background: rgba(var(--a-ascentColor), 0.8);
+  color: var(--systemGray6_default);
+  border: 3px solid var(--borderColor_accessible);
 }
 .pagination .page-link:not(.active):hover {
-  border-color: rgb(0, 122, 255);
-  color: rgb(0, 122, 255);
+  border-color: var(--systemBlue_default);
+  color: var(--systemBlue_default);
 }
 .pagination .page-link.active {
-  border-color: rgba(0, 0, 0, 0.8);
-  color: rgba(0, 0, 0, 0.8);
-  background-color: rgb(242, 242, 247);
+  border-color: rgba(var(--a-ascentColor), 0.8);
+  color: rgba(var(--a-ascentColor), 0.8);
+  background-color: var(--systemGray6_default);
 }
 .pagination .page-link.active:hover {
-  background-color: rgba(0, 0, 0, 0.8);
-  color: rgb(242, 242, 247);
+  background-color: rgba(var(--a-ascentColor), 0.8);
+  color: var(--systemGray6_default);
 }

@@ -10,7 +10,7 @@ $(function () {
         $(this).find('.dropdown-menu').slideUp(300);
     });
     $(document).on('click',".mdx-dropdown .dropdown-menu li",function () {
-        $(this).parents('.mdx-dropdown').find('span').text($(this).text());
+        $(this).parents('.mdx-dropdown').find('span').html($(this).html());
         $(this).parents('.mdx-dropdown').find('input').attr('value', $(this).data('id'));
     });
     /*End Dropdown Menu*/

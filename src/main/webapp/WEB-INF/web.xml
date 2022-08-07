@@ -16,4 +16,20 @@
             <taglib-location>tlds/crrttags.tld</taglib-location>
         </taglib>
     </jsp-config>
+
+    <context-param>
+        <param-name>defaultLocale</param-name>
+        <param-value>en</param-value>
+    </context-param>
+
+    <!--  General Filter  -->
+    <filter>
+        <filter-name>GeneralFilter</filter-name>
+        <filter-class>com.github.DiachenkoMD.web.filters.GeneralFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>GeneralFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 </web-app>

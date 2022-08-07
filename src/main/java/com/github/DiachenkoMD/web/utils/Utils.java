@@ -1,23 +1,33 @@
 package com.github.DiachenkoMD.web.utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.github.DiachenkoMD.entities.dto.Roles;
 import com.github.DiachenkoMD.entities.dto.User;
 import com.github.DiachenkoMD.entities.dto.ValidationParameters;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Utils {
@@ -150,38 +160,39 @@ public class Utils {
     }
 
     /**
-     * Method for one-way ecnrypting data. Uses salt from app.properties.
+     * Method for one-way encrypting data. Uses salt from app.properties.
      * @param value - value to encrypt
      * @return encrypted string
      */
-    public static String encrypt(String value){
+    public static String encryptPassword(String value){
         String salt = ResourceBundle.getBundle("app").getString("salt");
 
         return new String(BCrypt.withDefaults().hash(6, salt.getBytes(), value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
     }
 
     /**
-     * Uses BCrypt library (check maven dependencies) to encrypt strings (mainly passwords). Salt is taken from app.properties.
+     * Uses BCrypt library (check maven dependencies) to encrypt passwords. Salt is taken from app.properties.
      * @param value
      * @param encrypted
      * @return
      */
-    public static boolean encryptedCompare(String value, String encrypted){
+    public static boolean encryptedPasswordsCompare(String value, String encrypted){
         return BCrypt.verifyer().verify(value.getBytes(StandardCharsets.UTF_8), encrypted.getBytes(StandardCharsets.UTF_8)).verified;
     }
+
 
     /**
      * Simple method for obtaining string (or null) from some source (I use it when getting parameters from query).
      * @param value
      * @return
      */
-    public static String getIfNotEmpty(String value){
+    public static String cleanGetString(String value){
         if(value == null)
             return null;
         if(value.isBlank())
             return null;
 
-        return value;
+        return value.trim();
     }
 
     public static String generateRandomString(int bound){
@@ -245,4 +256,29 @@ public class Utils {
             logger.info("MAIL BODY: {}", data);
         }
     }
+
+    public static Optional<Cookie> getCookieFromArray(String name, Cookie[] cookies){
+        Optional<Cookie[]> cookiesArray = Optional.ofNullable(cookies).filter(item -> item.length > 0);
+
+        return cookiesArray.flatMap(value -> Arrays.stream(value).filter(cookie -> cookie.getName().equalsIgnoreCase(name)).findFirst());
+    }
+
+    public static String getRoleTranslation(Roles role){
+        String trans = null;
+
+        switch (role){
+            case ANY -> trans = "roles.any";
+            case DEFAULT -> trans = "roles.default";
+            case DRIVER -> trans = "roles.driver";
+            case MANAGER -> trans = "roles.manager";
+            case ADMIN -> trans = "roles.admin";
+        }
+
+        return trans;
+    }
+
+    public static String getLang(HttpServletRequest req){
+        return (String) req.getSession().getAttribute("lang");
+    }
+
 }

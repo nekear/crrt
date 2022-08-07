@@ -103,14 +103,14 @@ body {
   position: absolute;
   top: 55%;
   left: -10px;
-  color: #636365;
+  color: var(--borderColor_accessible2);
   -webkit-transform: translateY(-45%);
           transform: translateY(-45%);
   -webkit-transition: 0.25s;
   transition: 0.25s;
 }
 .content .sign-process-container .input-item.highlight_necessity::before {
-  color: rgb(255, 55, 95);
+  color: var(--systemPink_default);
 }
 .content .sign-process-container .input-item + .input-item {
   margin-top: 20px;
@@ -119,7 +119,7 @@ body {
   color: #969696;
 }
 .content .sign-process-container .agree_with_terms_container {
-  color: #fff;
+  color: var(--ascentColor);
 }
 
 @-webkit-keyframes rotation {

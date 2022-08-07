@@ -1,9 +1,11 @@
 package com.github.DiachenkoMD.web.services;
 
 import static com.github.DiachenkoMD.entities.Constants.*;
+
+import com.github.DiachenkoMD.entities.DB_Constants;
 import com.github.DiachenkoMD.entities.dto.*;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
-import com.github.DiachenkoMD.web.services.daos.prototypes.UsersDAO;
+import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 
 import static com.github.DiachenkoMD.web.utils.Utils.*;
@@ -12,13 +14,17 @@ import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class UsersService {
@@ -45,22 +51,23 @@ public class UsersService {
      * @param req HttpServletRequest instance coming from controller
      * @param resp HttpServletResponse instance coming from controller
      */
-    public void registerUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, DBException{
+    public String registerUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, DBException{
         
         logger.debug("Method entered from {}", req.getRemoteAddr());
 
         // Gathering data from parameters
-        String email = req.getParameter(REQ_EMAIL);
-        String firstname = getIfNotEmpty(req.getParameter(REQ_FIRSTNAME));
-        String surname = getIfNotEmpty(req.getParameter(REQ_SURNAME));
-        String patronymic = getIfNotEmpty(req.getParameter(REQ_PATRONYMIC));
-        String password = getIfNotEmpty(req.getParameter(REQ_PASSWORD));
+        String email = cleanGetString(req.getParameter(REQ_EMAIL));
+        String firstname = cleanGetString(req.getParameter(REQ_FIRSTNAME));
+        String surname = cleanGetString(req.getParameter(REQ_SURNAME));
+        String patronymic = cleanGetString(req.getParameter(REQ_PATRONYMIC));
+        String password = cleanGetString(req.getParameter(REQ_PASSWORD));
 
         logger.debug("Acquired values: {} {} {} {} {}", email ,firstname, surname, patronymic, password);
 
         // Validating data (email and password are always validated and firstname, surname and patronymic validate only if we got them from params)
         if (!validate(email, ValidationParameters.EMAIL))
             throw new DescriptiveException("Email validation failed", ExceptionReason.VALIDATION_ERROR);
+
         if (firstname != null && !validate(firstname, ValidationParameters.NAME))
             throw new DescriptiveException("Username validation failed", ExceptionReason.VALIDATION_ERROR);
         if (surname != null && !validate(surname, ValidationParameters.NAME))
@@ -80,20 +87,16 @@ public class UsersService {
             throw new DescriptiveException(new HashMap<>(Map.of("email", email)), ExceptionReason.EMAIL_EXISTS);
 
         // Registering new user (method returns original user entity + newly created id included)
-        User registeredUserEntity = usersDAO.register(registeringUser, encrypt(password));
+        User registeredUserEntity = usersDAO.completeRegister(registeringUser, encryptPassword(password));
 
         if(registeredUserEntity == null || registeredUserEntity.getId() == null)
             throw new DescriptiveException("Error while registering user", ExceptionReason.REGISTRATION_PROCESS_ERROR);
 
-        String confirmationCode = usersDAO.generateConfirmationCode();
-
-        if(!usersDAO.setConfirmationCode(registeringUser.getEmail(), confirmationCode))
-            throw new DescriptiveException(new HashMap<>(Map.of("email", email, "code", confirmationCode)), ExceptionReason.CONFIRMATION_CODE_ERROR);
+        String confirmationCode = registeredUserEntity.getConfirmationCode();
 
         emailNotify(registeringUser, "Account confirmation email from CRRT", "You can confirm your code at http://localhost:8080/crrt_war/confirmation?code="+confirmationCode);
 
-        req.getSession().setAttribute("login_prg_message", new Status("sign_up.verify_email", true, new HashMap<>(Map.of("email", email)), StatusStates.SUCCESS));
-
+        return email;
     }
 
     /**
@@ -113,10 +116,8 @@ public class UsersService {
         if(user == null)
             throw new DescriptiveException(ExceptionReason.CONFIRMATION_NO_SUCH_CODE);
 
-        if(!usersDAO.setConfirmationCode(user.getEmail(), null))
+        if(!usersDAO.setConfirmationCode(user.getCleanId().orElse(-1), null))
             throw new DescriptiveException(ExceptionReason.CONFIRMATION_PROCESS_ERROR);
-
-        req.setAttribute(END_CONFIRMATION_RESPONSE, new Status("email_conf.conf_success", true, StatusStates.SUCCESS));
     }
 
     /**
@@ -125,7 +126,7 @@ public class UsersService {
      * @param req HttpServletRequest instance coming from controller
      * @param resp HttpServletResponse instance coming from controller
      */
-    public void loginUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException {
+    public User loginUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException {
 
         String requestData = req.getReader().lines().collect(Collectors.joining());
 
@@ -150,13 +151,175 @@ public class UsersService {
         if(user.getConfirmationCode() != null)
             throw new DescriptiveException("This account was not confirmed by email", ExceptionReason.LOGIN_NOT_CONFIRMED);
 
-        if(!encryptedCompare(password, user.getPassword()))
+        String current_password = usersDAO.getPassword(user.getCleanId().get());
+
+        if(!encryptedPasswordsCompare(password, current_password))
             throw new DescriptiveException("Password or email are invalid", ExceptionReason.LOGIN_WRONG_PASSWORD);
 
-        user.setPassword(null); // removing password from session entity
+        return user;
+    }
 
-        req.getSession().setAttribute(SESSION_AUTH, user);
+    public User updateData(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
+        String incomingJson = req.getReader().lines().collect(Collectors.joining("\n"));
 
-        resp.setStatus(200);
+        JSONObject json = new JSONObject(incomingJson);
+
+        String firstname = json.has(REQ_FIRSTNAME) ? cleanGetString(json.getString(REQ_FIRSTNAME)) : null;
+        String surname = json.has(REQ_SURNAME) ? cleanGetString(json.getString(REQ_SURNAME)) : null;
+        String patronymic = json.has(REQ_PATRONYMIC) ? cleanGetString(json.getString(REQ_PATRONYMIC)) : null;
+
+        HashMap<String, String> resultFieldsToUpdate = new HashMap<>();
+
+        logger.debug("Acquired values: {} {} {}", firstname, surname, patronymic);
+
+        if(firstname != null){
+            if(!validate(firstname, ValidationParameters.NAME))
+                throw new DescriptiveException("Firstname validation failed", ExceptionReason.VALIDATION_ERROR);
+            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_FIRSTNAME, firstname);
+        }
+
+        if(surname != null){
+            if(!validate(surname, ValidationParameters.NAME))
+                throw new DescriptiveException("Surname validation failed", ExceptionReason.VALIDATION_ERROR);
+            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_SURNAME, surname);
+        }
+
+        if(patronymic != null){
+            if(!validate(patronymic, ValidationParameters.NAME))
+                throw new DescriptiveException("Patronymic validation failed", ExceptionReason.VALIDATION_ERROR);
+            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_PATRONYMIC, patronymic);
+        }
+
+        if(resultFieldsToUpdate.size() == 0)
+            throw new DescriptiveException(ExceptionReason.VALIDATION_ERROR);
+
+        logger.debug("Going to update via HashMap: {}", resultFieldsToUpdate);
+
+        User current = (User) req.getSession().getAttribute("auth");
+
+        if(!usersDAO.updateUsersData(current.getCleanId().orElse(-1), resultFieldsToUpdate))
+            throw new DescriptiveException(ExceptionReason.UUD_FAILED_TO_UPDATE);
+
+        return usersDAO.get(current.getEmail());
+    }
+
+    public void updatePassword(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
+        String incomingJson = req.getReader().lines().collect(Collectors.joining("\n"));
+
+        JSONObject json = new JSONObject(incomingJson);
+
+        String oldPassword =  cleanGetString(json.getString("old_password"));
+        String newPassword =  cleanGetString(json.getString("new_password"));
+
+        logger.debug("Acquired passwords: {} and {}", oldPassword, newPassword);
+
+        if(!validate(newPassword, ValidationParameters.PASSWORD))
+            throw new DescriptiveException("New password validation fail", ExceptionReason.VALIDATION_ERROR);
+
+        User current = (User) req.getSession().getAttribute("auth");
+
+        Integer user_id = current.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
+
+        String currentPassword = usersDAO.getPassword(user_id);
+
+        if(!encryptedPasswordsCompare(oldPassword, currentPassword))
+            throw new DescriptiveException("Old password and current one are not the same", ExceptionReason.UUD_PASSWORDS_DONT_MATCH);
+
+        if(!usersDAO.setPassword(user_id, encryptPassword(newPassword)))
+            throw new DescriptiveException("Zero rows returned from updating password in db", ExceptionReason.DB_ACTION_ERROR);
+    }
+
+    public double replenishBalance(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
+        String incomingJson = req.getReader().lines().collect(Collectors.joining());
+
+        JSONObject json = new JSONObject(incomingJson);
+
+        double requestedAmount = json.getDouble("amount");
+
+        logger.debug("Acquired amount {}", requestedAmount);
+
+        if(requestedAmount <= 0)
+            throw new DescriptiveException("Amount is less or equals 0", ExceptionReason.VALIDATION_ERROR);
+
+        User current = (User) req.getSession().getAttribute("auth");
+
+        Integer user_id = current.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
+
+        double currentBalance = usersDAO.getBalance(user_id);
+
+        double newBalance = currentBalance + requestedAmount;
+
+        if(!usersDAO.setBalance(user_id, newBalance))
+            throw new DescriptiveException("Zero rows were updated (unable to update balance)", ExceptionReason.DB_ACTION_ERROR);
+
+        current.setBalance(newBalance);
+
+        return newBalance;
+    }
+
+    public String uploadAvatar(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, DBException, DescriptiveException{
+        Part filePart = req.getPart("avatar");
+
+        if(req.getParts().size() > 1)
+            throw new DescriptiveException("You can upload only one file as an avatar!", ExceptionReason.TOO_MANY_FILES);
+
+        if(filePart.getSize() > 1024 * 1024 * 2) {
+            throw new DescriptiveException("File size is too big!", ExceptionReason.TOO_BIG_FILE_SIZE);
+        }
+
+        if(!filePart.getSubmittedFileName().endsWith(".jpg") && !filePart.getSubmittedFileName().endsWith(".png"))
+            throw new DescriptiveException("File should be .jpg or .png", ExceptionReason.BAD_FILE_EXTENSION);
+
+        String realPath = req.getServletContext().getRealPath(AVATAR_UPLOAD_DIR);
+
+        User currentUser = (User) req.getSession().getAttribute("auth");
+
+        Integer user_id = currentUser.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
+
+        Optional<String> current_avatar = usersDAO.getAvatar(user_id);
+
+        if(current_avatar.isPresent()) {
+            Path avatarFilePath = Path.of(realPath, current_avatar.get());
+            Files.delete(avatarFilePath);
+            logger.debug("Deleting avatar with name [{}] from [{}]", current_avatar.get(), avatarFilePath);
+        }
+
+        String fileName = String.format("%s%s",System.currentTimeMillis(), random.nextInt(100000) + filePart.getSubmittedFileName());
+
+        filePart.write(realPath + "/" + fileName);
+
+        logger.debug("Uploading avatar with name [{}] to [{}]", fileName, realPath);
+
+        if(!usersDAO.setAvatar(currentUser.getCleanId().orElse(-1), fileName))
+            throw new DescriptiveException("Zero rows were updated while setting avatar in db", ExceptionReason.DB_ACTION_ERROR);
+
+
+        currentUser.setAvatar(fileName);
+
+        return fileName;
+
+    }
+
+    public String deleteAvatar(HttpServletRequest req, HttpServletResponse resp) throws DBException, DescriptiveException, IOException{
+        String realPath = req.getServletContext().getRealPath("/uploads/avatars");
+
+        User currentUser = (User) req.getSession().getAttribute("auth");
+
+        Integer user_id = currentUser.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
+
+        Optional<String> current_avatar = usersDAO.getAvatar(user_id);
+
+        if(current_avatar.isPresent()) {
+            Path avatarFilePath = Path.of(realPath, current_avatar.get());
+            Files.delete(avatarFilePath);
+            logger.debug("Deleting avatar with name [{}] from [{}]", current_avatar.get(), avatarFilePath);
+
+            if(!usersDAO.setAvatar(currentUser.getCleanId().orElse(-1), null))
+                throw new DescriptiveException("Zero rows were updated while setting avatar in db", ExceptionReason.DB_ACTION_ERROR);
+
+            currentUser.setAvatar(null);
+        }
+
+        return currentUser.idenAvatar(realPath);
     }
 }

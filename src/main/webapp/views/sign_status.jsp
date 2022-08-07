@@ -4,10 +4,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="crrt" uri="crrt" %>
 
-<c:set var="lang" value="en"/>
-
-<fmt:setBundle basename="langs.i18n"/>
-<fmt:setLocale value="${lang}" />
+<%@ include file="components/generals.jspf"%>
 
 <!doctype html>
 <html lang="${lang}">
@@ -19,29 +16,29 @@
 
     <!-- Design libs -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/modules/argon/argon.min.css">
+    <link rel="stylesheet" href="${assets}modules/argon/argon.min.css">
 
     <!--  Custom  -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/globals.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/colorize.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/mdx.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/status_rel.css">
+    <link rel="stylesheet" href="${assets}css/globals.css">
+    <link rel="stylesheet" href="${assets}css/colorize.css">
+    <link rel="stylesheet" href="${assets}css/mdx.css">
+    <link rel="stylesheet" href="${assets}css/status_rel.css">
 
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/media.css">
+    <link rel="stylesheet" href="${assets}css/media.css">
     <title>Sign Status | CRRT.</title>
 
     <!--  Jquery  -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
     <!--  Custom  -->
-    <script src="${pageContext.request.contextPath}/assets/js/mdx.js"></script>
+    <script src="${assets}js/mdx.js"></script>
 </head>
 <body>
 
 <div class="content">
     <div class="pos-wrapper">
         <div class="logo">
-            <a href="index.html"><img src="${pageContext.request.contextPath}/assets/imgs/CRRT.svg" alt="carrent crrt logo"></a>
+            <a href="index.html"><img src="${assets}imgs/CRRT.svg" alt="carrent crrt logo"></a>
         </div>
         <c:set var="status_type" value="${sessionScope.get('login_prg_message').getState(0)}" scope="page" />
         <div class="status-data" data-status="${status_type.toString().toLowerCase()}">
@@ -61,6 +58,6 @@
 
 <!-- Design libs-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="${pageContext.request.contextPath}/assets/modules/argon/argon.min.js"></script>
+<script src="${assets}modules/argon/argon.min.js"></script>
 </body>
 </html>
