@@ -1,7 +1,7 @@
-package com.github.DiachenkoMD.web.services.daos.factories;
+package com.github.DiachenkoMD.web.daos.factories;
 
-import com.github.DiachenkoMD.web.services.daos.impls.mysql.MysqlUsersDAO;
-import com.github.DiachenkoMD.web.services.daos.prototypes.UsersDAO;
+import com.github.DiachenkoMD.web.daos.impls.mysql.MysqlUsersDAO;
+import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 
 import javax.sql.DataSource;
 

@@ -3,14 +3,11 @@ package com.github.DiachenkoMD.tests.utils;
 import com.github.DiachenkoMD.entities.dto.Roles;
 import com.github.DiachenkoMD.entities.dto.User;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 import com.github.DiachenkoMD.entities.dto.ValidationParameters;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
-import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
+import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.github.DiachenkoMD.web.utils.Utils;
-import com.github.DiachenkoMD.web.utils.pinger.Listener;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -105,8 +102,8 @@ public class GlobalUtilsTest {
                             new User(null, null, null, null)
                     ),
                     Arguments.of(
-                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null, null),
-                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null, null)
+                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null),
+                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null)
                     ),
                     Arguments.of(
                             new ForComparing(1, 0),
@@ -130,12 +127,12 @@ public class GlobalUtilsTest {
                             new User("martin@gmail.com", null, null, "martevich")
                     ),
                     Arguments.of(
-                            new User("somecryptedid", null, null, null, null, null, null, 0, null, null),
+                            new User("somecryptedid", null, null, null, null, null, null, 0, null),
                             new User(null, null, null, null)
                     ),
                     Arguments.of(
-                            new User(null, null, null, null, null, Roles.DEFAULT, null, 0, null, null),
-                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null, null)
+                            new User(null, null, null, null, null, Roles.DEFAULT, null, 0, null),
+                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null)
                     ),
                     Arguments.of(
                             new ForComparing(0, 10.0),
@@ -182,11 +179,11 @@ public class GlobalUtilsTest {
     @DisplayName("Testing password protection")
     public void testPasswordProtection(){
         String myPassword = "helloworld1234";
-        String encrypted = Utils.encrypt(myPassword);
+        String encrypted = Utils.encryptPassword(myPassword);
 
         System.out.println("Encrypted: " + encrypted);
 
-        assertTrue(Utils.encryptedCompare(myPassword, encrypted));
+        assertTrue(Utils.encryptedPasswordsCompare(myPassword, encrypted));
     }
 
     @Test
@@ -197,4 +194,35 @@ public class GlobalUtilsTest {
 
     @Captor
     private ArgumentCaptor<DescriptiveException> argumentCaptor;
+
+    @Test
+    public void testGenerateKey() throws Exception {
+        String input = "1";
+        String cipherText = CryptoStore.encrypt(input);
+        String plainText = CryptoStore.decrypt(cipherText);
+
+        System.out.println(cipherText);
+        System.out.println(plainText);
+        assertEquals(input, plainText);
+    }
+
+    @Test
+    public void testUserEncryptDecrypt() throws Exception {
+        User user = new User();
+        user.setId(1);
+
+        user.encrypt();
+
+        System.out.println(user);
+
+        String encryptedId = CryptoStore.encrypt("1");
+
+        assertEquals(user.getId().toString(), encryptedId);
+
+        user.decrypt();
+
+        System.out.println(user);
+
+        assertEquals(user.getId().toString(), CryptoStore.decrypt(encryptedId));
+    }
 }

@@ -2,6 +2,7 @@ package com.github.DiachenkoMD.web.controllers;
 
 import com.github.DiachenkoMD.entities.dto.StatusStates;
 import com.github.DiachenkoMD.entities.dto.StatusText;
+import com.github.DiachenkoMD.entities.dto.User;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
@@ -17,6 +18,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
+import static com.github.DiachenkoMD.web.utils.Utils.getLang;
 
 @WebServlet("/login")
 public class SignInController extends HttpServlet {
@@ -52,7 +56,11 @@ public class SignInController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp){
         try {
-            usersService.loginUser(req, resp);
+            User logged_in = usersService.loginUser(req, resp);
+
+            req.getSession().setAttribute(SESSION_AUTH, logged_in);
+
+            resp.setStatus(200);
         }catch (Exception e) { // including DescriptiveException
             AtomicReference<String> exceptionToClient = new AtomicReference<>("");
 
@@ -62,10 +70,10 @@ public class SignInController extends HttpServlet {
                 descExc.execute(ExceptionReason.LOGIN_USER_NOT_FOUND, () -> exceptionToClient.set(new StatusText("login.incorrect_data", true, StatusStates.ERROR).convert("en")));
                 descExc.execute(ExceptionReason.LOGIN_NOT_CONFIRMED, () -> exceptionToClient.set(new StatusText("login.account_not_confirmed", true, StatusStates.ERROR).convert("en")));
                 descExc.execute(ExceptionReason.LOGIN_WRONG_PASSWORD, () -> exceptionToClient.set(new StatusText("login.incorrect_data", true, StatusStates.ERROR).convert("en")));
-
-            } else {
-                exceptionToClient.set(new StatusText("global.unexpectedError", true, StatusStates.ERROR).convert("en"));
             }
+
+            if(exceptionToClient.get() == null)
+                exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
             try {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

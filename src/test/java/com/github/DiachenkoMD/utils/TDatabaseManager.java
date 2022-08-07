@@ -31,7 +31,7 @@ public class TDatabaseManager {
                 "`firstname` VARCHAR(255) NULL,\n" +
                 "`surname` VARCHAR(255) NULL,\n" +
                 "`patronymic` VARCHAR(255) NULL,\n" +
-                "`avatar_path` VARCHAR(255) NULL DEFAULT NULL,\n" +
+                "`avatar` VARCHAR(255) NULL DEFAULT NULL,\n" +
                 "`balance` MEDIUMINT(9) NOT NULL DEFAULT '0',\n" +
                 "`role_id` TINYINT(4) NOT NULL DEFAULT '1',\n" +
                 "`conf_code` TINYTEXT NULL,\n"+

@@ -522,6 +522,7 @@
 }
 
 .mdx-md-button {
+  display: inline-block;
   position: relative;
   cursor: pointer;
   min-height: 36px;

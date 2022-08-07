@@ -8,15 +8,25 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import javax.management.relation.Role;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -150,32 +160,33 @@ public class Utils {
     }
 
     /**
-     * Method for one-way ecnrypting data. Uses salt from app.properties.
+     * Method for one-way encrypting data. Uses salt from app.properties.
      * @param value - value to encrypt
      * @return encrypted string
      */
-    public static String encrypt(String value){
+    public static String encryptPassword(String value){
         String salt = ResourceBundle.getBundle("app").getString("salt");
 
         return new String(BCrypt.withDefaults().hash(6, salt.getBytes(), value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
     }
 
     /**
-     * Uses BCrypt library (check maven dependencies) to encrypt strings (mainly passwords). Salt is taken from app.properties.
+     * Uses BCrypt library (check maven dependencies) to encrypt passwords. Salt is taken from app.properties.
      * @param value
      * @param encrypted
      * @return
      */
-    public static boolean encryptedCompare(String value, String encrypted){
+    public static boolean encryptedPasswordsCompare(String value, String encrypted){
         return BCrypt.verifyer().verify(value.getBytes(StandardCharsets.UTF_8), encrypted.getBytes(StandardCharsets.UTF_8)).verified;
     }
+
 
     /**
      * Simple method for obtaining string (or null) from some source (I use it when getting parameters from query).
      * @param value
      * @return
      */
-    public static String cleanGetParameter(String value){
+    public static String cleanGetString(String value){
         if(value == null)
             return null;
         if(value.isBlank())
@@ -265,4 +276,9 @@ public class Utils {
 
         return trans;
     }
+
+    public static String getLang(HttpServletRequest req){
+        return (String) req.getSession().getAttribute("lang");
+    }
+
 }
