@@ -1,9 +1,9 @@
 package com.github.DiachenkoMD.web.utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import com.github.DiachenkoMD.entities.dto.Roles;
+import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.entities.dto.User;
-import com.github.DiachenkoMD.entities.dto.ValidationParameters;
+import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -13,20 +13,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 

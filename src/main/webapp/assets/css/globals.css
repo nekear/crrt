@@ -409,6 +409,20 @@ footer .right-content .copy-item .content:hover .text {
 .status-chip[data-status-code="3"]:hover {
   background: rgba(var(--a-systemBlue_accessible), 0.2);
 }
+.status-chip[data-status-code="4"] {
+  background: rgba(var(--a-systemOrange_accessible), 0.1);
+  color: var(--systemOrange_accessible);
+}
+.status-chip[data-status-code="4"]:hover {
+  background: rgba(var(--a-systemOrange_accessible), 0.2);
+}
+.status-chip[data-status-code="5"] {
+  background: rgba(var(--a-systemPink_accessible), 0.1);
+  color: var(--systemPink_accessible);
+}
+.status-chip[data-status-code="5"]:hover {
+  background: rgba(var(--a-systemPink_accessible), 0.2);
+}
 
 .modal-content {
   background-color: var(--systemGray6_accessible);
@@ -426,4 +440,54 @@ footer .right-content .copy-item .content:hover .text {
 
 .modal-header button.close i {
   color: var(--systemPink_default) !important;
+}
+
+.mc-part-title {
+  color: var(--systemGray_default);
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.mc-item {
+  margin-bottom: 15px;
+}
+
+.loader {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.pos-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: flex;
+  -ms-flex-direction: row;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+          flex-direction: row;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+          justify-content: center;
+  -ms-flex-line-pack: center;
+  align-content: center;
+  -ms-flex-align: center;
+  -webkit-box-align: center;
+          align-items: center;
+}
+
+.line-scale-pulse-out-rapid > div {
+  background: var(--systemGreen_default);
 }

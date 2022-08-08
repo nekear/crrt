@@ -4,6 +4,7 @@ import static com.github.DiachenkoMD.entities.Constants.*;
 
 import com.github.DiachenkoMD.entities.DB_Constants;
 import com.github.DiachenkoMD.entities.dto.*;
+import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
