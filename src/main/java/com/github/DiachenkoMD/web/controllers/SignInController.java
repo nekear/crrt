@@ -1,6 +1,6 @@
 package com.github.DiachenkoMD.web.controllers;
 
-import com.github.DiachenkoMD.entities.dto.StatusStates;
+import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.dto.User;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;

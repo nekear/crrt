@@ -1,11 +1,10 @@
 package com.github.DiachenkoMD.web.controllers;
 
 import com.github.DiachenkoMD.entities.dto.Status;
-import com.github.DiachenkoMD.entities.dto.StatusStates;
+import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
-import com.github.DiachenkoMD.web.utils.pinger.Pinger;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

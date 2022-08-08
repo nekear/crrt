@@ -1,0 +1,12 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
+<div class="loader">
+  <div class="pos-wrap">
+    <div class="line-scale-pulse-out-rapid">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
+</div>

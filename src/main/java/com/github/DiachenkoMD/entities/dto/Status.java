@@ -1,5 +1,6 @@
 package com.github.DiachenkoMD.entities.dto;
 
+import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.web.services.UsersService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

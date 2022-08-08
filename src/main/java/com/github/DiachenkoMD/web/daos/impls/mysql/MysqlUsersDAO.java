@@ -32,7 +32,7 @@ public class MysqlUsersDAO implements UsersDAO {
             User user = null;
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next()){
-                    user = User.getFromRS(rs);
+                    user = User.of(rs);
                 }
             }
             return user;
@@ -51,7 +51,7 @@ public class MysqlUsersDAO implements UsersDAO {
             List<User> foundUsers = new ArrayList<>();
 
             while(rs.next()){
-                foundUsers.add(User.getFromRS(rs));
+                foundUsers.add(User.of(rs));
             }
 
             return foundUsers;
@@ -219,7 +219,7 @@ public class MysqlUsersDAO implements UsersDAO {
 
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next())
-                    user = User.getFromRS(rs);
+                    user = User.of(rs);
             }
 
         }catch (SQLException e){

@@ -1,7 +1,6 @@
 package com.github.DiachenkoMD.web.controllers.profile;
 
-import com.github.DiachenkoMD.entities.dto.Status;
-import com.github.DiachenkoMD.entities.dto.StatusStates;
+import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.dto.User;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
@@ -18,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
 

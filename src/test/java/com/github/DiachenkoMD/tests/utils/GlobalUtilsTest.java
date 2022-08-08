@@ -1,13 +1,17 @@
 package com.github.DiachenkoMD.tests.utils;
 
-import com.github.DiachenkoMD.entities.dto.Roles;
+import com.github.DiachenkoMD.entities.dto.Car;
+import com.github.DiachenkoMD.entities.enums.CarSegments;
+import com.github.DiachenkoMD.entities.enums.Cities;
+import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.entities.dto.User;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.github.DiachenkoMD.entities.dto.ValidationParameters;
+import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.github.DiachenkoMD.web.utils.Utils;
+import com.google.gson.Gson;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -211,9 +215,9 @@ public class GlobalUtilsTest {
         User user = new User();
         user.setId(1);
 
-        user.encrypt();
+        System.out.println("--> " + user.encrypt());
 
-        System.out.println(user);
+        System.out.println("User:" + user);
 
         String encryptedId = CryptoStore.encrypt("1");
 
@@ -224,5 +228,27 @@ public class GlobalUtilsTest {
         System.out.println(user);
 
         assertEquals(user.getId().toString(), CryptoStore.decrypt(encryptedId));
+    }
+    @Test
+    public void testSegments(){
+        System.out.println(CarSegments.D_SEGMENT);
+    }
+
+    @Test
+    public void testAdapters(){
+        Car car = new Car();
+
+        car.setId("1");
+        car.setModel("Mercedes");
+        car.setBrand("G117");
+        car.setSegment(CarSegments.D_SEGMENT);
+        car.setCity(Cities.LVIV);
+        car.setPrice(3000d);
+
+        String jsoned = new Gson().toJson(car);
+
+        System.out.println(jsoned);
+
+        System.out.println(new Gson().fromJson(jsoned, Car.class));
     }
 }

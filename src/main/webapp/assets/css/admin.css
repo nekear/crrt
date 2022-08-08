@@ -1,0 +1,131 @@
+body {
+  background: var(--systemGray5_accessible);
+}
+
+.greetings-banner h3 {
+  color: rgba(var(--a-systemGray_default), 0.5);
+}
+.greetings-banner h3 strong {
+  color: rgba(var(--a-ascentColor), 0.7);
+}
+
+.gradient-rotator-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+}
+.gradient-rotator-wrapper .rotatable {
+  display: block;
+  background: url("../imgs/rotation_gradient.png") no-repeat center;
+  background-size: 200px 200px;
+  mix-blend-mode: darken;
+  width: 250px;
+  height: 250px;
+  position: absolute;
+  top: -60px;
+  left: -30px;
+  -webkit-animation: rotation 2s linear infinite;
+          animation: rotation 2s linear infinite;
+}
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+@keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+.stat-card + .stat-card {
+  border-left: 1px solid var(--borderColor_accessible);
+}
+
+.stat-card {
+  text-align: center;
+}
+.stat-card .stat-card-icon svg {
+  height: 50px;
+  width: 50px;
+}
+.stat-card .stat-card-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  color: var(--systemGray_accessible);
+}
+.stat-card:nth-child(1) rect {
+  fill: var(--systemRed_accessible);
+}
+.stat-card:nth-child(2) path {
+  fill: var(--systemGreen_accessible);
+}
+.stat-card:nth-child(3) path {
+  fill: var(--systemIndigo_accessible);
+}
+
+.car-photos-container {
+  padding: 10px 10px 0 10px;
+  border: 1px solid var(--borderColor_accessible);
+  border-radius: 5px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-column-gap: 10px;
+}
+.car-photos-container .mc-photo, .car-photos-container .mc-add-photo {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+  border: 2px solid var(--borderColor_accessible);
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-transition: 0.15s;
+  transition: 0.15s;
+}
+.car-photos-container .mc-photo.mc-photo-focused, .car-photos-container .mc-add-photo.mc-photo-focused {
+  border-color: var(--systemOrange_accessible);
+}
+.car-photos-container .mc-add-photo {
+  border-color: var(--systemIndigo_accessible);
+  background: rgba(var(--a-systemIndigo_accessible), 0.25);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-transition: 0.25s;
+  transition: 0.25s;
+}
+.car-photos-container .mc-add-photo:hover {
+  background: rgba(var(--a-systemIndigo_accessible), 0.55);
+}
+.car-photos-container .mc-add-photo svg rect, .car-photos-container .mc-add-photo svg path {
+  fill: var(--systemIndigo_accessible);
+}
+
+.car-photos-container-actions {
+  height: 40px;
+}

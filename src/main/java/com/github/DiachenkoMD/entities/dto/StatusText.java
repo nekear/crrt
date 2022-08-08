@@ -1,5 +1,7 @@
 package com.github.DiachenkoMD.entities.dto;
 
+import com.github.DiachenkoMD.entities.enums.StatusStates;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;

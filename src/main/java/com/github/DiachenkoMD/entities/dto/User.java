@@ -2,6 +2,8 @@ package com.github.DiachenkoMD.entities.dto;
 
 import com.github.DiachenkoMD.entities.Constants;
 import com.github.DiachenkoMD.entities.DB_Constants;
+import com.github.DiachenkoMD.entities.Transversal;
+import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
 
@@ -10,7 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-public class User implements Serializable {
+public class User extends Transversal implements Serializable {
     protected Object id;
     protected String email;
     protected String firstname;
@@ -41,16 +43,6 @@ public class User implements Serializable {
 
     public Object getId() {
         return id;
-    }
-
-    public Optional<Integer> getCleanId() throws DescriptiveException{
-        if(this.id == null)
-            return Optional.empty();
-
-        if(this.id instanceof String encryptedId)
-            return Optional.of(Integer.valueOf(CryptoStore.decrypt(encryptedId)));
-
-        return Optional.of((Integer) this.id);
     }
 
     public void setId(Object id) {
@@ -109,13 +101,13 @@ public class User implements Serializable {
     }
 
     public String getUrlForNullAvatar(){
-        String customAvatarId;
-        if(this.email != null) {
-            customAvatarId = this.email.split("@")[0];
-        }else{
-            customAvatarId = "crrt_user";
-        }
+        String customAvatarId = getLogin();
         return String.format("https://avatars.dicebear.com/api/identicon/%s.svg?background=333333", customAvatarId);
+    }
+
+    // This class doesn`t have login field in it and db neither, but this function allows to get prettified login from email
+    public String getLogin(){
+        return this.email == null ? "crr_user" : this.email.split("@")[0];
     }
 
     public void setAvatar(String avatar) {
@@ -162,7 +154,35 @@ public class User implements Serializable {
         return true;
     }
 
-    public static User getFromRS(ResultSet rs) throws SQLException {
+    @Override
+    public boolean encrypt() throws DescriptiveException {
+        super.setObject(this.id);
+        if(super.encrypt()){
+            this.id = super.getObject();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean decrypt() throws DescriptiveException {
+        super.setObject(this.id);
+        if(super.decrypt()){
+            this.id = super.getObject();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public Optional<Integer> getCleanId() throws DescriptiveException {
+        super.setObject(this.id);
+        return super.getCleanId();
+    }
+
+    public static User of(ResultSet rs) throws SQLException {
         return new User(
                 rs.getInt(DB_Constants.TBL_USERS_USER_ID),
                 rs.getString(DB_Constants.TBL_USERS_EMAIL),
@@ -174,15 +194,5 @@ public class User implements Serializable {
                 rs.getDouble(DB_Constants.TBL_USERS_BALANCE),
                 rs.getString(DB_Constants.TBL_USERS_CONF_CODE)
         );
-    }
-
-    public void decrypt() throws DescriptiveException {
-        if(this.id instanceof String idEncrypted)
-            this.id = Integer.valueOf(CryptoStore.decrypt(idEncrypted));
-    }
-
-    public void encrypt() throws DescriptiveException{
-        if(this.id instanceof Integer idDecrypted)
-            this.id = CryptoStore.encrypt(String.valueOf(idDecrypted));
     }
 }

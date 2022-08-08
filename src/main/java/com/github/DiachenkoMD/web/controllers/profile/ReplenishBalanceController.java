@@ -1,8 +1,7 @@
 package com.github.DiachenkoMD.web.controllers.profile;
 
-import com.github.DiachenkoMD.entities.dto.StatusStates;
+import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.dto.StatusText;
-import com.github.DiachenkoMD.entities.dto.User;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
