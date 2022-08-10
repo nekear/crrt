@@ -72,7 +72,7 @@ public class SignInController extends HttpServlet {
                 descExc.execute(ExceptionReason.LOGIN_WRONG_PASSWORD, () -> exceptionToClient.set(new StatusText("login.incorrect_data", true, StatusStates.ERROR).convert("en")));
             }
 
-            if(exceptionToClient.get() == null)
+            if(exceptionToClient.get().isEmpty())
                 exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
             try {

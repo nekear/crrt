@@ -49,7 +49,7 @@ public class UpdatePasswordController extends HttpServlet {
                 descExc.execute(ExceptionReason.UUD_PASSWORDS_DONT_MATCH, () -> exceptionToClient.set(new StatusText("profile.passwords_dont_match").convert(getLang(req))));
             }
 
-            if(exceptionToClient.get() == null)
+            if(exceptionToClient.get().isEmpty())
                 exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
             logger.debug(exceptionToClient.get());

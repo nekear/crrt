@@ -3,6 +3,7 @@ package com.github.DiachenkoMD.web.daos.factories;
 
 import com.github.DiachenkoMD.web.daos.DBTypes;
 import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
+import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 
 import javax.naming.Context;
@@ -22,6 +23,7 @@ public abstract class DAOFactory {
 
     public abstract UsersDAO getUsersDAO();
     public abstract CarsDAO getCarsDAO();
+    public abstract InvoicesDAO getInvoicesDAO();
 
     private static DAOFactory activeFactory;
 

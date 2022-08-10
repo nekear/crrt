@@ -12,4 +12,5 @@ public class Constants {
     public static final String SESSION_AUTH = "auth";
 
     public static final String AVATAR_UPLOAD_DIR = "/uploads/avatars";
+    public static final String IMAGES_UPLOAD_DIR = "/uploads/images";
 }

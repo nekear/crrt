@@ -1,5 +1,6 @@
 package com.github.DiachenkoMD.web.daos.prototypes;
 
+import com.github.DiachenkoMD.entities.dto.LimitedUser;
 import com.github.DiachenkoMD.entities.dto.User;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 
@@ -29,5 +30,7 @@ public interface UsersDAO {
 
     Optional<String> getAvatar(int id) throws DBException;
     boolean setAvatar(int id, String avatarName) throws DBException;
+
+    List<LimitedUser> getUserWithFilters(HashMap<String, String> filters, int limitStart, int limitEnd) throws DBException;
 
 }

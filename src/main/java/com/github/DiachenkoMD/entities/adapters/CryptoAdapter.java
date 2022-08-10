@@ -16,7 +16,7 @@ public class CryptoAdapter implements JsonSerializer<Object>, JsonDeserializer<O
         Object resp = null;
         logger.info(jsonElement.getAsString());
         try {
-            resp = CryptoStore.decrypt(jsonElement.getAsString());
+            resp = Integer.parseInt(CryptoStore.decrypt(jsonElement.getAsString()));
         }catch (DescriptiveException e){
             logger.error(e);
         }
@@ -26,7 +26,7 @@ public class CryptoAdapter implements JsonSerializer<Object>, JsonDeserializer<O
     @Override
     public JsonElement serialize(Object o, Type type, JsonSerializationContext jsonSerializationContext) {
         try {
-            return new JsonPrimitive(CryptoStore.encrypt((String) o));
+            return new JsonPrimitive(CryptoStore.encrypt(o.toString()));
         }catch (DescriptiveException e){
             logger.error(e);
             return null;

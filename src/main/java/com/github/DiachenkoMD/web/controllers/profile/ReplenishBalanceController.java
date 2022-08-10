@@ -59,7 +59,7 @@ public class ReplenishBalanceController extends HttpServlet {
                 descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("profile.replenishment_validation_error").convert(getLang(req))));
             }
 
-            if(exceptionToClient.get() == null)
+            if(exceptionToClient.get().isEmpty())
                 exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
             logger.debug(exceptionToClient.get());

@@ -1,8 +1,6 @@
 package com.github.DiachenkoMD.entities.adapters;
 
-import com.github.DiachenkoMD.entities.enums.CarSegments;
-import com.github.DiachenkoMD.entities.enums.Cities;
-import com.github.DiachenkoMD.entities.enums.DBCoupled;
+import com.github.DiachenkoMD.entities.enums.*;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
@@ -19,6 +17,10 @@ public class DBCoupledAdapter implements JsonSerializer<DBCoupled>, JsonDeserial
             return CarSegments.getById(jsonElement.getAsInt());
         }else if(type == Cities.class){
             return Cities.getById(jsonElement.getAsInt());
+        }else if(type == Roles.class){
+            return Roles.getById(jsonElement.getAsInt());
+        }else if(type == AccountStates.class){
+            return AccountStates.getById(jsonElement.getAsInt());
         }
 
         return null;

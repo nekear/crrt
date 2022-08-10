@@ -415,22 +415,3 @@
   color: #8898aa;
   font-size: 14px;
 }
-
-.pagination .page-link {
-  background: rgba(var(--a-ascentColor), 0.8);
-  color: var(--systemGray6_default);
-  border: 3px solid var(--borderColor_accessible);
-}
-.pagination .page-link:not(.active):hover {
-  border-color: var(--systemBlue_default);
-  color: var(--systemBlue_default);
-}
-.pagination .page-link.active {
-  border-color: rgba(var(--a-ascentColor), 0.8);
-  color: rgba(var(--a-ascentColor), 0.8);
-  background-color: var(--systemGray6_default);
-}
-.pagination .page-link.active:hover {
-  background-color: rgba(var(--a-ascentColor), 0.8);
-  color: var(--systemGray6_default);
-}

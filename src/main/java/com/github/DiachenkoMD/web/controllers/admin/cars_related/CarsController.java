@@ -1,4 +1,4 @@
-package com.github.DiachenkoMD.web.controllers.admin;
+package com.github.DiachenkoMD.web.controllers.admin.cars_related;
 
 import com.github.DiachenkoMD.entities.dto.Car;
 import com.github.DiachenkoMD.entities.dto.StatusText;
