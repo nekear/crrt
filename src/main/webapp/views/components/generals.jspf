@@ -1,5 +1,6 @@
 <%@ page import="com.github.DiachenkoMD.entities.dto.User" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="com.github.DiachenkoMD.entities.Constants" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -23,3 +24,4 @@
 %>
 
 <c:set var="userAvatarPath" value="${user.idenAvatar(pageContext.request.contextPath)}" scope="page" />
+<c:set var="imagesDir" value="${pageContext.request.contextPath}${Constants.IMAGES_UPLOAD_DIR}" scope="page" />

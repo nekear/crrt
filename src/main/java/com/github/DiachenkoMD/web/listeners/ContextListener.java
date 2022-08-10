@@ -1,7 +1,12 @@
 package com.github.DiachenkoMD.web.listeners;
 
+import com.github.DiachenkoMD.entities.adapters.RuntimeTypeAdapterFactory;
 import com.github.DiachenkoMD.entities.adapters.Skip;
+import com.github.DiachenkoMD.entities.dto.Filters;
+import com.github.DiachenkoMD.entities.dto.UsersPanelFilters;
+import com.github.DiachenkoMD.entities.dto.invoices.Invoice;
 import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
+import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.services.AdminService;
 import com.github.DiachenkoMD.web.services.UsersService;
 import com.github.DiachenkoMD.web.daos.DBTypes;
@@ -51,14 +56,16 @@ public class ContextListener implements ServletContextListener {
         DAOFactory daoFactory = (DAOFactory) ctx.getAttribute("dao_factory");
 
         UsersDAO usersDAO = daoFactory.getUsersDAO();
+        CarsDAO carsDAO = daoFactory.getCarsDAO();
+        InvoicesDAO invoicesDAO = daoFactory.getInvoicesDAO();
 
         UsersService usersService = new UsersService(usersDAO);
         ctx.setAttribute("users_service", usersService);
         logger.info("[✓] UsersService -> initialized");
 
-        CarsDAO carsDAO = daoFactory.getCarsDAO();
 
-        AdminService adminService = new AdminService(usersDAO, carsDAO);
+
+        AdminService adminService = new AdminService(usersDAO, carsDAO, invoicesDAO, ctx);
         ctx.setAttribute("admin_service", adminService);
         logger.info("[✓] AdminService -> initialized");
     }
@@ -73,6 +80,12 @@ public class ContextListener implements ServletContextListener {
     }
 
     private static void initGson(ServletContext ctx){
+
+        // TypeAdapter to parse different PaginationWrappers with their Filters field included. So as long as Filters is abstract class, this type adapter will decide what exact child of Filters came in json.
+        RuntimeTypeAdapterFactory<Filters> filtersTypeAdapterFactory = RuntimeTypeAdapterFactory
+                .of(Filters.class, "filters")
+                .registerSubtype(UsersPanelFilters.class);
+
         Gson gson = new GsonBuilder()
                 .addSerializationExclusionStrategy(new ExclusionStrategy()
                 {
@@ -88,6 +101,7 @@ public class ContextListener implements ServletContextListener {
                         return false;
                     }
                 })
+//                .registerTypeAdapterFactory(filtersTypeAdapterFactory)
                 .create();
 
         ctx.setAttribute("gson", gson);

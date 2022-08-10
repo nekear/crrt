@@ -1,6 +1,7 @@
 package com.github.DiachenkoMD.web.daos.impls.mysql;
 
 import com.github.DiachenkoMD.entities.DB_Constants;
+import com.github.DiachenkoMD.entities.dto.LimitedUser;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.entities.dto.User;
@@ -10,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.generateRandomString;
@@ -366,6 +368,38 @@ public class MysqlUsersDAO implements UsersDAO {
             stmt.setInt(2, user_id);
 
             return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public List<LimitedUser> getUserWithFilters(HashMap<String, String> filters, int limitStart, int limitEnd) throws DBException {
+
+        String query = "SELECT id, email, firstname, surname, patronymic, role_id, is_blocked FROM tbl_users WHERE"
+                + filters.keySet().stream().map(s -> s + " LIKE ?").collect(Collectors.joining(", "))
+                + " LIMIT " + limitStart + ", " + limitEnd;
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement(query);
+        ){
+
+            int index = 0;
+            for(String value : filters.values()){
+                stmt.setString(++index, value);
+            }
+
+            List<LimitedUser> foundUsers = new ArrayList<>();
+
+            try(ResultSet rs = stmt.getResultSet()){
+                while(rs.next()){
+                    foundUsers.add(LimitedUser.of(rs));
+                }
+            }
+
+            return foundUsers;
 
         } catch (SQLException e) {
             logger.error(e);

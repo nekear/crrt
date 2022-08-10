@@ -2,6 +2,7 @@ Notiflix.Notify.init({
     position: "center-bottom",
     fontFamily: 'Montserrat',
     closeButton: true,
+    timeout: 3000,
     failure: {
         background: 'rgba(255,55,95, .2)',
         notiflixIconColor: 'rgb(255,55,95)'

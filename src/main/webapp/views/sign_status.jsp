@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="${assets}modules/argon/argon.min.css">
 
     <!--  Custom  -->
+    <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
     <link rel="stylesheet" href="${assets}css/colorize.css">
     <link rel="stylesheet" href="${assets}css/mdx.css">

@@ -216,7 +216,11 @@ header .profile-dropdown-wrapper .dropdown-menu .balance span {
 }
 
 .canvas-container {
-  margin-top: 50px;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+.canvas-container.inactive {
+  display: none;
 }
 .canvas-container:not(.unstyled) {
   background: var(--systemGray5_default);
@@ -227,6 +231,41 @@ header .profile-dropdown-wrapper .dropdown-menu .balance span {
 }
 .canvas-container:not(.unstyled) h5, .canvas-container:not(.unstyled) h6 {
   color: var(--systemGray_accessible);
+}
+
+.canvas-tools {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+}
+.canvas-tools > div:nth-child(1) {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+
+.canvas-tabs .nav-item .nav-link {
+  background: var(--systemGray5_default);
+  border: 2px solid var(--borderColor_accessible2);
+}
+.canvas-tabs .nav-item .nav-link:hover:not(.active) {
+  background: var(--systemIndigo_default);
+  color: #fff;
+  border-color: var(--systemIndigo_default);
+}
+.canvas-tabs .nav-item .nav-link.active {
+  color: var(--systemBlue_default);
+  border-color: var(--systemBlue_default);
 }
 
 .pagination .page-link {
@@ -490,4 +529,27 @@ footer .right-content .copy-item .content:hover .text {
 
 .line-scale-pulse-out-rapid > div {
   background: var(--systemGreen_default);
+}
+
+input.highlight, select.highlight {
+  border-color: var(--systemPink_accessible);
+}
+
+.pagination .page-link {
+  background: rgba(var(--systemGray5_default), 0.8);
+  color: var(--ascentColor);
+  border: 3px solid var(--borderColor_accessible);
+}
+.pagination .page-link:not(.active):hover {
+  border-color: var(--systemBlue_default);
+  color: var(--systemBlue_default);
+}
+.pagination .page-link.active {
+  border-color: rgba(var(--a-ascentColor), 0.8);
+  color: rgba(var(--a-ascentColor), 0.8);
+  background-color: var(--systemGray6_default);
+}
+.pagination .page-link.active:hover {
+  background-color: rgba(var(--a-ascentColor), 0.8);
+  color: var(--systemGray6_default);
 }

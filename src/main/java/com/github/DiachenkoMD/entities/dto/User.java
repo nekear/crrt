@@ -3,9 +3,9 @@ package com.github.DiachenkoMD.entities.dto;
 import com.github.DiachenkoMD.entities.Constants;
 import com.github.DiachenkoMD.entities.DB_Constants;
 import com.github.DiachenkoMD.entities.Transversal;
+import com.github.DiachenkoMD.entities.enums.AccountStates;
 import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
-import com.github.DiachenkoMD.web.utils.CryptoStore;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -22,6 +22,7 @@ public class User extends Transversal implements Serializable {
     protected String avatar;
     protected double balance;
     protected String confirmationCode;
+    protected AccountStates state;
 
     public User(Object id, String email, String firstname, String surname, String patronymic, Roles role, String avatar, double balance, String confirmationCode) {
         this.id = id;
@@ -36,7 +37,7 @@ public class User extends Transversal implements Serializable {
     }
 
     public User(String email, String firstname, String surname, String patronymic) {
-        this(null, email, firstname, surname, patronymic, Roles.DEFAULT, null, 0, null);
+        this(null, email, firstname, surname, patronymic, Roles.CLIENT, null, 0, null);
     }
 
     public User(){} // for reflective parser and testing
@@ -130,6 +131,14 @@ public class User extends Transversal implements Serializable {
         this.confirmationCode = confirmationCode;
     }
 
+    public AccountStates getState() {
+        return state;
+    }
+
+    public void setState(AccountStates state) {
+        this.state = state;
+    }
+
     @Override
     public String toString() {
         return this.id + " -> " + this.email;
@@ -183,16 +192,20 @@ public class User extends Transversal implements Serializable {
     }
 
     public static User of(ResultSet rs) throws SQLException {
-        return new User(
+        User user = new User(
                 rs.getInt(DB_Constants.TBL_USERS_USER_ID),
                 rs.getString(DB_Constants.TBL_USERS_EMAIL),
                 rs.getString(DB_Constants.TBL_USERS_FIRSTNAME),
                 rs.getString(DB_Constants.TBL_USERS_SURNAME),
                 rs.getString(DB_Constants.TBL_USERS_PATRONYMIC),
-                Roles.byIndex(rs.getInt(DB_Constants.TBL_USERS_ROLE_ID)),
+                Roles.getById(rs.getInt(DB_Constants.TBL_USERS_ROLE_ID)),
                 rs.getString(DB_Constants.TBL_USERS_AVATAR),
                 rs.getDouble(DB_Constants.TBL_USERS_BALANCE),
                 rs.getString(DB_Constants.TBL_USERS_CONF_CODE)
         );
+
+        user.setState(AccountStates.getById(rs.getInt(DB_Constants.TBL_USERS_IS_BLOCKED)));
+
+        return user;
     }
 }

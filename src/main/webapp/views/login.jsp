@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="com.github.DiachenkoMD.web.utils.JSLS" %>
+<%@ page import="com.github.DiachenkoMD.web.utils.JSJS" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="crrt" uri="crrt" %>
@@ -39,7 +39,7 @@
   <script src="${assets}js/login.js" defer></script>
 
   <script>
-    const js_localization = <%=JSLS.forLoginPage((String) pageContext.getAttribute("lang"))%>;
+    const js_localization = <%=JSJS.transForLoginPage((String) pageContext.getAttribute("lang"))%>;
   </script>
 </head>
 <body>

@@ -26,5 +26,10 @@ public enum ExceptionReason {
     UUD_FAILED_TO_UPDATE,
     UUD_PASSWORDS_DONT_MATCH,
     UNABLE_TO_SAVE_FILE,
-    UNABLE_TO_DELETE_FILE
+    UNABLE_TO_DELETE_FILE,
+
+//  Admin error
+    BAD_VALUE,
+    IMAGE_NOT_FOUND_IN_DB,
+    CAR_IN_USE,
 }

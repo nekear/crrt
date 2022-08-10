@@ -5,67 +5,37 @@ const validationPatterns = {
     "min-letters": ".*[a-zA-Z]{$v$,}.*",
     "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
 }
-const loaded = {
-    segments: {
-        0: {
-          name: "All segments"
-        },
-        1: {
-            name: "E-segment"
-        },
-        2: {
-            name: "F-segment"
-        },
-        3: {
-            name: "S-segment"
-        }
-    },
-    cities: {
-        0:{
-            name: "All cities"
-        },
-        1: {
-            name: "Kyiv"
-        },
-        2: {
-            name: "Lviv"
-        }
-    }
-}
+// const loaded = {
+//     segments: {
+//         0: {
+//           name: "All segments"
+//         },
+//         1: {
+//             name: "E-segment"
+//         },
+//         2: {
+//             name: "F-segment"
+//         },
+//         3: {
+//             name: "S-segment"
+//         }
+//     },
+//     cities: {
+//         0:{
+//             name: "All cities"
+//         },
+//         1: {
+//             name: "Kyiv"
+//         },
+//         2: {
+//             name: "Lviv"
+//         }
+//     }
+// }
 
 const carsWorkingOnObjectProto = {
-    id: "",
-    photos: [
-        {
-            id: "1",
-            file: "imgs/car_preview.jpg"
-        },
-        {
-            id: "2",
-            file: "imgs/car_preview.jpg"
-        },
-        {
-            id: "3",
-            file: "imgs/car_preview.jpg"
-        },
-        {
-            id: "4",
-            file: "imgs/car_preview.jpg"
-        },
-        {
-            id: "5",
-            file: "imgs/car_preview.jpg"
-        },
-        {
-            id: "6",
-            file: "imgs/car_preview.jpg"
-        },
-        {
-            id: "7",
-            file: "imgs/car_preview.jpg"
-        },
-    ], // for editing
-    loadedPhotosPackNumber: 0, // for creation
+    id: null,
+    images: [], // for editing
     brand: "",
     model: "",
     segment: 0,
@@ -76,11 +46,24 @@ const carsWorkingOnObjectProto = {
 const app = createApp({
     data() {
         return {
+            tabs:{
+                panel: {
+                    active: "users"
+                }
+            },
             cars:{
-                photoFocusPrivate: {
+                selectedPhotosNumber: 0,
+                pagination: {
+                    currentPage: 1,
+                    itemsPerPage: 15,
+                },
+                imageFocusPrivate: {
                   id: ""
                 },
                 workingOn: {},
+                workingOnHighlighter:{
+
+                },
                 search: {
                     brand: "",
                     model: "",
@@ -88,36 +71,58 @@ const app = createApp({
                     price: "",
                     city: 0
                 },
+                list: []
+            },
+            users: {
+                search:{
+                    filters: {
+                        email: "",
+                        firstname: "",
+                        surname: "",
+                        patronymic: "",
+                        role: 0,
+                        state: 0
+                    },
+                    pagination: {
+                        itemsPerPage: 15,
+                        availablePages: 1,
+                        currentPage: 1
+                    }
+                },
                 list: [
                     {
-                        id: 1,
-                        brand: "Mercedes",
-                        model: "Benz C122 G9",
-                        segment: 1,
-                        price: 2000,
-                        city: 1
-                    },
-                    {
-                        id: 2,
-                        brand: "Audi",
-                        model: "G9",
-                        segment: 2,
-                        price: 3000,
-                        city: 2
+                        id: 0,
+                        email: "xpert14world@gmail.com",
+                        firstname: "Mykhailo",
+                        surname: "Diachenko",
+                        patronymic: "Dmytrovich",
+                        role: 1,
+                        isBlocked: 0,
+                        isChecked: 0
                     }
                 ]
             },
             segments: {},
             cities: {},
+            roles: {},
+            accountStates:{},
             stats: []
         }
     },
     created(){
         Object.assign(this.segments, loaded.segments);
         Object.assign(this.cities, loaded.cities);
+        Object.assign(this.roles, loaded.roles);
+        Object.assign(this.accountStates, loaded.accountStates);
 
         // Assigning prototype
         Object.assign(this.cars.workingOn, carsWorkingOnObjectProto);
+    },
+
+    watch:{
+      "tabs.panel.active"(newState, oldState){
+
+      }
     },
 
     mounted(){
@@ -153,7 +158,8 @@ const app = createApp({
     computed: {
         cars_list: function () {
             const searchFilters = this.cars.search;
-            const result = this.cars.list.filter(
+
+            let result = this.cars.list.filter(
                 car => {
                     const f_brand = searchFilters.brand.toLowerCase();
                     const f_model = searchFilters.model.toLowerCase();
@@ -179,49 +185,117 @@ const app = createApp({
                 }
             );
 
-            console.log(result);
-
             return result;
-
         },
-        focusedPhoto: function (){
-            if(this.cars.photoFocusPrivate.id){
-                let photo = null;
+        cars_list_paginated: function(){
+            let resultWithPagination = [];
 
-                for(let item in this.cars.workingOn.photos){
-                    let current = this.cars.workingOn.photos[item];
-                    if(current.id === this.cars.photoFocusPrivate.id){
-                        photo = current;
+            const currentPage = this.cars.pagination.currentPage;
+            const itemsPerPage = this.cars.pagination.itemsPerPage;
+            const result = this.cars_list;
+
+            for(let i = (currentPage-1)*itemsPerPage; i < currentPage*itemsPerPage; i++){
+                if(i < result.length){
+                    resultWithPagination.push(result[i]);
+                }
+            }
+
+            console.log(result, resultWithPagination);
+            return resultWithPagination;
+        },
+        cars_pages: function(){
+            return Math.ceil(this.cars_list.length / this.cars.pagination.itemsPerPage);
+        },
+
+        focusedImage: function (){
+            if(this.cars.imageFocusPrivate.id){
+                let image = null;
+
+                for(let item in this.cars.workingOn.images){
+                    let current = this.cars.workingOn.images[item];
+                    if(current.id === this.cars.imageFocusPrivate.id){
+                        image = current;
                         break;
                     }
                 }
 
-                return photo;
+                return image;
             }
         },
+
     },
     methods:{
-        //sc stands for Status chip
-        cars_sc_segment(segment){
-            this.cars.search.segment = parseInt(this.cars.search.segment) === parseInt(segment) ? 0 : segment;
-        },
-        cars_sc_city(city){
-            this.cars.search.city = parseInt(this.cars.search.city) === parseInt(city) ? 0 : city;
+        // ========= TABS ========= //
+        activateTab(group, tabName){
+            this.tabs[group].active = tabName;
         },
 
-        // Car editing
-        openCarEditModal(car_id){
-            $("#carEdit_modal").modal("show");
-        },
-        openCarCreateModal(){
-            loader(true);
-            $("#carCreate_modal").modal("show");
+        // ========= USERS RELATED ========= //
+
+        usersCheckboxAll(event){
+          const setState = event.target.checked;
+
+          this.users.list = this.users.list.map(user => {
+              user.isChecked = setState;
+              return user;
+          });
         },
 
-        focusOnPhoto(photo_id){
-            this.cars.photoFocusPrivate.id = this.cars.photoFocusPrivate.id === photo_id ? "" : photo_id;
+        goToUsersPage(pageIndex){
+          console.log("Tried to go to " + pageIndex);
         },
 
+        users_sc_role(role){
+            this.users.search.filters.role = parseInt(this.users.search.filters.role) === parseInt(role) ? 0 : parseInt(role);
+        },
+
+
+        performUsersSearch(){
+            let searchRequestObject = {
+                askedPage: 1,
+                elementsPerPage: this.users.search.pagination.itemsPerPage,
+                usersFilters: this.users.search.filters
+            };
+
+            axios.get(`http://localhost:8080/crrt_war/admin/users`, {
+                params:{
+                    data: searchRequestObject
+                }
+            })
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+                Notiflix.Notify.failure(error.response.data);
+            });
+        },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // ======== STATS RELATED ======== //
         reloadStats(){
             axios.get('http://localhost:8080/crrt_war/admin/stats')
                 .then(function (response) {
@@ -231,8 +305,201 @@ const app = createApp({
                 .catch(function (error) {
                     console.log(error);
                 });
-        }
+        },
 
+        // ======== CARS RELATED ======== //
+
+        // ----> Fields validation
+        isValidCarFields(prefix){
+            let isAllValid = true;
+            for(let field in this.cars.workingOn){
+                let doesPass = true;
+                if(field === "id" || field === "images")
+                    continue;
+
+                if(field === "segment" || field === "city"){
+                    if(parseInt(app.cars.workingOn[field]) < 1){
+                        doesPass = false;
+                    }
+                }else{
+                    if(!(app.cars.workingOn[field]+"").length){
+                        doesPass = false;
+                    }
+                }
+
+                if(!doesPass){
+                    app.$refs[prefix+field].classList.add("highlight");
+                    isAllValid = false;
+                }else{
+                    app.$refs[prefix+field].classList.remove("highlight");
+                }
+            }
+            return isAllValid;
+        },
+        cleanCarFieldHighlight(prefix){
+            const fieldsToClean = ["brand", "model", "segment", "price", "city"];
+
+            for(let index in fieldsToClean){
+                let field = fieldsToClean[index];
+                app.$refs[prefix+field].classList.remove("highlight");
+            }
+        },
+
+        // ----> For search
+        //sc stands for Status chip
+        cars_sc_segment(segment){
+            this.cars.search.segment = parseInt(this.cars.search.segment) === parseInt(segment) ? 0 : segment;
+        },
+        cars_sc_city(city){
+            this.cars.search.city = parseInt(this.cars.search.city) === parseInt(city) ? 0 : city;
+        },
+
+        // ---> Car editing
+        openCarEditModal(car_id){
+            this.cleanCarFieldHighlight("car_edit-");
+
+            axios.get(`http://localhost:8080/crrt_war/admin/car`, {
+                params:{
+                    id: car_id
+                }
+            })
+            .then(function (response) {
+                console.log(response);
+                app.cars.workingOn = response.data;
+                $("#carEdit_modal").modal("show");
+            })
+            .catch(function (error) {
+                console.log(error);
+                Notiflix.Notify.failure(error.response.data);
+            });
+        },
+        focusOnImage(image_id){
+            this.cars.imageFocusPrivate.id = this.cars.imageFocusPrivate.id === image_id ? "" : image_id;
+        },
+        deleteImage(image_id){
+            axios.delete('http://localhost:8080/crrt_war/admin/carImages', {
+                data: {
+                    id: image_id
+                }
+            })
+                .then(function (response) {
+                    console.log(response);
+
+                    app.cars.workingOn.images = app.cars.workingOn.images.filter(i => {
+                        return i.id !== image_id;
+                    });
+                    Notiflix.Notify.success(response.data);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    Notiflix.Notify.failure(error.response.data);
+                });
+        },
+        deleteCar(){
+            axios.delete('http://localhost:8080/crrt_war/admin/car', {
+                data: {
+                    id: app.cars.workingOn.id
+                }
+            })
+                .then(function (response) {
+                    console.log(response);
+
+                    app.cars.list = app.cars.list.filter(i => {
+                        return i.id !== app.cars.workingOn.id;
+                    });
+
+                    $("#carEdit_modal").modal("hide");
+
+                    Notiflix.Notify.success(response.data);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    Notiflix.Notify.failure(error.response.data);
+                });
+        },
+        updateCar(){
+            const isAllValid = this.isValidCarFields("car_edit-");
+
+            if(isAllValid){
+                axios.put('http://localhost:8080/crrt_war/admin/car', {
+                    ...app.cars.workingOn
+                })
+                    .then(function (response) {
+                        app.cleanCarFieldHighlight("car_edit-");
+                        console.log(response);
+
+                        delete app.cars.workingOn.images;
+                        for(let i in app.cars.list){
+                            let current = app.cars.list[i];
+                            if(current.id === app.cars.workingOn.id){
+                                app.cars.list[i] = JSON.parse(JSON.stringify(app.cars.workingOn));
+                                break;
+                            }
+                        }
+
+                        Notiflix.Notify.success(response.data);
+                        $("#carEdit_modal").modal("hide");
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        Notiflix.Notify.failure(error.response.data);
+                    });
+            }
+        },
+
+        // ---> Car creating
+        openCarCreateModal(){
+            this.cleanCarFieldHighlight("car_create-");
+            Object.assign(this.cars.workingOn, carsWorkingOnObjectProto); // cleaning up
+            $("#carCreate_modal").modal("show");
+        },
+        createCar(){
+            // Validating
+            const isAllValid = this.isValidCarFields("car_create-");
+
+            if(isAllValid){
+                let formData = new FormData();
+
+                let filesInput = this.$refs["create_car-images-input"];
+
+                for(let i = 0; i < filesInput.files.length; i++){
+                    formData.append(filesInput.files[i].name, filesInput.files[i]);
+                }
+
+                formData.append("document", new Blob([JSON.stringify(app.cars.workingOn)], {type: 'application/json'}));
+
+                axios({
+                    method: 'post',
+                    url: `http://localhost:8080/crrt_war/admin/car`,
+                    data: formData
+                })
+                    .then(function (response) {
+                        app.cleanCarFieldHighlight("car_create-");
+
+                        console.log(response);
+                        app.cars.workingOn.id = response.data.carId;
+                        delete app.cars.workingOn.images;
+                        app.cars.list.push(JSON.parse(JSON.stringify(app.cars.workingOn)));
+
+                        Object.assign(app.cars.workingOn, carsWorkingOnObjectProto);
+                        Notiflix.Notify.success(response.data.message);
+                        $("#carCreate_modal").modal("hide");
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        Notiflix.Notify.failure(error.response.data);
+                    });
+            }
+        },
+        updateSelectedPhotosCounter(){
+            let filesInput = this.$refs["create_car-images-input"];
+            this.cars.selectedPhotosNumber = filesInput.files.length;
+        },
+
+        // ---> Pagination
+        goToCarsPage(pageIndex){
+            this.cars.pagination.currentPage = pageIndex;
+        },
 
     }
 }).mount('#app');
@@ -247,19 +514,37 @@ $(document).on("change","#carEdit_modal .car-add-photo-input", function () {
 $(document).on('submit','#carEdit_modal .car-add-photo-form', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
-    console.log("Going to submit!");
+
+    formData.append("document", new Blob([JSON.stringify({car_id: app.cars.workingOn.id})], {type: 'application/json'}));
+
+    axios({
+        method: 'post',
+        url: `http://localhost:8080/crrt_war/admin/carImages`,
+        data: formData
+    })
+    .then(function (response) {
+        app.cars.workingOn.images.push(response.data);
+    })
+    .catch(function (error) {
+        console.log(error);
+        Notiflix.Notify.failure(error.response.data);
+    });
 });
 
 // Uploading new car photos (to new entity)
 $(document).on('click','#carCreate_modal .mc-add-photo',function (e) {
     $("#carCreate_modal .car-add-photo-input").click();
 });
-$(document).on("change","#carCreate_modal .car-add-photo-input", function () {
-    $("#carCreate_modal .car-add-photo-form").submit();
-});
-$(document).on('submit','#carCreate_modal .car-add-photo-form', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    app.cars.workingOn.loadedPhotosPackNumber = $("#carCreate_modal .car-add-photo-input").get(0).files.length;
-    console.log(formData);
-});
+
+const filters = {
+    email: "",
+    firstname: "",
+    surname: "",
+    patronymic: "",
+    role: 0,
+    isBlocked: 0
+}
+
+function loadUsersList(filters){
+
+}

@@ -1,3 +1,4 @@
+<%@ page import="com.github.DiachenkoMD.web.utils.JSJS" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -37,6 +38,16 @@
     <script src="${assets}js/mdx.js"></script>
     <script src="${assets}js/global.js" defer></script>
     <script src="${assets}js/admin.js" defer></script>
+
+    <script>
+        const contextPath = '${imagesDir}';
+        const loaded = {
+            "segments": <%=JSJS.SegmentsList((String) pageContext.getAttribute("lang"))%>,
+            "cities": <%=JSJS.CitiesList((String) pageContext.getAttribute("lang"))%>,
+            "roles": <%=JSJS.RolesList((String) pageContext.getAttribute("lang"))%>,
+            "accountStates": <%=JSJS.AccountStatesList((String) pageContext.getAttribute("lang"))%>,
+        }
+    </script>
 </head>
 <body>
 <div id="app">
@@ -104,11 +115,37 @@
                         </button>
                     </div>
                 </div>
-                <div class="canvas-container">
-                    <div class="mb-3">
-                        <h5>Cars list</h5>
-                        <h6>Overall cars number: <span>80</span></h6>
-                        <div><button class="mdx-md-button button-green button-bordered" @click="openCarCreateModal()">Create new</button></div>
+                <div class="canvas-tabs">
+                    <ul class="nav nav-pills">
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="#" :class="{active: tabs.panel.active === 'cars'}" @click.prevent="activateTab('panel','cars')">Cars</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" :class="{active: tabs.panel.active === 'users'}" @click.prevent="activateTab('panel','users')">Users</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" :class="{active: tabs.panel.active === 'invoices'}"@click.prevent="activateTab('panel','invoices')">Invoices</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="canvas-container" v-if="tabs.panel.active === 'cars'">
+                    <div class="mb-3 canvas-tools">
+                        <div>
+                            <h5>Cars list</h5>
+                            <h6>Overall cars number: <span>{{cars.list.length}}</span></h6>
+                            <div>
+                                <button class="mdx-md-button button-green button-bordered" @click="openCarCreateModal()">Create new</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="cars-pag-sel">Cars per page: </label>
+                            <select class="form-control form-select" v-model="cars.pagination.itemsPerPage" id="cars-pag-sel">
+                                <option value="1" selected>1</option>
+                                <option value="15">15</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
                     </div>
                     <table class="car-park-table table table-bordered">
                         <thead class="cpt-header">
@@ -138,7 +175,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="car in cars_list" :key="car.id">
+                        <tr v-for="car in cars_list_paginated" :key="car.id">
                             <td>{{car.brand}}</td>
                             <td>{{car.model}}</td>
                             <td>
@@ -156,6 +193,118 @@
                         </tr>
                         </tbody>
                     </table>
+                    <div>
+                        <ul class="pagination">
+                            <li class="page-item" v-for="n in cars_pages"><a class="page-link" href="#" :class="{active: n == cars.pagination.currentPage}" @click="goToCarsPage(n)">{{n}}</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="canvas-container" v-if="tabs.panel.active === 'users'">
+                    <div class="mb-3 canvas-tools">
+                        <div>
+                            <h5>Users list</h5>
+                            <h6>Overall users number: <span>80</span></h6>
+                            <div>
+                                <button class="mdx-md-button button-green button-bordered" id="create-new-user">Create new</button>
+                                <button class="mdx-md-button button-red button-bordered ml-2" id="delete-selected-users">Delete selected</button>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <label for="users-pag-sel">Users per page: </label>
+                                <select class="form-control form-select" id="users-pag-sel" v-model="users.search.pagination.itemsPerPage">
+                                    <option value="1">1</option>
+                                    <option value="15">15</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                            <div class="mt-2">
+                                <button class="mdx-md-button button-blue button-bordered" @click="performUsersSearch()">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="users-panel-table table table-bordered">
+                        <thead class="users-panel-header">
+                        <tr>
+                            <th class="admin-checkbox-cell">
+                                <div class="table-cell-flex">
+                                    <input class="input-mdx-square-checkbox" id="check-all-checkbox" type="checkbox" style="display: none" @change="usersCheckboxAll($event)"/>
+                                    <label class="mdx-square-checkbox" for="check-all-checkbox">
+                                        <span>
+                                            <svg width="12px" height="10px" viewbox="0 0 12 10">
+                                              <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                            </svg>
+                                        </span>
+                                    </label>
+                                </div>
+                            </th>
+                            <th>
+                                <input type="email" id="search-email" placeholder="Email" class="form-control" v-model="users.search.filters.email">
+                            </th>
+                            <th>
+                                <input type="text" id="search-firstname" placeholder="Firstname" class="form-control" v-model="users.search.filters.firstname">
+                            </th>
+                            <th>
+                                <input type="text" id="search-surname" placeholder="Surname" class="form-control" v-model="users.search.filters.surname">
+                            </th>
+                            <th>
+                                <input type="text" id="search-patronymic" placeholder="Patronymic" class="form-control" v-model="users.search.filters.patronymic">
+                            </th>
+                            <th>
+                                <select id="select-role" class="form-control form-select" v-model="users.search.filters.role">
+                                    <option v-for="(role, index) in roles" :key="index" :value="index">{{role.name}}</option>
+                                </select>
+                            </th>
+                            <th>
+                                <select id="select-access-status" class="form-control form-select" v-model="users.search.filters.state">
+                                    <option v-for="(state, index) in accountStates" :key="index" :value="index">{{state.name}}</option>
+                                </select>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="user in users.list">
+                                <td class="admin-checkbox-cell">
+                                    <div class="table-cell-flex">
+                                        <input class="input-mdx-square-checkbox" id="checkbox-0" type="checkbox" style="display: none" v-model="user.isChecked">
+                                        <label class="mdx-square-checkbox" for="checkbox-0">
+                                                <span>
+                                                    <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                                      <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                                    </svg>
+                                                </span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{user.email}}</td>
+                                <td>{{user.firstname}}</td>
+                                <td>{{user.surname}}</td>
+                                <td>{{user.patronymic}}</td>
+                                <td><span class="flat-chip status-chip" data-ripple="#76ccc2" :data-status-code="user.role % 4 + 1" @click="users_sc_role(user.role)">Admin</span></td>
+                                <td>
+                                    <button class="mdx-md-button button-bordered button-green open_userEdit_modal">Details</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div>
+                        <ul class="pagination">
+                            <li class="page-item" v-for="n in users.search.pagination.availablePages"><a class="page-link" href="#" :class="{active: n == users.search.pagination.currentPage}" @click="goToUsersPage(n)">{{n}}</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="canvas-container" v-if="tabs.panel.active === 'invoices'">
+                    <div class="mb-3 canvas-tools">
+                        <div>
+                            <h5>Invoices list</h5>
+                            <h6>Overall cars number: <span>80</span></h6>
+                            <div>
+                                <button class="mdx-md-button button-green button-bordered" @click="openCarCreateModal()">Create new</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -175,13 +324,13 @@
                             Car photos:
                         </div>
                         <form action="#" class="car-add-photo-form">
-                            <input type="file" style="display: none" class="car-add-photo-input" name="car-image">
+                            <input type="file" style="display: none" class="car-add-photo-input" name="car-image" accept="image/png, image/gif, image/jpeg">
                         </form>
                         <div class="car-photos-container mb-2">
-                            <div class="mc-photo cover-bg-type"  v-for="photoItem in cars.workingOn.photos" :key="photoItem.id"
-                                 :style="{backgroundImage: 'url('+photoItem.file+')'}"
-                                 :class="{'mc-photo-focused': focusedPhoto && focusedPhoto.id === photoItem.id}"
-                                 @click="focusOnPhoto(photoItem.id)"
+                            <div class="mc-photo cover-bg-type"  v-for="imageItem in cars.workingOn.images" :key="imageItem.id"
+                                 :style="{backgroundImage: 'url(${imagesDir}/'+imageItem.fileName+')'}"
+                                 :class="{'mc-photo-focused': focusedImage && focusedImage.id === imageItem.id}"
+                                 @click="focusOnImage(imageItem.id)"
                             ></div>
                             <div class="mc-add-photo">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -191,8 +340,8 @@
                             </div>
                         </div>
                         <div class="car-photos-container-actions">
-                            <template v-if="focusedPhoto">
-                                <a :href="focusedPhoto.file" target="_blank">
+                            <template v-if="focusedImage">
+                                <a :href="'${imagesDir}/'+focusedImage.fileName" target="_blank">
                                     <button class="mdx-md-button button-blue button-bordered button-w-icon">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path opacity="0.3" d="M4.7 17.3V7.7C4.7 6.59543 5.59543 5.7 6.7 5.7H9.8C10.2694 5.7 10.65 5.31944 10.65 4.85C10.65 4.38056 10.2694 4 9.8 4H5C3.89543 4 3 4.89543 3 6V19C3 20.1046 3.89543 21 5 21H18C19.1046 21 20 20.1046 20 19V14.2C20 13.7306 19.6194 13.35 19.15 13.35C18.6806 13.35 18.3 13.7306 18.3 14.2V17.3C18.3 18.4046 17.4046 19.3 16.3 19.3H6.7C5.59543 19.3 4.7 18.4046 4.7 17.3Z" fill="currentColor"/>
@@ -202,7 +351,7 @@
                                         <span>Open</span>
                                     </button>
                                 </a>
-                                <button class="mdx-md-button button-red button-bordered ml-2 button-w-icon" @click="deletePhoto(focusedPhoto.id)">
+                                <button class="mdx-md-button button-red button-bordered ml-2 button-w-icon" @click="deleteImage(focusedImage.id)">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M5 9C5 8.44772 5.44772 8 6 8H18C18.5523 8 19 8.44772 19 9V18C19 19.6569 17.6569 21 16 21H8C6.34315 21 5 19.6569 5 18V9Z" fill="currentColor"/>
                                         <path opacity="0.5" d="M5 5C5 4.44772 5.44772 4 6 4H18C18.5523 4 19 4.44772 19 5V5C19 5.55228 18.5523 6 18 6H6C5.44772 6 5 5.55228 5 5V5Z" fill="currentColor"/>
@@ -218,28 +367,28 @@
                             General information:
                         </div>
                         <div class="mc-item">
-                            <input type="text" class="form-control required" placeholder="Brand" v-model="cars.workingOn.brand">
+                            <input type="text" class="form-control required" placeholder="Brand" v-model="cars.workingOn.brand" ref="car_edit-brand">
                         </div>
                         <div class="mc-item">
-                            <input type="text" class="form-control" placeholder="Model" v-model="cars.workingOn.model">
+                            <input type="text" class="form-control" placeholder="Model" v-model="cars.workingOn.model" ref="car_edit-model">
                         </div>
                         <div class="mc-item">
-                            <input type="number" class="form-control" placeholder="Price per hour" v-model="cars.workingOn.price">
+                            <input type="number" class="form-control" placeholder="Price per hour" v-model="cars.workingOn.price" ref="car_edit-price">
                         </div>
                         <div class="mc-item">
-                            <select class="form-control form-select" v-model="cars.workingOn.segment">
+                            <select class="form-control form-select" v-model="cars.workingOn.segment" ref="car_edit-segment">
                                 <option v-for="(segment, index) in segments" :key="index" :value="index">{{segment.name}}</option>
                             </select>
                         </div>
                         <div class="mc-item">
-                            <select class="form-control form-select" v-model="cars.workingOn.city">
+                            <select class="form-control form-select" v-model="cars.workingOn.city" ref="car_edit-city">
                                 <option v-for="(city, index) in cities" :key="index" :value="index">{{city.name}}</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal" @click="closeCarEditing()">Закрити</button>
+                    <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal">Закрити</button>
                     <button type="button" class="mdx-flat-button button-pink" @click="deleteCar()">Видалити</button>
                     <button type="button" class="mdx-flat-button button-blue" @click="updateCar()">Зберегти</button>
                 </div>
@@ -260,11 +409,11 @@
                         <div class="mc-part-title">
                             Car photos:
                             <div class="mc-caution mt-2">
-                                Currently added: {{cars.workingOn.loadedPhotosPackNumber}}
+                                Currently added: {{cars.selectedPhotosNumber}}
                             </div>
                         </div>
                         <form action="#" class="car-add-photo-form">
-                            <input type="file" style="display: none" class="car-add-photo-input" name="car-image" multiple>
+                            <input type="file" style="display: none" class="car-add-photo-input" name="car-image" multiple ref="create_car-images-input" @change="updateSelectedPhotosCounter" accept="image/png, image/gif, image/jpeg">
                         </form>
                         <button class="mc-add-photo mdx-md-button button-green button-w-icon button-bordered mb-3">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -277,21 +426,21 @@
                             General information:
                         </div>
                         <div class="mc-item">
-                            <input type="text" class="form-control required" placeholder="Brand" v-model="cars.workingOn.brand">
+                            <input type="text" class="form-control required" placeholder="Brand" v-model="cars.workingOn.brand" ref="car_create-brand">
                         </div>
                         <div class="mc-item">
-                            <input type="text" class="form-control" placeholder="Model" v-model="cars.workingOn.model">
+                            <input type="text" class="form-control" placeholder="Model" v-model="cars.workingOn.model"  ref="car_create-model">
                         </div>
                         <div class="mc-item">
-                            <input type="number" class="form-control" placeholder="Price per hour" v-model="cars.workingOn.price">
+                            <input type="number" class="form-control" placeholder="Price per hour" v-model="cars.workingOn.price"  ref="car_create-price">
                         </div>
                         <div class="mc-item">
-                            <select class="form-control form-select" v-model="cars.workingOn.segment">
+                            <select class="form-control form-select" v-model="cars.workingOn.segment" ref="car_create-segment">
                                 <option v-for="(segment, index) in segments" :key="index" :value="index">{{segment.name}}</option>
                             </select>
                         </div>
                         <div class="mc-item">
-                            <select class="form-control form-select" v-model="cars.workingOn.city">
+                            <select class="form-control form-select" v-model="cars.workingOn.city"  ref="car_create-city">
                                 <option v-for="(city, index) in cities" :key="index" :value="index">{{city.name}}</option>
                             </select>
                         </div>
@@ -299,7 +448,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal">Закрити</button>
-                    <button type="button" class="mdx-flat-button button-blue" @click="createCar()">Зберегти</button>
+                    <button type="button" class="mdx-flat-button button-blue" @click="createCar()">Створити</button>
                 </div>
             </div>
         </div>

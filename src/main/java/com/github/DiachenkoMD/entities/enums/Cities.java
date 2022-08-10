@@ -22,7 +22,7 @@ public enum Cities implements DBCoupled{
         return this.keyword;
     }
 
-    private static HashMap<Integer, Cities> cachedById = new HashMap<>();
+    private static final HashMap<Integer, Cities> cachedById = new HashMap<>();
 
     static {
         for(Cities city : Cities.values()) {

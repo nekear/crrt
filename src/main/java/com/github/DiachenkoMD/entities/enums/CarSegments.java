@@ -23,7 +23,7 @@ public enum CarSegments implements DBCoupled{
         return this.keyword;
     }
 
-    private static HashMap<Integer, CarSegments> cachedById = new HashMap<>();
+    private final static HashMap<Integer, CarSegments> cachedById = new HashMap<>();
 
     static {
         for(CarSegments segment : CarSegments.values()) {

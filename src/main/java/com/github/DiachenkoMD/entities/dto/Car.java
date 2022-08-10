@@ -12,7 +12,13 @@ import com.google.gson.annotations.SerializedName;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.github.DiachenkoMD.web.utils.Utils.containsColumn;
 
 public class Car extends Transversal {
     @JsonAdapter(CryptoAdapter.class)
@@ -24,6 +30,9 @@ public class Car extends Transversal {
     @SerializedName("segment")
     private CarSegments segment;
     private Double price;
+
+    // This field is omitted on getAll()
+    private List<Image> images;
 
     @JsonAdapter(DBCoupledAdapter.class)
     @SerializedName("city")
@@ -46,6 +55,12 @@ public class Car extends Transversal {
           car.setSegment(segment);
           car.setPrice(price);
           car.setCity(city);
+
+          if(containsColumn(rs, "photos") && rs.getString("photos") != null){
+              String[] photos = rs.getString("photos").split("\\?");
+
+              car.setImages(Arrays.stream(photos).parallel().map(i -> Image.of(i).orElse(null)).collect(Collectors.toList()));
+          }
 
           return car;
     }
@@ -118,6 +133,15 @@ public class Car extends Transversal {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 
     public Cities getCity() {

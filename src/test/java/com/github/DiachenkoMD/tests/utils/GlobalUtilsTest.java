@@ -135,7 +135,7 @@ public class GlobalUtilsTest {
                             new User(null, null, null, null)
                     ),
                     Arguments.of(
-                            new User(null, null, null, null, null, Roles.DEFAULT, null, 0, null),
+                            new User(null, null, null, null, null, Roles.CLIENT, null, 0, null),
                             new User(null, null, null, null, null, Roles.ADMIN, null, 0, null)
                     ),
                     Arguments.of(

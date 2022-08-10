@@ -50,7 +50,7 @@ public class UpdateUserDataController extends HttpServlet {
                 descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("profile.validation_failed").convert(getLang(req))));
             }
 
-            if(exceptionToClient.get() == null)
+            if(exceptionToClient.get().isEmpty())
                 exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
             logger.debug(exceptionToClient.get());
