@@ -1,6 +1,13 @@
 package com.github.DiachenkoMD.web.services;
 
+import com.github.DiachenkoMD.entities.DB_Constants;
 import com.github.DiachenkoMD.entities.dto.*;
+import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
+import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
+import com.github.DiachenkoMD.entities.dto.users.PanelUser;
+import com.github.DiachenkoMD.entities.enums.AccountStates;
+import com.github.DiachenkoMD.entities.enums.Roles;
+import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
@@ -25,8 +32,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.github.DiachenkoMD.entities.Constants.IMAGES_UPLOAD_DIR;
-import static com.github.DiachenkoMD.web.utils.Utils.random;
+import static com.github.DiachenkoMD.entities.Constants.*;
+import static com.github.DiachenkoMD.web.utils.Utils.*;
 
 public class AdminService {
 
@@ -254,7 +261,7 @@ public class AdminService {
             throw new DescriptiveException("Unable to delete, because some clients have invoice on this car", ExceptionReason.CAR_IN_USE);
 
         // Getting connected images (from the Car object to let us send pretty message that <brand> <model> was successfully deleted or something like that)
-        Car car = carsDAO.get(carId).get();
+        Car car = carsDAO.get(carId).get(); // TODO:: return brand and model to pretty show success
 
         if(car.getImages().size() > 0){
             String realPath = ctx.getRealPath(IMAGES_UPLOAD_DIR);
@@ -267,29 +274,228 @@ public class AdminService {
         }
 
 
+
         // Removing file entry from db
         if(!carsDAO.delete(carId))
             throw new DescriptiveException("Zero rows were affected on car deleting", ExceptionReason.DB_ACTION_ERROR);
     }
 
     /**
-     * Returns list of {@link LimitedUser PanelUser} depending on incoming criteria. Simply put, criteria contains pagination data + filters, collected from page. <br>
-     * @see com.github.DiachenkoMD.entities.dto.PaginationWrapper PaginationWrapper
+     * Returns list of {@link PanelUser PanelUser} depending on incoming criteria. Simply put, criteria contains pagination data + filters, collected from page. <br>
+     * @see PaginationRequest PaginationWrapper
      * @see com.github.DiachenkoMD.entities.dto.Filters
      * @param paginationWrapperJSON json string, that should have view like {"askedPage":1,"elementsPerPage":15,"filters":{"email":"","firstname":"","surname":"","patronymic":"","role":0,"state":0}}
      */
-    public List<LimitedUser> getUsers(String paginationWrapperJSON) throws DBException {
+    public PaginationResponse<PanelUser> getUsers(String paginationWrapperJSON) throws DBException {
         Gson gson = (Gson) ctx.getAttribute("gson");
-        PaginationWrapper pw = gson.fromJson(paginationWrapperJSON, PaginationWrapper.class);
+        PaginationRequest pr = gson.fromJson(paginationWrapperJSON, PaginationRequest.class);
 
-        int askedPage = pw.getAskedPage();
-        int elementsPerPage = pw.getElementsPerPage();
+        int askedPage = pr.getAskedPage();
+        int elementsPerPage = pr.getElementsPerPage();
 
-        int limitEnd = askedPage * elementsPerPage;
-        int limitStart = limitEnd - elementsPerPage;
+        int limitOffset = (askedPage - 1) * elementsPerPage;
+        int limitCount = elementsPerPage;
 
-        HashMap<String, String> searchCriteria = pw.getUsersFilters().getDBPresentation();
+        HashMap<String, String> searchCriteria = pr.getUsersFilters().getDBPresentation("%");
 
-        return usersDAO.getUserWithFilters(searchCriteria, limitStart, limitEnd);
+        List<PanelUser> foundUsersWithLimit = usersDAO.getUsersWithFilters(searchCriteria, limitOffset, limitCount);
+        int totalUsersAmount = usersDAO.getUsersNumberWithFilters(searchCriteria);
+
+        PaginationResponse<PanelUser> paginationResponse = new PaginationResponse<>();
+        paginationResponse.setTotalElements(totalUsersAmount);
+        paginationResponse.setResponseData(foundUsersWithLimit);
+
+        return paginationResponse;
+    }
+
+    /**
+     * Method for creating new user from admin-panel. Contains email, firstname?, surname?, patronymic?, password and role validation, so be sure to pass in JSON all needed data.
+     * @param creationUserJSON - json string containing email, firstname?, surname?, patronymic?, password and role. *"?" means optional.
+     * @throws DBException
+     * @throws DescriptiveException
+     */
+    public void createUser(String creationUserJSON) throws DBException, DescriptiveException{
+        Gson gson = (Gson) ctx.getAttribute("gson");
+
+        CreationUpdatingUserJPC registeringUser = gson.fromJson(creationUserJSON, CreationUpdatingUserJPC.class);
+
+        String email = registeringUser.getEmail();
+        String firstname = registeringUser.getFirstname();
+        String surname = registeringUser.getSurname();
+        String patronymic = registeringUser.getPatronymic();
+        String password = registeringUser.getPassword();
+        Roles role = registeringUser.getRole();
+
+
+        logger.debug("Acquired values: {} {} {} {} {}, {}", email ,firstname, surname, patronymic, password, role);
+
+        // Validating data (email and password are always validated and firstname, surname and patronymic validate only if we got them from json object)
+        if (!validate(email, ValidationParameters.EMAIL))
+            throw new DescriptiveException("Email validation failed", ExceptionReason.VALIDATION_ERROR);
+
+        if (firstname != null && !validate(firstname, ValidationParameters.NAME))
+            throw new DescriptiveException("Firstname validation failed", ExceptionReason.VALIDATION_ERROR);
+        if (surname != null && !validate(surname, ValidationParameters.NAME))
+            throw new DescriptiveException("Surname validation failed", ExceptionReason.VALIDATION_ERROR);
+        if (patronymic != null && !validate(patronymic, ValidationParameters.NAME))
+            throw new DescriptiveException("Patronymic validation failed", ExceptionReason.VALIDATION_ERROR);
+
+        if (!validate(password, ValidationParameters.PASSWORD))
+            throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
+
+        if (role == null)
+            throw new DescriptiveException("Role validation failed", ExceptionReason.VALIDATION_ERROR);
+
+        // Checking user for existence
+        boolean doesExist = usersDAO.doesExist(registeringUser);
+        if (doesExist)
+            throw new DescriptiveException(new HashMap<>(Map.of("email", email)), ExceptionReason.EMAIL_EXISTS);
+
+        // Registering new user (method returns original user entity + newly created id included)
+        if(usersDAO.register(registeringUser, encryptPassword(password)) == null)
+            throw new DescriptiveException("Got null from calling register() method", ExceptionReason.DB_ACTION_ERROR);
+    }
+
+    /**
+     * JSON Parsing Class (JPC) for GSON. Created for parsing incoming json data for user creation at {@link #createUser(String) createUser(String)}. <br/>
+     * Extends LimitedUser only providing new field for password.
+     */
+    private static class CreationUpdatingUserJPC extends LimitedUser {
+        private String password;
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
+
+    /**
+     * Method for getting extended user information for admin-panel.
+     * @param userIdEncrypted User identifier in the encrypted state.
+     */
+    public InformativeUser getUser(String userIdEncrypted) throws DescriptiveException, DBException {
+        int userId = Integer.parseInt(CryptoStore.decrypt(userIdEncrypted));
+
+        InformativeUser user = usersDAO.getInformativeUser(userId);
+
+        if(user == null)
+            throw new DescriptiveException("getInformativeUser return null (no user was acquired)", ExceptionReason.DB_ACTION_ERROR);
+
+        return user;
+    }
+
+    /**
+     * Method for updating user data. Obtaining !only! changed fields, any other field, that is not on json object won`t be updated.
+     * @param changedUserDataJSON changed user data in json format. Should correspond to {@link CreationUpdatingUserJPC CreationUpdatingUserJPC}, because will be parsed by Gson into that object.
+     */
+    public void updateUser(String changedUserDataJSON) throws DescriptiveException, DBException {
+        Gson gson = (Gson) ctx.getAttribute("gson");
+
+        CreationUpdatingUserJPC changedUserData = gson.fromJson(changedUserDataJSON, CreationUpdatingUserJPC.class);
+
+        String email = changedUserData.getEmail();
+        String firstname = changedUserData.getFirstname();
+        String surname = changedUserData.getSurname();
+        String patronymic = changedUserData.getPatronymic();
+        String password = changedUserData.getPassword();
+        Roles role = changedUserData.getRole();
+
+
+        logger.debug("Acquired values: {} {} {} {} {}, {}", email ,firstname, surname, patronymic, password, role);
+
+        HashMap<String, String> resultFieldsToUpdate = new HashMap<>();
+
+        int userId = changedUserData.getCleanId().orElseThrow(() -> new DescriptiveException("Could`nt obtain user id from request json object", ExceptionReason.ACQUIRING_ERROR));
+
+        // Validating data
+        if (email != null){
+            if(!validate(email, ValidationParameters.EMAIL))
+                throw new DescriptiveException("Email validation failed", ExceptionReason.VALIDATION_ERROR);
+            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_EMAIL, email);
+        }
+
+        if(firstname != null){
+            if(!validate(firstname, ValidationParameters.NAME))
+                throw new DescriptiveException("Firstname validation failed", ExceptionReason.VALIDATION_ERROR);
+            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_FIRSTNAME, firstname);
+        }
+
+        if(surname != null){
+            if(!validate(surname, ValidationParameters.NAME))
+                throw new DescriptiveException("Surname validation failed", ExceptionReason.VALIDATION_ERROR);
+            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_SURNAME, surname);
+        }
+
+        if(patronymic != null){
+            if(!validate(patronymic, ValidationParameters.NAME))
+                throw new DescriptiveException("Patronymic validation failed", ExceptionReason.VALIDATION_ERROR);
+            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_PATRONYMIC, patronymic);
+        }
+
+        if (password != null){
+            if(!validate(password, ValidationParameters.PASSWORD))
+                throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
+            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_PASSWORD, encryptPassword(password));
+        }
+
+        if (role != null)
+            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_ROLE_ID, String.valueOf(role.id()));
+
+
+        if(resultFieldsToUpdate.size() > 0)
+            if(!usersDAO.updateUsersData(userId, resultFieldsToUpdate))
+                throw new DescriptiveException("Zero rows were updated by calling updateUserData", ExceptionReason.DB_ACTION_ERROR);
+    }
+
+    /**
+     * Method for updating user state aka blocking / unblocking user.
+     * @param userIdEncrypted encrypted user id as String.
+     * @param newStateId id of state as int (by 2022.08.11 -> 1 = blocked, 2 = unblocked).
+     * @throws DescriptiveException
+     * @throws DBException
+     */
+    public void updateUserState(String userIdEncrypted, int newStateId) throws DescriptiveException, DBException {
+
+        int userId = Integer.parseInt(CryptoStore.decrypt(userIdEncrypted));
+
+        AccountStates newState = AccountStates.getById(newStateId);
+
+        if(!usersDAO.setUserState(userId, newState.id()))
+            throw new DescriptiveException("Zero rows were updated by calling setUserState()", ExceptionReason.DB_ACTION_ERROR);
+    }
+
+    public void deleteUsers(String usersListJSON) throws DBException, DescriptiveException {
+        Gson gson = (Gson) ctx.getAttribute("gson");
+        DeleteUsersJPC deleteUsersData = gson.fromJson(usersListJSON, DeleteUsersJPC.class);
+
+
+        List<Integer> usersIds = deleteUsersData.getIds().parallelStream().map(x -> {
+            try {
+                return Integer.parseInt(CryptoStore.decrypt(x));
+            } catch (DescriptiveException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+
+        if(usersIds.size() > 0){
+            if(!usersDAO.deleteUsers(usersIds))
+                throw new DescriptiveException("Some or all users were not deleted!", ExceptionReason.DB_ACTION_ERROR);
+        }
+    }
+
+    private static class DeleteUsersJPC{
+
+        private List<String> ids;
+
+        public List<String> getIds() {
+            return ids;
+        }
+
+        public void setIds(List<String> ids) {
+            this.ids = ids;
+        }
     }
 }

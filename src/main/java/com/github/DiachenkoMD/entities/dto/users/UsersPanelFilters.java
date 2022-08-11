@@ -1,15 +1,18 @@
-package com.github.DiachenkoMD.entities.dto;
+package com.github.DiachenkoMD.entities.dto.users;
 
 import com.github.DiachenkoMD.entities.adapters.DBCoupledAdapter;
+import com.github.DiachenkoMD.entities.dto.Filters;
 import com.github.DiachenkoMD.entities.enums.AccountStates;
 import static com.github.DiachenkoMD.entities.DB_Constants.*;
+import static com.github.DiachenkoMD.web.utils.Utils.clean;
+
 import com.github.DiachenkoMD.entities.enums.DBCoupled;
 import com.github.DiachenkoMD.entities.enums.Roles;
 import com.google.gson.annotations.JsonAdapter;
 
 import java.util.HashMap;
 
-public class UsersPanelFilters extends Filters{
+public class UsersPanelFilters extends Filters {
     private String email;
     private String firstname;
     private String surname;
@@ -67,29 +70,33 @@ public class UsersPanelFilters extends Filters{
         this.state = state;
     }
 
-    @Override
-    public HashMap<String, String> getDBPresentation() {
+
+    public HashMap<String, String> getDBPresentation(String part) {
         HashMap<String, String> representation = new HashMap<>();
 
-        if(email != null)
-            representation.put(TBL_USERS_EMAIL, email.trim());
-        if(firstname != null)
-            representation.put(TBL_USERS_FIRSTNAME, firstname.trim());
-        if(surname != null)
-            representation.put(TBL_USERS_SURNAME, surname.trim());
-        if(patronymic != null)
-            representation.put(TBL_USERS_PATRONYMIC, patronymic.trim());
-        if(role != null){
-            String role_id = role.id() > 0 ? String.valueOf(role.id()) : String.valueOf(Roles.CLIENT.id());
-            representation.put(TBL_USERS_ROLE_ID, role_id);
+        if(email != null && !email.isBlank())
+            representation.put(TBL_USERS_EMAIL, dgp(part, clean(email)));
+        if(firstname != null && !firstname.isBlank())
+            representation.put(TBL_USERS_FIRSTNAME,  dgp(part, clean(firstname)));
+        if(surname != null && !surname.isBlank())
+            representation.put(TBL_USERS_SURNAME,  dgp(part, clean(surname)));
+        if(patronymic != null && !patronymic.isBlank())
+            representation.put(TBL_USERS_PATRONYMIC,  dgp(part, clean(patronymic)));
+        if(role != null && role.id() > 0){
+            representation.put(TBL_USERS_ROLE_ID, String.valueOf(role.id()));
         }
-        if(state != null){
-            String state_id = state.id() > 0 ? String.valueOf(state.id()) : String.valueOf(AccountStates.UNBLOCKED.id());
-            representation.put(TBL_USERS_IS_BLOCKED, state_id);
+        if(state != null && state.id() > 0){
+            representation.put(TBL_USERS_IS_BLOCKED, String.valueOf(state.id()));
         }
 
         return representation;
     }
+
+    @Override
+    public HashMap<String, String> getDBPresentation() {
+        return this.getDBPresentation("");
+    }
+
 
     @Override
     public String toString() {
@@ -101,5 +108,9 @@ public class UsersPanelFilters extends Filters{
                 "   Role: %s,\n" +
                 "   State: %s\n" +
                 "}", this.getEmail(), this.getFirstname(), this.getSurname(), this.getPatronymic(), this.getRole(), this.getState());
+    }
+
+    private String dgp(String glued, String str){
+        return glued + str + glued;
     }
 }

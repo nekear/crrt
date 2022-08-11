@@ -14,6 +14,12 @@ Notiflix.Notify.init({
     },
 });
 
+Notiflix.Confirm.init({
+   backgroundColor: 'var(--systemGray6_default)',
+   titleColor: 'var(--systemGray_accessible)',
+   messageColor: 'var(--systemGray_accessible)'
+});
+
 function loader(action) {
     if(action == true){
         $('.loader').fadeIn();

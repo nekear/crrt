@@ -92,6 +92,19 @@ public class JSJS {
         return new GsonBuilder().setPrettyPrinting().create().toJson(res);
     }
 
+    public static String transForUsersDeleteConfirmation(String lang){
+        ResourceBundle langPack = bundle(lang);
+
+        return new GsonBuilder().setPrettyPrinting().create().toJson(
+                Map.of(
+                    "title", langPack.getString("admin.user_deleting.confirmation.title"),
+                    "desc", langPack.getString("admin.user_deleting.confirmation.description"),
+                    "yes", langPack.getString("admin.user_deleting.confirmation.yes"),
+                    "no", langPack.getString("admin.user_deleting.confirmation.no")
+                )
+        );
+    }
+
     private static ResourceBundle bundle(String lang){
         return ResourceBundle.getBundle( "langs.i18n_"+lang);
     }

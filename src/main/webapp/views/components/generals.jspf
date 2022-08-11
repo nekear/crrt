@@ -1,4 +1,4 @@
-<%@ page import="com.github.DiachenkoMD.entities.dto.User" %>
+<%@ page import="com.github.DiachenkoMD.entities.dto.users.AuthUser" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="com.github.DiachenkoMD.entities.Constants" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
@@ -16,7 +16,7 @@
 <c:set var="assets" value="${pageContext.request.contextPath}/assets/" scope="page" />
 
 <%
-    User currentUser = ((User) session.getAttribute("auth"));
+    AuthUser currentUser = ((AuthUser) session.getAttribute("auth"));
     ResourceBundle i18n = ResourceBundle.getBundle("langs.i18n_"+pageContext.getAttribute("lang"));
 
     pageContext.setAttribute("i18n", i18n);

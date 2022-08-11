@@ -403,6 +403,9 @@ footer .right-content .copy-item .content:hover .text {
   -webkit-transition: all 0.15s cubic-bezier(0.445, 0.05, 0.55, 0.95);
   transition: all 0.15s cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
+.table tr.blocked .column-email {
+  color: var(--systemRed_default);
+}
 .table tr:last-child {
   border-bottom: 1px solid var(--borderColor_accessible3);
 }
@@ -462,6 +465,27 @@ footer .right-content .copy-item .content:hover .text {
 .status-chip[data-status-code="5"]:hover {
   background: rgba(var(--a-systemPink_accessible), 0.2);
 }
+.status-chip[data-status-code="6"] {
+  background: rgba(var(--a-systemIndigo_accessible), 0.1);
+  color: var(--systemIndigo_accessible);
+}
+.status-chip[data-status-code="6"]:hover {
+  background: rgba(var(--a-systemIndigo_accessible), 0.2);
+}
+.status-chip[data-status-code="7"] {
+  background: rgba(var(--a-systemYellow_accessible), 0.1);
+  color: var(--systemYellow_accessible);
+}
+.status-chip[data-status-code="7"]:hover {
+  background: rgba(var(--a-systemYellow_accessible), 0.2);
+}
+.status-chip[data-status-code="8"] {
+  background: rgba(var(--a-ascentColor), 0.1);
+  color: var(--ascentColor);
+}
+.status-chip[data-status-code="8"]:hover {
+  background: rgba(var(--a-ascentColor), 0.2);
+}
 
 .modal-content {
   background-color: var(--systemGray6_accessible);
@@ -489,6 +513,14 @@ footer .right-content .copy-item .content:hover .text {
 
 .mc-item {
   margin-bottom: 15px;
+  position: relative;
+  color: var(--systemGray_accessible);
+}
+
+.micro-caution {
+  font-size: 12px;
+  color: var(--systemGray_accessible);
+  opacity: 0.7;
 }
 
 .loader {

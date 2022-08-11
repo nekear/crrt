@@ -5,33 +5,7 @@ const validationPatterns = {
     "min-letters": ".*[a-zA-Z]{$v$,}.*",
     "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
 }
-// const loaded = {
-//     segments: {
-//         0: {
-//           name: "All segments"
-//         },
-//         1: {
-//             name: "E-segment"
-//         },
-//         2: {
-//             name: "F-segment"
-//         },
-//         3: {
-//             name: "S-segment"
-//         }
-//     },
-//     cities: {
-//         0:{
-//             name: "All cities"
-//         },
-//         1: {
-//             name: "Kyiv"
-//         },
-//         2: {
-//             name: "Lviv"
-//         }
-//     }
-// }
+
 
 const carsWorkingOnObjectProto = {
     id: null,
@@ -86,21 +60,242 @@ const app = createApp({
                     pagination: {
                         itemsPerPage: 15,
                         availablePages: 1,
-                        currentPage: 1
+                        currentPage: 1,
+                        totalFoundEntities: 0
                     }
                 },
-                list: [
-                    {
-                        id: 0,
-                        email: "xpert14world@gmail.com",
-                        firstname: "Mykhailo",
-                        surname: "Diachenko",
-                        patronymic: "Dmytrovich",
-                        role: 1,
-                        isBlocked: 0,
-                        isChecked: 0
-                    }
-                ]
+                list: [],
+                creation:{
+                    input_list:{
+                        email: {
+                            inputData: "",
+
+                            isFocused: false,
+                            shouldHighlight: false,
+                            isNecessary: true,
+                            placeholder: "",
+                            type: "text",
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        pattern: "[a-zA-Z_0-9]+\\@[a-zA-Z_0-9]+\\.[a-zA-Z]+"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                }
+                            ]
+                        },
+                        firstname: {
+                            inputData: "",
+                            isFocused: false,
+                            isNecessary: false,
+
+                            shouldHighlight: false,
+                            placeholder: "",
+                            type: "text",
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "name_pattern"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                }
+                            ]
+                        },
+                        surname: {
+                            inputData: "",
+                            isFocused: false,
+                            isNecessary: false,
+
+                            shouldHighlight: false,
+                            placeholder: "",
+                            type: "text",
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "name_pattern"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                }
+                            ]
+                        },
+                        patronymic: {
+                            inputData: "",
+                            isFocused: false,
+                            isNecessary: false,
+
+                            shouldHighlight: false,
+                            placeholder: "",
+                            type: "text",
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "name_pattern"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                }
+                            ]
+                        },
+                        password: {
+                            inputData: "",
+                            isFocused: false,
+
+                            shouldHighlight: false,
+                            placeholder: "",
+                            type: "password",
+                            isNecessary: true,
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "min-symbols",
+                                        value: "4",
+                                    },
+                                    message: "",
+                                    isValid: false
+                                },
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "min-letters",
+                                        value: "1"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                },
+                            ]
+                        }
+                    },
+                    chosenRole: 0
+                },
+                editing:{
+                    originalData:{},
+                    input_list:{
+                        email: {
+                            inputData: "",
+
+                            isFocused: false,
+                            shouldHighlight: false,
+                            isNecessary: true,
+                            placeholder: "",
+                            type: "text",
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        pattern: "[a-zA-Z_0-9]+\\@[a-zA-Z_0-9]+\\.[a-zA-Z]+"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                }
+                            ]
+                        },
+                        firstname: {
+                            inputData: "",
+                            isFocused: false,
+                            isNecessary: false,
+
+                            shouldHighlight: false,
+                            placeholder: "",
+                            type: "text",
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "name_pattern"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                }
+                            ]
+                        },
+                        surname: {
+                            inputData: "",
+                            isFocused: false,
+                            isNecessary: false,
+
+                            shouldHighlight: false,
+                            placeholder: "",
+                            type: "text",
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "name_pattern"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                }
+                            ]
+                        },
+                        patronymic: {
+                            inputData: "",
+                            isFocused: false,
+                            isNecessary: false,
+
+                            shouldHighlight: false,
+                            placeholder: "",
+                            type: "text",
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "name_pattern"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                }
+                            ]
+                        },
+                        password: {
+                            inputData: "",
+                            isFocused: false,
+
+                            shouldHighlight: false,
+                            placeholder: "",
+                            type: "password",
+                            isNecessary: false,
+
+                            checks: [
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "min-symbols",
+                                        value: "4",
+                                    },
+                                    message: "",
+                                    isValid: false
+                                },
+                                {
+                                    configs:{
+                                        level: "high",
+                                        type: "min-letters",
+                                        value: "1"
+                                    },
+                                    message: "",
+                                    isValid: false
+                                },
+                            ]
+                        }
+                    },
+                    chosenRole: 0
+                }
             },
             segments: {},
             cities: {},
@@ -117,12 +312,99 @@ const app = createApp({
 
         // Assigning prototype
         Object.assign(this.cars.workingOn, carsWorkingOnObjectProto);
+
+        // Trick for inputs localization
+        Object.keys(js_localization.inputs).forEach(key => {
+
+            // Translating checks
+            const checksCreation = this.users.creation.input_list[key].checks;
+            const checksEditing = this.users.editing.input_list[key].checks;
+
+            checksCreation.forEach((check, index) => {
+                check.message = js_localization.inputs[key].checks[index];
+            });
+
+            checksEditing.forEach((check, index) => {
+                check.message = js_localization.inputs[key].checks[index];
+            });
+
+            // Translating placeholders
+            this.users.creation.input_list[key].placeholder = js_localization.inputs[key].placeholder;
+            this.users.editing.input_list[key].placeholder = js_localization.inputs[key].placeholder;
+        });
+
+        // Watcher to look after inputs` changes in user creation modal
+        Object.keys(this.users.creation.input_list).forEach(key => {
+            this.$watch(`users.creation.input_list.${key}.inputData`, (newValue, oldValue) => {
+                const container = this.users.creation.input_list[key];
+                const currentValue = newValue; // Current value of the changed input
+
+                // Looping through validation "checks" (as I called them) and deciding whether they are satisfied or not
+                container.checks.forEach(check => {
+                    const configs = check.configs;
+                    // so its type-based (not regex pattern)
+                    if("type" in configs){
+                        const regexString = validationPatterns[configs.type];
+                        if(regexString){
+                            const regex = new RegExp(("value" in configs) ? regexString.replace("$v$", configs.value) : regexString); // with replacement, because we want flexibility
+                            check.isValid = regex.test(currentValue);
+                        }else{
+                            console.error(`[${key}] You don't have ${configs.type} specified at validationPatterns!`);
+                        }
+                    }else{ // me, as a dev, decided to use regex pattern
+                        const regex = new RegExp(configs.pattern); // with replacement, because we want flexibility
+                        check.isValid = regex.test(currentValue);
+                    }
+                });
+
+                this.users.creation.input_list[key].shouldHighlight = !this.doesPassValidation(key, "creation");
+            });
+        });
+
+        // Watcher to look after inputs` changes in user creation modal
+        Object.keys(this.users.editing.input_list).forEach(key => {
+            this.$watch(`users.editing.input_list.${key}.inputData`, (newValue, oldValue) => {
+                const container = this.users.editing.input_list[key];
+                const currentValue = newValue; // Current value of the changed input
+
+                // Looping through validation "checks" (as I called them) and deciding whether they are satisfied or not
+                container.checks.forEach(check => {
+                    const configs = check.configs;
+                    // so its type-based (not regex pattern)
+                    if("type" in configs){
+                        const regexString = validationPatterns[configs.type];
+                        if(regexString){
+                            const regex = new RegExp(("value" in configs) ? regexString.replace("$v$", configs.value) : regexString); // with replacement, because we want flexibility
+                            check.isValid = regex.test(currentValue);
+                        }else{
+                            console.error(`[${key}] You don't have ${configs.type} specified at validationPatterns!`);
+                        }
+                    }else{ // me, as a dev, decided to use regex pattern
+                        const regex = new RegExp(configs.pattern); // with replacement, because we want flexibility
+                        check.isValid = regex.test(currentValue);
+                    }
+                });
+
+                this.users.editing.input_list[key].shouldHighlight = !this.doesPassValidation(key, "editing");
+            });
+        });
     },
 
     watch:{
-      "tabs.panel.active"(newState, oldState){
-
-      }
+          "tabs.panel.active"(newState, oldState){
+              if(newState === "users"){
+                  if(this.users.list.length === 0){
+                      this.performUsersSearch(1);
+                  }
+              }
+          },
+        "users.list"(newState, oldState){
+          for(let key in newState){
+              if(!("isChecked" in newState[key])){
+                  newState[key].isChecked = false;
+              }
+          }
+        }
     },
 
     mounted(){
@@ -223,11 +505,81 @@ const app = createApp({
             }
         },
 
+        userUpdateChangedData: function (){
+            const inputListReference = this.users.editing.input_list;
+
+            const email = inputListReference.email.inputData;
+            const firstname = inputListReference.firstname.inputData;
+            const surname = inputListReference.surname.inputData;
+            const patronymic = inputListReference.patronymic.inputData;
+            const password = inputListReference.password.inputData;
+            const role = parseInt(this.users.editing.chosenRole);
+
+            let resultUpdateData = {
+                email: email,
+                firstname: firstname,
+                surname: surname,
+                patronymic: patronymic,
+                role: role
+            };
+
+            if(password.length)
+                resultUpdateData.password = password;
+
+            for(let key in resultUpdateData){
+                if(resultUpdateData[key] === this.users.editing.originalData[key]){
+                    delete resultUpdateData[key];
+                }
+            }
+
+            return resultUpdateData;
+        }
+
     },
     methods:{
-        // ========= TABS ========= //
+        // ========= USEFUL FUNCTIONS ========= //
         activateTab(group, tabName){
             this.tabs[group].active = tabName;
+        },
+
+        doesPassValidation(input_id, targetName,is_soft = true){
+            const currentInput = this.users[targetName].input_list[input_id];
+
+            if(currentInput){
+                // Returning answer will be based on:
+                // - input content (does it filled)
+                // - do all "high" checks passed
+                // - is it necessary to fill the field
+
+                let shouldHighlight = false;
+
+                if(currentInput.inputData.length > 0){
+                    for(let check of currentInput.checks){
+                        if(check.configs.level === "high" && !check.isValid) {
+                            shouldHighlight = true;
+                            break;
+                        }
+                    }
+                }else
+                if(!is_soft && currentInput.isNecessary)
+                    shouldHighlight = true;
+
+                return !shouldHighlight;
+
+            }else{
+                console.error(`${input_id} in method doesPassValidation is not defined!`);
+                return false;
+            }
+        },
+        cleanUpUserModal(target){
+            const targetDestination = this.users[target];
+
+            Object.keys(targetDestination.input_list).forEach(key => {
+                targetDestination.input_list[key].inputData = "";
+                targetDestination.input_list[key].shouldHighlight = false;
+            });
+
+            targetDestination.chosenRole = 0;
         },
 
         // ========= USERS RELATED ========= //
@@ -241,18 +593,14 @@ const app = createApp({
           });
         },
 
-        goToUsersPage(pageIndex){
-          console.log("Tried to go to " + pageIndex);
-        },
-
         users_sc_role(role){
             this.users.search.filters.role = parseInt(this.users.search.filters.role) === parseInt(role) ? 0 : parseInt(role);
         },
 
 
-        performUsersSearch(){
+        performUsersSearch(pageIndex){
             let searchRequestObject = {
-                askedPage: 1,
+                askedPage: pageIndex,
                 elementsPerPage: this.users.search.pagination.itemsPerPage,
                 usersFilters: this.users.search.filters
             };
@@ -263,7 +611,11 @@ const app = createApp({
                 }
             })
             .then(function (response) {
-                console.log(response);
+                console.log(response.data);
+                app.users.search.pagination.currentPage = pageIndex;
+                app.users.search.pagination.availablePages = Math.ceil(response.data.totalElements / app.users.search.pagination.itemsPerPage);
+                app.users.search.pagination.totalFoundEntities = response.data.totalElements;
+                app.users.list = response.data.entities;
             })
             .catch(function (error) {
                 console.log(error);
@@ -271,18 +623,186 @@ const app = createApp({
             });
         },
 
+        goToUsersPage(pageIndex) {
+            this.performUsersSearch(pageIndex);
+        },
 
+        openUserCreateModal(){
+            $("#userCreate_modal").modal("show");
+        },
 
+        createUser(){
+            let doInputsOkay = true;
+            const inputs_list = this.users.creation.input_list;
+            Object.keys(inputs_list).forEach(el => {
+                const doesPass = this.doesPassValidation(el, "creation",false);
+                if(!doesPass)
+                    doInputsOkay = false;
+                this.users.creation.input_list[el].shouldHighlight = !doesPass;
+            });
 
+            let doSelectOkay = this.users.creation.chosenRole > 0;
 
+            if(!doSelectOkay){
+                this.$refs["user_create-role-select"].classList.add("highlight");
+            }else{
+                this.$refs["user_create-role-select"].classList.remove("highlight");
+            }
 
+            if(doInputsOkay && doSelectOkay){
 
+                let requestUserCreationData = {
+                    email: this.users.creation.input_list.email.inputData,
+                    password: this.users.creation.input_list.password.inputData,
+                    role: this.users.creation.chosenRole
+                }
 
+                const firstname = this.users.creation.input_list.firstname.inputData;
+                const surname = this.users.creation.input_list.surname.inputData;
+                const patronymic = this.users.creation.input_list.patronymic.inputData;
 
+                if(firstname)
+                    requestUserCreationData.firstname = firstname;
+                if(surname)
+                    requestUserCreationData.firstname = surname;
+                if(patronymic)
+                    requestUserCreationData.firstname = patronymic;
 
+                axios.post('http://localhost:8080/crrt_war/admin/user', {
+                    ...requestUserCreationData
+                })
+                .then(function (response) {
+                    console.log(response);
+                    Notiflix.Notify.success(response.data);
+                    $("#userCreate_modal").modal("hide");
+                    app.performUsersSearch(1);
+                    app.cleanUpUserModal("creation");
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    Notiflix.Notify.failure(error.response.data);
+                });
+            }
+        },
 
+        openUserEditModal(user_id){
 
+            axios.get(`http://localhost:8080/crrt_war/admin/user`, {
+                params:{
+                    id: user_id
+                }
+            })
+            .then(function (response) {
+                console.log(response);
+                const targetDestination = app.users.editing;
 
+                Object.keys(targetDestination.input_list).forEach(key => {
+                    if(key in response.data){
+                        targetDestination.input_list[key].inputData = response.data[key];
+                    }
+                });
+
+                targetDestination.chosenRole = response.data.role;
+
+                app.users.editing.originalData = response.data;
+
+                $("#userEdit_modal").modal("show");
+            })
+            .catch(function (error) {
+                console.log(error);
+                Notiflix.Notify.failure(error.response.data);
+            });
+        },
+
+        setUserState(state){
+            axios.put('http://localhost:8080/crrt_war/admin/user/block', {
+                id: app.users.editing.originalData.id,
+                newState: state
+            })
+                .then(function (response) {
+                    console.log(response);
+                    app.users.editing.originalData.state = state;
+                    app.performUsersSearch(1);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    Notiflix.Notify.failure(error.response.data);
+                });
+        },
+
+        updateUser(){
+            let doInputsOkay = true;
+            const inputs_list = this.users.creation.input_list;
+            Object.keys(inputs_list).forEach(el => {
+                const doesPass = this.doesPassValidation(el, "editing",false);
+                if(!doesPass)
+                    doInputsOkay = false;
+                this.users.editing.input_list[el].shouldHighlight = !doesPass;
+            });
+
+            let doSelectOkay = this.users.editing.chosenRole > 0;
+
+            if(!doSelectOkay){
+                this.$refs["user_edit-role-select"].classList.add("highlight");
+            }else{
+                this.$refs["user_edit-role-select"].classList.remove("highlight");
+            }
+
+            if(doInputsOkay && doSelectOkay) {
+
+                const changedData = this.userUpdateChangedData;
+
+                axios.put('http://localhost:8080/crrt_war/admin/user', {
+                    id: app.users.editing.originalData.id,
+                    ...changedData
+                })
+                .then(function (response) {
+                    console.log(response);
+                    Notiflix.Notify.success(response.data);
+                    $("#userEdit_modal").modal("hide");
+                    app.performUsersSearch(1);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    Notiflix.Notify.failure(error.response.data);
+                });
+            }
+        },
+
+        deleteSelectedUsers(){
+            let selectedUsersIds = [];
+
+            this.users.list.forEach((user, index) => {
+               if(user.isChecked)
+                   selectedUsersIds.push(user.id);
+            });
+
+            if(selectedUsersIds.length > 0){
+                const udcl =  users_delete_conf_localization;
+
+                Notiflix.Confirm.show(
+                    udcl.title,
+                    udcl.desc,
+                    udcl.yes,
+                    udcl.no,
+                    () => {
+                        axios.delete('http://localhost:8080/crrt_war/admin/user', {
+                            data: {
+                                ids: selectedUsersIds
+                            }
+                        })
+                        .then(function (response) {
+                            console.log(response);
+                            app.performUsersSearch(1);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            Notiflix.Notify.failure(error.response.data);
+                        });
+                    }
+                );
+            }
+        },
 
 
 

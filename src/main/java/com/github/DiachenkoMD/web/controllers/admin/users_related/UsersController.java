@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.github.DiachenkoMD.web.utils.Utils.sendSuccess;
+
 @WebServlet("/admin/users")
 public class UsersController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(UsersController.class);
@@ -34,8 +36,7 @@ public class UsersController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{
             String paginationWrapperJSON = req.getParameter("data");
-            logger.info("Param: {}", paginationWrapperJSON);
-            logger.info("Success {} ", adminService.getUsers(paginationWrapperJSON));
+            sendSuccess(gson.toJson(adminService.getUsers(paginationWrapperJSON)), resp);
         }catch (Exception e){
             logger.error(e);
 

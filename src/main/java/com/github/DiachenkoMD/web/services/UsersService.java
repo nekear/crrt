@@ -3,7 +3,7 @@ package com.github.DiachenkoMD.web.services;
 import static com.github.DiachenkoMD.entities.Constants.*;
 
 import com.github.DiachenkoMD.entities.DB_Constants;
-import com.github.DiachenkoMD.entities.dto.*;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
@@ -80,7 +80,7 @@ public class UsersService {
             throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
 
         // Creating User entity to send it to appropriate method later
-        User registeringUser = new User(email, firstname, surname, patronymic);
+        AuthUser registeringUser = AuthUser.of(email, firstname, surname, patronymic);
 
         // Checking user for existence
         boolean doesExist = usersDAO.doesExist(registeringUser);
@@ -88,7 +88,7 @@ public class UsersService {
             throw new DescriptiveException(new HashMap<>(Map.of("email", email)), ExceptionReason.EMAIL_EXISTS);
 
         // Registering new user (method returns original user entity + newly created id included)
-        User registeredUserEntity = usersDAO.completeRegister(registeringUser, encryptPassword(password));
+        AuthUser registeredUserEntity = usersDAO.completeRegister(registeringUser, encryptPassword(password));
 
         if(registeredUserEntity == null || registeredUserEntity.getId() == null)
             throw new DescriptiveException("Error while registering user", ExceptionReason.REGISTRATION_PROCESS_ERROR);
@@ -112,7 +112,7 @@ public class UsersService {
         if(code == null)
             throw new DescriptiveException(ExceptionReason.CONFIRMATION_CODE_EMPTY);
 
-        User user = usersDAO.getUserByConfirmationCode(code);
+        AuthUser user = usersDAO.getUserByConfirmationCode(code);
 
         if(user == null)
             throw new DescriptiveException(ExceptionReason.CONFIRMATION_NO_SUCH_CODE);
@@ -127,7 +127,7 @@ public class UsersService {
      * @param req HttpServletRequest instance coming from controller
      * @param resp HttpServletResponse instance coming from controller
      */
-    public User loginUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException {
+    public AuthUser loginUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException {
 
         String requestData = req.getReader().lines().collect(Collectors.joining());
 
@@ -144,7 +144,7 @@ public class UsersService {
         if(!validate(password, ValidationParameters.PASSWORD))
             throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
 
-        User user = usersDAO.get(email);
+        AuthUser user = usersDAO.get(email);
 
         if(user == null)
             throw new DescriptiveException("User with such email was not found", ExceptionReason.LOGIN_USER_NOT_FOUND);
@@ -160,7 +160,7 @@ public class UsersService {
         return user;
     }
 
-    public User updateData(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
+    public AuthUser updateData(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
         String incomingJson = req.getReader().lines().collect(Collectors.joining("\n"));
 
         JSONObject json = new JSONObject(incomingJson);
@@ -196,7 +196,7 @@ public class UsersService {
 
         logger.debug("Going to update via HashMap: {}", resultFieldsToUpdate);
 
-        User current = (User) req.getSession().getAttribute("auth");
+        AuthUser current = (AuthUser) req.getSession().getAttribute("auth");
 
         if(!usersDAO.updateUsersData(current.getCleanId().orElse(-1), resultFieldsToUpdate))
             throw new DescriptiveException(ExceptionReason.UUD_FAILED_TO_UPDATE);
@@ -217,7 +217,7 @@ public class UsersService {
         if(!validate(newPassword, ValidationParameters.PASSWORD))
             throw new DescriptiveException("New password validation fail", ExceptionReason.VALIDATION_ERROR);
 
-        User current = (User) req.getSession().getAttribute("auth");
+        AuthUser current = (AuthUser) req.getSession().getAttribute("auth");
 
         Integer user_id = current.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
 
@@ -242,7 +242,7 @@ public class UsersService {
         if(requestedAmount <= 0)
             throw new DescriptiveException("Amount is less or equals 0", ExceptionReason.VALIDATION_ERROR);
 
-        User current = (User) req.getSession().getAttribute("auth");
+        AuthUser current = (AuthUser) req.getSession().getAttribute("auth");
 
         Integer user_id = current.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
 
@@ -273,7 +273,7 @@ public class UsersService {
 
         String realPath = req.getServletContext().getRealPath(AVATAR_UPLOAD_DIR);
 
-        User currentUser = (User) req.getSession().getAttribute("auth");
+        AuthUser currentUser = (AuthUser) req.getSession().getAttribute("auth");
 
         Integer user_id = currentUser.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
 
@@ -304,7 +304,7 @@ public class UsersService {
     public String deleteAvatar(HttpServletRequest req, HttpServletResponse resp) throws DBException, DescriptiveException, IOException{
         String realPath = req.getServletContext().getRealPath("/uploads/avatars");
 
-        User currentUser = (User) req.getSession().getAttribute("auth");
+        AuthUser currentUser = (AuthUser) req.getSession().getAttribute("auth");
 
         Integer user_id = currentUser.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
 

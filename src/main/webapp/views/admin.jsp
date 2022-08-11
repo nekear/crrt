@@ -46,7 +46,10 @@
             "cities": <%=JSJS.CitiesList((String) pageContext.getAttribute("lang"))%>,
             "roles": <%=JSJS.RolesList((String) pageContext.getAttribute("lang"))%>,
             "accountStates": <%=JSJS.AccountStatesList((String) pageContext.getAttribute("lang"))%>,
-        }
+        };
+
+        const js_localization = <%=JSJS.transForRegisterPage((String) pageContext.getAttribute("lang"))%>;
+        const users_delete_conf_localization = <%=JSJS.transForUsersDeleteConfirmation((String) pageContext.getAttribute("lang"))%>;
     </script>
 </head>
 <body>
@@ -204,10 +207,10 @@
                     <div class="mb-3 canvas-tools">
                         <div>
                             <h5>Users list</h5>
-                            <h6>Overall users number: <span>80</span></h6>
+                            <h6>Found users amount: <span>{{users.search.pagination.totalFoundEntities}}</span></h6>
                             <div>
-                                <button class="mdx-md-button button-green button-bordered" id="create-new-user">Create new</button>
-                                <button class="mdx-md-button button-red button-bordered ml-2" id="delete-selected-users">Delete selected</button>
+                                <button class="mdx-md-button button-green button-bordered" @click="openUserCreateModal()">Create</button>
+                                <button class="mdx-md-button button-red button-bordered ml-2" @click="deleteSelectedUsers()">Delete selected</button>
                             </div>
                         </div>
                         <div>
@@ -221,7 +224,7 @@
                                 </select>
                             </div>
                             <div class="mt-2">
-                                <button class="mdx-md-button button-blue button-bordered" @click="performUsersSearch()">Search</button>
+                                <button class="mdx-md-button button-blue button-bordered" @click="performUsersSearch(1)">Search</button>
                             </div>
                         </div>
                     </div>
@@ -253,7 +256,7 @@
                                 <input type="text" id="search-patronymic" placeholder="Patronymic" class="form-control" v-model="users.search.filters.patronymic">
                             </th>
                             <th>
-                                <select id="select-role" class="form-control form-select" v-model="users.search.filters.role">
+                                <select class="form-control form-select" v-model="users.search.filters.role">
                                     <option v-for="(role, index) in roles" :key="index" :value="index">{{role.name}}</option>
                                 </select>
                             </th>
@@ -265,11 +268,11 @@
                         </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="user in users.list">
+                            <tr v-for="user in users.list" :class="{blocked: user.state === 1}">
                                 <td class="admin-checkbox-cell">
                                     <div class="table-cell-flex">
-                                        <input class="input-mdx-square-checkbox" id="checkbox-0" type="checkbox" style="display: none" v-model="user.isChecked">
-                                        <label class="mdx-square-checkbox" for="checkbox-0">
+                                        <input class="input-mdx-square-checkbox" :id="'user-checkbox-'+user.id" type="checkbox" style="display: none" v-model="user.isChecked">
+                                        <label class="mdx-square-checkbox" :for="'user-checkbox-'+user.id">
                                                 <span>
                                                     <svg width="12px" height="10px" viewBox="0 0 12 10">
                                                       <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
@@ -278,13 +281,13 @@
                                         </label>
                                     </div>
                                 </td>
-                                <td>{{user.email}}</td>
+                                <td class="column-email">{{user.email}}</td>
                                 <td>{{user.firstname}}</td>
                                 <td>{{user.surname}}</td>
                                 <td>{{user.patronymic}}</td>
-                                <td><span class="flat-chip status-chip" data-ripple="#76ccc2" :data-status-code="user.role % 4 + 1" @click="users_sc_role(user.role)">Admin</span></td>
+                                <td><span class="flat-chip status-chip" data-ripple="#76ccc2" :data-status-code="user.role % 4 + 1" @click="users_sc_role(user.role)">{{roles[user.role].name}}</span></td>
                                 <td>
-                                    <button class="mdx-md-button button-bordered button-green open_userEdit_modal">Details</button>
+                                    <button class="mdx-md-button button-bordered button-green" @click="openUserEditModal(user.id)">Details</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -301,7 +304,7 @@
                             <h5>Invoices list</h5>
                             <h6>Overall cars number: <span>80</span></h6>
                             <div>
-                                <button class="mdx-md-button button-green button-bordered" @click="openCarCreateModal()">Create new</button>
+                                <button class="mdx-md-button button-green button-bordered" @click="openCarCreateModal()">Create</button>
                             </div>
                         </div>
                     </div>
@@ -449,6 +452,124 @@
                 <div class="modal-footer">
                     <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal">Закрити</button>
                     <button type="button" class="mdx-flat-button button-blue" @click="createCar()">Створити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="userCreate_modal" tabindex="1" role="dialog" aria-labelledby="userCreate_modal" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><span class="inTitle-action">User creation</span></h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="ce-data-container">
+                        <div class="mc-part-title">
+                            Profile information:
+                        </div>
+                        <div class="mc-item" v-for="(input_i, key) in users.creation.input_list" :key="key" :class="{necessary_input: input_i.isNecessary, highlight_necessity: input_i.isNecessary && input_i.isFocused, 'mdx-password-wrap': key === 'password'}">
+                            <input :type="input_i.type" class="form-control" :placeholder="input_i.placeholder"
+                                   v-model.trim="input_i.inputData"
+                                   :data-validation-highlight="input_i.shouldHighlight"
+                                   @focus="input_i.isFocused = true"
+                                   @blur="input_i.isFocused = false"
+                                   :name="key"
+                            >
+                            <div class="material-icons mdx-password-show" data-password-status="hidden" v-if="key === 'password' ">visibility_off</div>
+                            <div class="input-tips" v-if="input_i.checks.length > 0 && input_i.isFocused">
+                                <div v-for="(tip, index) in input_i.checks" :key="index"
+                                     :data-level="tip.configs.level"
+                                     :data-valid="tip.isValid">
+                                    {{tip.message}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mc-item">
+                            <select class="form-control form-select" v-model="users.creation.chosenRole" ref="user_create-role-select">
+                                <option v-for="(role, index) in roles" :key="index" :value="index">{{role.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal">Закрити</button>
+                    <button type="button" class="mdx-flat-button button-blue" @click="createUser()">Створити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="userEdit_modal" tabindex="1" role="dialog" aria-labelledby="userEdit_modal" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><span class="inTitle-action">Editing of {{users.editing.originalData.email}}</span></h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="ce-data-container">
+                        <div class="mc-item">
+                            <span class="flat-chip status-chip" data-status-code="2" v-if="users.editing.originalData.state === 1">Blocked</span>
+                        </div>
+                        <div class="mc-part-title">
+                            Profile information:
+                        </div>
+                        <div class="mc-item" v-for="(input_i, key) in users.editing.input_list" :key="key" :class="{necessary_input: input_i.isNecessary, highlight_necessity: input_i.isNecessary && input_i.isFocused, 'mdx-password-wrap': key === 'password'}">
+                            <input :type="input_i.type" class="form-control" :placeholder="input_i.placeholder"
+                                   v-model.trim="input_i.inputData"
+                                   :data-validation-highlight="input_i.shouldHighlight"
+                                   @focus="input_i.isFocused = true"
+                                   @blur="input_i.isFocused = false"
+                                   :name="key"
+                            >
+                            <div class="material-icons mdx-password-show" data-password-status="hidden" v-if="key === 'password' ">visibility_off</div>
+                            <div class="input-tips" v-if="input_i.checks.length > 0 && input_i.isFocused">
+                                <div v-for="(tip, index) in input_i.checks" :key="index"
+                                     :data-level="tip.configs.level"
+                                     :data-valid="tip.isValid">
+                                    {{tip.message}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mc-item">
+                            <select class="form-control form-select" v-model="users.editing.chosenRole" ref="user_edit-role-select">
+                                <option v-for="(role, index) in roles" :key="index" :value="index" v-show="parseInt(index) !== 0">{{role.name}}</option>
+                            </select>
+                        </div>
+                        <div class="mc-part-title">
+                            Extra information:
+                        </div>
+                        <div class="mdx-divider arrow-down solid mt-3 mb-3"></div>
+                        <div class="mc-item">
+                            Balance: <span class="flat-chip status-chip" data-status-code="5">{{users.editing.originalData.balance}}$</span>
+                        </div>
+                        <div class="mc-item">
+                            Invoices amount: <span class="flat-chip status-chip" data-status-code="6">{{users.editing.originalData.invoicesAmount}}</span>
+                        </div>
+                        <div class="mc-item" v-if="users.editing.originalData.confirmationCode">
+                            Confirmation code: <span class="flat-chip status-chip" data-status-code="7">{{users.editing.originalData.confirmationCode}}</span>
+                        </div>
+                        <div class="mc-item" v-if="users.editing.originalData.city">
+                            <div>Current city: <span class="flat-chip status-chip" :data-status-code="users.editing.originalData.city % 4 + 2">{{cities[users.editing.originalData.city].name}}</span></div>
+                            <div class="micro-caution">Based on last invoice</div>
+                        </div>
+                        <div class="mc-item">
+                            Registration date: <span class="flat-chip status-chip" data-status-code="8">{{users.editing.originalData.regDate}}</span>
+                        </div>
+                        <div class="mc-item">
+                            <button class="mdx-md-button button-green button-bordered" data-ripple="red" v-if="users.editing.originalData.state === 1" @click="setUserState(2)">Unblock user</button>
+                            <button class="mdx-md-button button-pink button-bordered" data-ripple="red" v-if="users.editing.originalData.state === 2" @click="setUserState(1)">Block user</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal">Закрити</button>
+                    <button type="button" class="mdx-flat-button button-blue" :class="{disabled: Object.keys(userUpdateChangedData).length === 0}" @click="updateUser()">Зберегти</button>
                 </div>
             </div>
         </div>

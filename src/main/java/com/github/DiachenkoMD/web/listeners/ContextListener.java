@@ -1,10 +1,10 @@
 package com.github.DiachenkoMD.web.listeners;
 
+import com.github.DiachenkoMD.entities.adapters.LocalDateTimeAdapter;
 import com.github.DiachenkoMD.entities.adapters.RuntimeTypeAdapterFactory;
 import com.github.DiachenkoMD.entities.adapters.Skip;
 import com.github.DiachenkoMD.entities.dto.Filters;
-import com.github.DiachenkoMD.entities.dto.UsersPanelFilters;
-import com.github.DiachenkoMD.entities.dto.invoices.Invoice;
+import com.github.DiachenkoMD.entities.dto.users.UsersPanelFilters;
 import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.services.AdminService;
@@ -24,6 +24,7 @@ import jakarta.servlet.annotation.WebListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDateTime;
 import java.util.ResourceBundle;
 
 @WebListener
@@ -101,7 +102,7 @@ public class ContextListener implements ServletContextListener {
                         return false;
                     }
                 })
-//                .registerTypeAdapterFactory(filtersTypeAdapterFactory)
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .create();
 
         ctx.setAttribute("gson", gson);

@@ -4,7 +4,7 @@ import com.github.DiachenkoMD.entities.dto.Car;
 import com.github.DiachenkoMD.entities.enums.CarSegments;
 import com.github.DiachenkoMD.entities.enums.Cities;
 import com.github.DiachenkoMD.entities.enums.Roles;
-import com.github.DiachenkoMD.entities.dto.User;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.DiachenkoMD.entities.enums.ValidationParameters;
@@ -39,11 +39,11 @@ public class GlobalUtilsTest {
                     "    \"firstname\": \"user1\"\n" +
                     "}";
 
-            User expectedUser = new User();
+            AuthUser expectedUser = new AuthUser();
             expectedUser.setEmail("some@gmail.com");
             expectedUser.setFirstname("user1");
 
-            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, User.class), expectedUser));
+            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, AuthUser.class), expectedUser));
         }
 
         @Test
@@ -55,11 +55,11 @@ public class GlobalUtilsTest {
                     "    \"notPresentField1\": \"11.11.11\"\n" +
                     "}";
 
-            User expectedUser = new User();
+            AuthUser expectedUser = new AuthUser();
             expectedUser.setEmail("some2@gmail.com");
             expectedUser.setFirstname("user2");
 
-            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, User.class), expectedUser));
+            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, AuthUser.class), expectedUser));
         }
 
         @Test
@@ -70,7 +70,7 @@ public class GlobalUtilsTest {
                     "    \"notPresentField2\": 1" +
                     "}";
 
-            assertNull(Utils.flatJsonParser(testingJsonObject, User.class));
+            assertNull(Utils.flatJsonParser(testingJsonObject, AuthUser.class));
         }
     }
 
@@ -94,20 +94,20 @@ public class GlobalUtilsTest {
         private static Stream<Arguments> provideTrueParameters() {
             return Stream.of(
                     Arguments.of(
-                            new User(null, "John", null, null),
-                            new User(null, "John", null, null)
+                            AuthUser.of(null, "John", null, null),
+                            AuthUser.of(null, "John", null, null)
                     ),
                     Arguments.of(
-                            new User("martin@gmail.com", null, null, "martevich"),
-                            new User("martin@gmail.com", null, null, "martevich")
+                            AuthUser.of("martin@gmail.com", null, null, "martevich"),
+                            AuthUser.of("martin@gmail.com", null, null, "martevich")
                     ),
                     Arguments.of(
-                            new User(null, null, null, null),
-                            new User(null, null, null, null)
+                            AuthUser.of(null, null, null, null),
+                            AuthUser.of(null, null, null, null)
                     ),
                     Arguments.of(
-                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null),
-                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null)
+                            AuthUser.of(null, null, null, null, null, Roles.ADMIN, null, 0, null),
+                            AuthUser.of(null, null, null, null, null, Roles.ADMIN, null, 0, null)
                     ),
                     Arguments.of(
                             new ForComparing(1, 0),
@@ -123,20 +123,20 @@ public class GlobalUtilsTest {
         private static Stream<Arguments> provideFalseParameters() {
             return Stream.of(
                     Arguments.of(
-                            new User(null, "John", null, null),
-                            new User(null, "John2", null, null)
+                            AuthUser.of(null, "John", null, null),
+                            AuthUser.of(null, "John2", null, null)
                     ),
                     Arguments.of(
-                            new User("martin@gmail.com", "Luther", "King", "martevich"),
-                            new User("martin@gmail.com", null, null, "martevich")
+                            AuthUser.of("martin@gmail.com", "Luther", "King", "martevich"),
+                            AuthUser.of("martin@gmail.com", null, null, "martevich")
                     ),
                     Arguments.of(
-                            new User("somecryptedid", null, null, null, null, null, null, 0, null),
-                            new User(null, null, null, null)
+                            AuthUser.of("somecryptedid", null, null, null, null, null, null, 0, null),
+                            AuthUser.of(null, null, null, null)
                     ),
                     Arguments.of(
-                            new User(null, null, null, null, null, Roles.CLIENT, null, 0, null),
-                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null)
+                            AuthUser.of(null, null, null, null, null, Roles.CLIENT, null, 0, null),
+                            AuthUser.of(null, null, null, null, null, Roles.ADMIN, null, 0, null)
                     ),
                     Arguments.of(
                             new ForComparing(0, 10.0),
@@ -212,7 +212,7 @@ public class GlobalUtilsTest {
 
     @Test
     public void testUserEncryptDecrypt() throws Exception {
-        User user = new User();
+        AuthUser user = new AuthUser();
         user.setId(1);
 
         System.out.println("--> " + user.encrypt());

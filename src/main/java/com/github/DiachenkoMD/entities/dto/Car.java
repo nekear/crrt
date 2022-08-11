@@ -1,18 +1,17 @@
 package com.github.DiachenkoMD.entities.dto;
 
 import com.github.DiachenkoMD.entities.DB_Constants;
-import com.github.DiachenkoMD.entities.Transversal;
 import com.github.DiachenkoMD.entities.adapters.CryptoAdapter;
 import com.github.DiachenkoMD.entities.adapters.DBCoupledAdapter;
 import com.github.DiachenkoMD.entities.enums.CarSegments;
 import com.github.DiachenkoMD.entities.enums.Cities;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
+import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.containsColumn;
 
-public class Car extends Transversal {
+public class Car {
     @JsonAdapter(CryptoAdapter.class)
     @SerializedName("id")
     private Object id;
@@ -66,32 +65,32 @@ public class Car extends Transversal {
     }
 
 
-    @Override
     public boolean encrypt() throws DescriptiveException {
-        super.setObject(this.id);
-        if(super.encrypt()){
-            this.id = super.getObject();
+        if(this.id instanceof Integer decryptedId){
+            this.id = CryptoStore.encrypt(String.valueOf(decryptedId));
             return true;
-        }else{
-            return false;
         }
+
+        return false;
     }
 
-    @Override
     public boolean decrypt() throws DescriptiveException {
-        super.setObject(this.id);
-        if(super.decrypt()){
-            this.id = super.getObject();
+        if(this.id instanceof String encryptedId) {
+            this.id = CryptoStore.decrypt(encryptedId);
             return true;
-        }else{
-            return false;
         }
+
+        return false;
     }
 
-    @Override
     public Optional<Integer> getCleanId() throws DescriptiveException {
-        super.setObject(this.id);
-        return super.getCleanId();
+        if(this.id == null)
+            return Optional.empty();
+
+        if(this.id instanceof String encryptedId)
+            return Optional.of(Integer.valueOf(CryptoStore.decrypt(encryptedId)));
+
+        return Optional.of((Integer) this.id);
     }
 
 
