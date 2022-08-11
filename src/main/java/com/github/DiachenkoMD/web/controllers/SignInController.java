@@ -2,7 +2,7 @@ package com.github.DiachenkoMD.web.controllers;
 
 import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.dto.StatusText;
-import com.github.DiachenkoMD.entities.dto.User;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
@@ -56,7 +56,7 @@ public class SignInController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp){
         try {
-            User logged_in = usersService.loginUser(req, resp);
+            AuthUser logged_in = usersService.loginUser(req, resp);
 
             req.getSession().setAttribute(SESSION_AUTH, logged_in);
 

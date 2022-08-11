@@ -1,8 +1,9 @@
 package com.github.DiachenkoMD.tests.database;
 
+import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.web.daos.impls.mysql.MysqlUsersDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
-import com.github.DiachenkoMD.entities.dto.User;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.extensions.ConnectionParameterResolverExtension;
 import com.github.DiachenkoMD.extensions.DatabaseOperationsExtension;
 
@@ -35,14 +36,14 @@ class UsersDAOTest {
         @Test
         @DisplayName("Should find nothing")
         void testUserShouldntExist() throws Exception {
-            User testUser = new User("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
+            AuthUser testUser = AuthUser.of("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
 
             assertFalse(usersDAO.doesExist(testUser));
         }
         @Test
         @DisplayName("Should find one")
         void testUserShouldExist() throws Exception {
-            User testUser = new User("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
+            AuthUser testUser = AuthUser.of("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
 
             usersDAO.register(testUser, "1");
 
@@ -56,7 +57,7 @@ class UsersDAOTest {
         @Test
         @DisplayName("Create new user")
         void testCreateNewUser() throws Exception {
-            User newUser = new User("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
+            AuthUser newUser = AuthUser.of("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
 
             assertInstanceOf(Integer.class, usersDAO.register(newUser, "1").getId());
         }
@@ -64,11 +65,11 @@ class UsersDAOTest {
         @Test
         @DisplayName("Create new user without credentials")
         void testCreateNewUserWithoutCredentials() throws Exception {
-            User newUser = new User("test@gmail.com", null, null, null);
+            AuthUser newUser = AuthUser.of("test@gmail.com", null, null, null);
 
             Integer id = (Integer) usersDAO.register(newUser, "password1").getId();
 
-            User foundUser = usersDAO.get(newUser.getEmail());
+            AuthUser foundUser = usersDAO.get(newUser.getEmail());
 
 
             // Checking whether insertion was correct
@@ -88,9 +89,9 @@ class UsersDAOTest {
         @Test
         @DisplayName("Create new user")
         void testCreateNewUser() throws Exception {
-            User newUser = new User("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
+            AuthUser newUser = AuthUser.of("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
 
-            User created = usersDAO.completeRegister(newUser, "password1");
+            AuthUser created = usersDAO.completeRegister(newUser, "password1");
 
             assertDoesNotThrow(() -> created.getCleanId().get());
 
@@ -100,7 +101,7 @@ class UsersDAOTest {
         @Test
         @DisplayName("Create new user without credentials")
         void testCreateNewUserWithoutCredentials() throws Exception {
-            User newUser = new User("test@gmail.com", null, null, null);
+            AuthUser newUser = AuthUser.of("test@gmail.com", null, null, null);
 
             assertNotNull(usersDAO.completeRegister(newUser, "password1"));
                         
@@ -120,11 +121,11 @@ class UsersDAOTest {
     @Test
     @DisplayName("get")
     void getUserTest() throws Exception {
-        User fakeUser = new User("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
+        AuthUser fakeUser = AuthUser.of("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
 
         usersDAO.completeRegister(fakeUser, "random_pass");
 
-        User acquiredUser = usersDAO.get(fakeUser.getEmail());
+        AuthUser acquiredUser = usersDAO.get(fakeUser.getEmail());
 
         assertNotNull(fakeUser.getId());
         assertEquals(fakeUser.getFirstname(), acquiredUser.getFirstname());
@@ -140,8 +141,8 @@ class UsersDAOTest {
     void getAllUsersTest() throws Exception {
         assertEquals(usersDAO.getAll().size(), 0);
 
-        User newUser = new User("test@gmail.com", "Firstname", "Surname", "Patronymic");
-        User newUser2 = new User("test2@gmail.com", "Firstname", "Surname", "Patronymic");
+        AuthUser newUser = AuthUser.of("test@gmail.com", "Firstname", "Surname", "Patronymic");
+        AuthUser newUser2 = AuthUser.of("test2@gmail.com", "Firstname", "Surname", "Patronymic");
 
         usersDAO.register(newUser, "random_pass");
         usersDAO.register(newUser2, "random_pass");
@@ -160,7 +161,7 @@ class UsersDAOTest {
     @DisplayName("Overall get tests")
     void overallGetTests() throws Exception{
         // Registering new user entity
-        User registered = usersDAO.completeRegister(new User("email@gmail.com", null, null, null), "password1");
+        AuthUser registered = usersDAO.completeRegister(AuthUser.of("email@gmail.com", null, null, null), "password1");
 
         // Testing get password
         assertEquals("password1", usersDAO.getPassword(registered.getCleanId().get()));
@@ -178,7 +179,7 @@ class UsersDAOTest {
     @DisplayName("Overall set tests")
     void overallSetTests() throws Exception{
         // Registering new user entity
-        User registered = usersDAO.register(new User("email@gmail.com", null, null, null), "password1");
+        LimitedUser registered = usersDAO.register(AuthUser.of("email@gmail.com", null, null, null), "password1");
 
         // Testing password set
         usersDAO.setPassword(registered.getCleanId().get(), "password2");
@@ -201,7 +202,7 @@ class UsersDAOTest {
     @DisplayName("updateUsersData")
     void updateUsersDataTest() throws Exception{
         // Registering new user entity
-        User registered = usersDAO.register(new User("email@gmail.com", null, null, null), "password1");
+        LimitedUser registered = usersDAO.register(AuthUser.of("email@gmail.com", null, null, null), "password1");
 
         String firstname = "Mykhailo";
         String surname = "Diachenko";
@@ -218,7 +219,7 @@ class UsersDAOTest {
         )));
 
         // Checks
-        User acquiredFromDBUser = usersDAO.get(registered.getEmail());
+        AuthUser acquiredFromDBUser = usersDAO.get(registered.getEmail());
 
         assertEquals(firstname, acquiredFromDBUser.getFirstname());
         assertEquals(surname, acquiredFromDBUser.getSurname());

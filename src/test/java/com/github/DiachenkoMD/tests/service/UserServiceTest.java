@@ -6,7 +6,7 @@ import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.entities.dto.Status;
-import com.github.DiachenkoMD.entities.dto.User;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.web.services.UsersService;
 import com.github.DiachenkoMD.web.utils.Utils;
 import com.google.gson.Gson;
@@ -59,13 +59,13 @@ public class UserServiceTest {
     class registerUserTests{
 
         private final String email = "test@gmail.com", password = "manitstest0204";
-        private User processedUser;
+        private AuthUser processedUser;
         @BeforeEach
         public void setUp(){
             lenient().when(_req.getParameter("email")).thenReturn(email);
             lenient().when(_req.getParameter("password")).thenReturn(password);
 
-            processedUser = new User(email, null, null, null);
+            processedUser = AuthUser.of(email, null, null, null);
         }
 
         @Test
@@ -73,7 +73,7 @@ public class UserServiceTest {
         void testRegistrationSuccessful() throws Exception {
             when(_usersDao.doesExist(processedUser)).thenReturn(false);
 
-            User _user = mock(User.class); // mock for bypassing if check
+            AuthUser _user = mock(AuthUser.class); // mock for bypassing if check
             when(_usersDao.completeRegister(processedUser, encryptPassword(password))).thenReturn(_user);
             when(_user.getId()).thenReturn(1);
 
@@ -113,8 +113,8 @@ public class UserServiceTest {
 
             assertEquals(ExceptionReason.VALIDATION_ERROR, expectedException.getReason());
 
-            verify(_usersDao, never()).doesExist(any(User.class));
-            verify(_usersDao, never()).completeRegister(any(User.class), anyString());
+            verify(_usersDao, never()).doesExist(any(AuthUser.class));
+            verify(_usersDao, never()).completeRegister(any(AuthUser.class), anyString());
         }
 
         private static Stream<Arguments> provideInvalidParameters() {
@@ -191,7 +191,7 @@ public class UserServiceTest {
 
             when(_req.getParameter("code")).thenReturn(code);
 
-            User user = new User("test@gmail.com", null, null, null);
+            AuthUser user = AuthUser.of("test@gmail.com", null, null, null);
             user.setId(1);
 
             when(_usersDao.getUserByConfirmationCode(code)).thenReturn(user);
@@ -211,7 +211,7 @@ public class UserServiceTest {
 
             when(_req.getParameter(REQ_CODE)).thenReturn(code);
 
-            User user = new User("test@gmail.com", null, null, null);
+            AuthUser user = AuthUser.of("test@gmail.com", null, null, null);
             user.setId(1);
 
             when(_usersDao.getUserByConfirmationCode(code)).thenReturn(user);
@@ -271,7 +271,7 @@ public class UserServiceTest {
 
             when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password)));
 
-            User _user = mock(User.class);
+            AuthUser _user = mock(AuthUser.class);
 
             when(_user.getCleanId()).thenReturn(Optional.of(1));
             when(_usersDao.get(email)).thenReturn(_user); // to bypass checks
@@ -286,12 +286,12 @@ public class UserServiceTest {
     @Nested
     @DisplayName("updateData")
     class updateDataTests{
-        private User user;
+        private AuthUser user;
         @BeforeEach
         public void setUp(){
             lenient().when(_req.getSession()).thenReturn(_session);
 
-            user = new User("test@gmail.com", null, null, null);
+            user = AuthUser.of("test@gmail.com", null, null, null);
             user.setId(1);
 
             lenient().when(_session.getAttribute("auth")).thenReturn(user);
@@ -366,12 +366,12 @@ public class UserServiceTest {
     @Nested
     @DisplayName("updatePassword")
     class updatePasswordTests{
-        private User user;
+        private AuthUser user;
         @BeforeEach
         public void setUp(){
             lenient().when(_req.getSession()).thenReturn(_session);
 
-            user = new User("test@gmail.com", null, null, null);
+            user = AuthUser.of("test@gmail.com", null, null, null);
             user.setId(1);
 
             lenient().when(_session.getAttribute("auth")).thenReturn(user);
@@ -428,7 +428,7 @@ public class UserServiceTest {
     @DisplayName("replenishBalance")
     class replenishBalanceTests{
         @Spy
-        private User _user_ = new User();
+        private AuthUser _user_ = new AuthUser();
         @BeforeEach
         public void setUp(){
             lenient().when(_req.getSession()).thenReturn(_session);
@@ -487,7 +487,7 @@ public class UserServiceTest {
 
         private Collection<Part> _parts_;
         @Spy
-        private User _user_ = new User();
+        private AuthUser _user_ = new AuthUser();
 
         @Mock
         private ServletContext _servletContext;
@@ -591,7 +591,7 @@ public class UserServiceTest {
     class deleteAvatarTests{
 
         @Spy
-        private User _user_ = new User();
+        private AuthUser _user_ = new AuthUser();
 
         @Mock
         private ServletContext _servletContext;

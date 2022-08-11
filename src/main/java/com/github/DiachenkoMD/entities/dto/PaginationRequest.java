@@ -1,8 +1,9 @@
 package com.github.DiachenkoMD.entities.dto;
 
+import com.github.DiachenkoMD.entities.dto.users.UsersPanelFilters;
 import com.google.gson.annotations.SerializedName;
 
-public class PaginationWrapper {
+public class PaginationRequest {
     private int askedPage;
     private int elementsPerPage;
 

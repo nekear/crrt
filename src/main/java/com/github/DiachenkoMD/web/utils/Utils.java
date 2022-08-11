@@ -2,7 +2,7 @@ package com.github.DiachenkoMD.web.utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.github.DiachenkoMD.entities.enums.Roles;
-import com.github.DiachenkoMD.entities.dto.User;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -207,7 +207,7 @@ public class Utils {
      * @param subject - subject of the mail
      * @param data - content of the mail (might be some html, for example)
      */
-    public static void emailNotify(User user, String subject, String data){
+    public static void emailNotify(AuthUser user, String subject, String data){
 
         ResourceBundle rb = ResourceBundle.getBundle("app");
 
@@ -288,5 +288,12 @@ public class Utils {
         }catch (IOException e){
             logger.error(e);
         }
+    }
+
+    public static String clean(String str){
+        return str.trim().replace("!", "!!")
+                .replace("%", "!%")
+                .replace("_", "!_")
+                .replace("[", "![");
     }
 }
