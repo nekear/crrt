@@ -542,6 +542,33 @@ const app = createApp({
             this.tabs[group].active = tabName;
         },
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // ========= USERS RELATED ========= //
+
         doesPassValidation(input_id, targetName,is_soft = true){
             const currentInput = this.users[targetName].input_list[input_id];
 
@@ -582,8 +609,7 @@ const app = createApp({
             targetDestination.chosenRole = 0;
         },
 
-        // ========= USERS RELATED ========= //
-
+        // ---> Checking all checkboxes
         usersCheckboxAll(event){
           const setState = event.target.checked;
 
@@ -593,11 +619,13 @@ const app = createApp({
           });
         },
 
+        // ---> Useful thing to fastly set role filter
         users_sc_role(role){
             this.users.search.filters.role = parseInt(this.users.search.filters.role) === parseInt(role) ? 0 : parseInt(role);
         },
 
 
+        // ---> Loading users list
         performUsersSearch(pageIndex){
             let searchRequestObject = {
                 askedPage: pageIndex,
@@ -623,14 +651,15 @@ const app = createApp({
             });
         },
 
+        // ---> For pagination
         goToUsersPage(pageIndex) {
             this.performUsersSearch(pageIndex);
         },
 
+        // ---> Creating new user
         openUserCreateModal(){
             $("#userCreate_modal").modal("show");
         },
-
         createUser(){
             let doInputsOkay = true;
             const inputs_list = this.users.creation.input_list;
@@ -685,6 +714,7 @@ const app = createApp({
             }
         },
 
+        // ---> Updating user
         openUserEditModal(user_id){
 
             axios.get(`http://localhost:8080/crrt_war/admin/user`, {
@@ -713,7 +743,6 @@ const app = createApp({
                 Notiflix.Notify.failure(error.response.data);
             });
         },
-
         setUserState(state){
             axios.put('http://localhost:8080/crrt_war/admin/user/block', {
                 id: app.users.editing.originalData.id,
@@ -729,7 +758,6 @@ const app = createApp({
                     Notiflix.Notify.failure(error.response.data);
                 });
         },
-
         updateUser(){
             let doInputsOkay = true;
             const inputs_list = this.users.creation.input_list;
@@ -769,6 +797,7 @@ const app = createApp({
             }
         },
 
+        // ---> Deleting user
         deleteSelectedUsers(){
             let selectedUsersIds = [];
 
