@@ -20,6 +20,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="${assets}modules/notiflix/notiflix-3.2.5.min.css">
     <link rel="stylesheet" href="${assets}modules/loaders/loaders.css">
+    <link rel="stylesheet" href="https://unpkg.com/@vuepic/vue-datepicker@latest/dist/main.css">
     <!--  Custom  -->
     <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
@@ -32,6 +33,7 @@
 
     <!--  Jquery  -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.4/dayjs.min.js"></script>
 
     <!--  Custom  -->
     <script src="${assets}modules/notiflix/notiflix-3.2.5.min.js"></script>
@@ -46,6 +48,7 @@
             "cities": <%=JSJS.CitiesList((String) pageContext.getAttribute("lang"))%>,
             "roles": <%=JSJS.RolesList((String) pageContext.getAttribute("lang"))%>,
             "accountStates": <%=JSJS.AccountStatesList((String) pageContext.getAttribute("lang"))%>,
+            "invoiceStatuses": <%=JSJS.InvoiceStatusesList((String) pageContext.getAttribute("lang"))%>,
         };
 
         const js_localization = <%=JSJS.transForRegisterPage((String) pageContext.getAttribute("lang"))%>;
@@ -302,11 +305,102 @@
                     <div class="mb-3 canvas-tools">
                         <div>
                             <h5>Invoices list</h5>
-                            <h6>Overall cars number: <span>80</span></h6>
+                            <h6>Found invoices amount: <span>{{invoices.search.pagination.totalFoundEntities}}</span></h6>
                             <div>
-                                <button class="mdx-md-button button-green button-bordered" @click="openCarCreateModal()">Create</button>
+                                <button class="mdx-md-button button-blue button-bordered" @click="performInvoicesSearch(1)">Search</button>
+                                <button class="mdx-md-button button-red button-bordered ml-4">Reject selected</button>
                             </div>
                         </div>
+                        <div>
+                            <div>
+                                <label for="invoices-pag-sel">Invoices per page: </label>
+                                <select class="form-control form-select" id="invoices-pag-sel" v-model="invoices.search.pagination.itemsPerPage">
+                                    <option value="1">1</option>
+                                    <option value="15">15</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="invoices-panel-table table table-bordered">
+                        <thead class="invoices-panel-header">
+                        <tr>
+                            <th class="admin-checkbox-cell">
+                                <div class="table-cell-flex">
+                                    <input class="input-mdx-square-checkbox" id="check-all-invoices-checkbox" type="checkbox" style="display: none" @change="invoicesCheckboxAll($event)"/>
+                                    <label class="mdx-square-checkbox" for="check-all-invoices-checkbox">
+                                        <span>
+                                            <svg width="12px" height="10px" viewbox="0 0 12 10">
+                                              <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                            </svg>
+                                        </span>
+                                    </label>
+                                </div>
+                            </th>
+                            <th>
+                                <input type="text" placeholder="Code" class="form-control" v-model="invoices.search.filters.code">
+                            </th>
+                            <th>
+                                <input type="text" placeholder="Name" class="form-control" v-model="invoices.search.filters.carName">
+                            </th>
+                            <th>
+                                <Datepicker v-model="invoices.search.filters.datesRange"
+                                            range
+                                            :format="format"
+                                            :preview-format="format"
+                                            :enable-time-picker="false"
+                                            dark hide-input-icon
+                                            input-class-name="form-control invoices-dates-range-input"
+                                            auto-apply
+                                            placeholder="Dates range"/>
+                            </th>
+                            <th class="sortableTh">
+                                Price
+                            </th>
+                            <th>
+                                <input type="text" placeholder="Driver code or -" class="form-control" v-model="invoices.search.filters.driverEmail">
+                            </th>
+                            <th>
+                                <input type="email" placeholder="Client email" class="form-control" v-model="invoices.search.filters.clientEmail">
+                            </th>
+                            <th>
+                                <select class="form-control form-select" v-model="invoices.search.filters.status">
+                                    <option v-for="(status, index) in invoiceStatuses" :key="index" :value="index">{{status.name}}</option>
+                                </select>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="invoice in invoices.list" :key="invoice.id" :class="{lostAttention: invoice.status === 2 || invoice.status === 3}">
+                            <td class="admin-checkbox-cell">
+                                <div class="table-cell-flex">
+                                    <input class="input-mdx-square-checkbox" :id="'invoice-checkbox-'+invoice.id" type="checkbox" style="display: none" v-model="invoice.isChecked">
+                                    <label class="mdx-square-checkbox" :for="'invoice-checkbox-'+invoice.id">
+                                            <span>
+                                                <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                                  <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                                </svg>
+                                            </span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td>{{invoice.code}}</td>
+                            <td>{{invoice.brand}} {{invoice.model}}</td>
+                            <td><span class="flat-chip status-chip" data-status-code="1">{{invoice.datesRange.start}}</span><span class="flat-chip status-chip" data-status-code="2">{{invoice.datesRange.end}}</span></td>
+                            <td>{{invoice.price}}$</td>
+                            <td><div class="driver-chip" v-if="invoice.driver"><span class="driver-avatar cover-bg-type" style="background-image: url('/')"></span><span class="driver-code">{{invoice.driver.code}}</span></div></td>
+                            <td>{{invoice.clientEmail}}</td>
+                            <td class="status-column">
+                                <span class="flat-chip invoice-status-chip" v-for="iStatus in invoice.statusList" :data-status-code="iStatus">{{invoiceStatuses[iStatus].name}}</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div>
+                        <ul class="pagination">
+                            <li class="page-item" v-for="n in invoices.search.pagination.availablePages"><a class="page-link" href="#" :class="{active: n == invoices.search.pagination.currentPage}" @click="goToInvoicesPage(n)">{{n}}</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -581,5 +675,6 @@
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="${assets}modules/argon/argon.min.js"></script>
 <script src="https://unpkg.com/vue@3"></script>
+<script src="https://unpkg.com/@vuepic/vue-datepicker@latest"></script>
 </body>
 </html>

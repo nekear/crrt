@@ -1,13 +1,13 @@
 package com.github.DiachenkoMD.web.listeners;
 
-import com.github.DiachenkoMD.entities.adapters.LocalDateTimeAdapter;
-import com.github.DiachenkoMD.entities.adapters.RuntimeTypeAdapterFactory;
-import com.github.DiachenkoMD.entities.adapters.Skip;
+import com.github.DiachenkoMD.entities.adapters.*;
 import com.github.DiachenkoMD.entities.dto.Filters;
 import com.github.DiachenkoMD.entities.dto.users.UsersPanelFilters;
+import com.github.DiachenkoMD.entities.enums.DBCoupled;
 import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.services.AdminService;
+import com.github.DiachenkoMD.web.services.ManagerService;
 import com.github.DiachenkoMD.web.services.UsersService;
 import com.github.DiachenkoMD.web.daos.DBTypes;
 import com.github.DiachenkoMD.web.daos.factories.DAOFactory;
@@ -24,6 +24,7 @@ import jakarta.servlet.annotation.WebListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ResourceBundle;
 
@@ -64,11 +65,13 @@ public class ContextListener implements ServletContextListener {
         ctx.setAttribute("users_service", usersService);
         logger.info("[✓] UsersService -> initialized");
 
-
-
         AdminService adminService = new AdminService(usersDAO, carsDAO, invoicesDAO, ctx);
         ctx.setAttribute("admin_service", adminService);
         logger.info("[✓] AdminService -> initialized");
+
+        ManagerService managerService = new ManagerService(usersDAO, carsDAO, invoicesDAO, ctx);
+        ctx.setAttribute("manager_service", managerService);
+        logger.info("[✓] ManagerService -> initialized");
     }
 
     private static void initPinger(ServletContext ctx){
@@ -103,6 +106,8 @@ public class ContextListener implements ServletContextListener {
                     }
                 })
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .registerTypeHierarchyAdapter(DBCoupled.class, new DBCoupledAdapter())
                 .create();
 
         ctx.setAttribute("gson", gson);

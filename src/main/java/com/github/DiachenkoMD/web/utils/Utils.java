@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Utils {
     private static final Logger logger = LogManager.getLogger(Utils.class);
@@ -295,5 +296,9 @@ public class Utils {
                 .replace("%", "!%")
                 .replace("_", "!_")
                 .replace("[", "![");
+    }
+
+    public static boolean multieq(String str, String... els){
+        return Arrays.stream(els).parallel().filter(x -> x.equalsIgnoreCase(str)).toList().size() > 0;
     }
 }
