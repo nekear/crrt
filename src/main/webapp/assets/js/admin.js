@@ -1,3 +1,4 @@
+
 const { createApp } = Vue;
 
 const validationPatterns = {
@@ -5,7 +6,6 @@ const validationPatterns = {
     "min-letters": ".*[a-zA-Z]{$v$,}.*",
     "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
 }
-
 
 const carsWorkingOnObjectProto = {
     id: null,
@@ -22,7 +22,7 @@ const app = createApp({
         return {
             tabs:{
                 panel: {
-                    active: "users"
+                    active: "invoices"
                 }
             },
             cars:{
@@ -297,10 +297,47 @@ const app = createApp({
                     chosenRole: 0
                 }
             },
+            invoices: {
+                search:{
+                    filters: {
+                        code: "",
+                        carName: "", // brand + model
+                        datesRange: null,
+                        driverCode: "",
+                        clientEmail: "",
+                        status: 0
+                    },
+                    pagination: {
+                        itemsPerPage: 15,
+                        availablePages: 1,
+                        currentPage: 1,
+                        totalFoundEntities: 0
+                    }
+                },
+                list: [
+                    // {
+                    //     id: "223dfas",
+                    //     code: "fsadhfasp",
+                    //     name: "Mercedes AMG",
+                    //     datesRange: {
+                    //         start: "2022-08-02",
+                    //         end: "2022-08-31"
+                    //     },
+                    //     price: 1000,
+                    //     driver: {
+                    //         avatar: "sdfhsaf.jpg",
+                    //         code: "12415"
+                    //     },
+                    //     clientEmail: "diachenko_md@hotmail.com",
+                    //     statusList: []
+                    // }
+                ]
+            },
             segments: {},
             cities: {},
             roles: {},
             accountStates:{},
+            invoiceStatuses:{},
             stats: []
         }
     },
@@ -309,6 +346,7 @@ const app = createApp({
         Object.assign(this.cities, loaded.cities);
         Object.assign(this.roles, loaded.roles);
         Object.assign(this.accountStates, loaded.accountStates);
+        Object.assign(this.invoiceStatuses, loaded.invoiceStatuses);
 
         // Assigning prototype
         Object.assign(this.cars.workingOn, carsWorkingOnObjectProto);
@@ -414,11 +452,11 @@ const app = createApp({
             url: 'http://localhost:8080/crrt_war/admin/stats',
             silent: true
         })
-        .then(function (response) {
+        .then(response => {
             console.log(response);
-            app.stats = response.data;
+            this.stats = response.data;
         })
-        .catch(function (error) {
+        .catch(error => {
             console.log(error);
         });
 
@@ -428,11 +466,11 @@ const app = createApp({
             url: `http://localhost:8080/crrt_war/admin/cars`,
             silent: true
         })
-        .then(function (response) {
+        .then(response => {
             console.log(response);
-            app.cars.list = response.data;
+            this.cars.list = response.data;
         })
-        .catch(function (error) {
+        .catch(error => {
             console.log(error);
         });
     },
@@ -537,17 +575,75 @@ const app = createApp({
 
     },
     methods:{
+
+
         // ========= USEFUL FUNCTIONS ========= //
         activateTab(group, tabName){
             this.tabs[group].active = tabName;
         },
 
+        getFormattedDate(date){
+            return  dayjs(date).format('DD.MM.YYYY');
+        },
+
+        format(dates){
+            const dateStart = dates[0];
+            const dateEnd = dates[1];
 
 
+            return `${this.getFormattedDate(dateStart)} - ${this.getFormattedDate(dateEnd)}`;
+        },
+
+        invoicesCheckboxAll(event){
+            const setState = event.target.checked;
+
+            this.invoices.list = this.invoices.list.map(invoice => {
+                invoice.isChecked = setState;
+                return invoice;
+            });
+        },
 
 
+        performInvoicesSearch(pageIndex){
+            let searchRequestObject = {
+                askedPage: pageIndex,
+                elementsPerPage: this.invoices.search.pagination.itemsPerPage,
+                invoicesFilters: {}
+            };
 
+            Object.assign(searchRequestObject.invoicesFilters, this.invoices.search.filters);
 
+            delete searchRequestObject.invoicesFilters.datesRange;
+
+            if(this.invoices.search.filters.datesRange != null){
+                searchRequestObject.invoicesFilters.datesRange = {};
+                searchRequestObject.invoicesFilters.datesRange.start = dayjs(this.invoices.search.filters.datesRange[0]).format("YYYY-MM-DD");
+                searchRequestObject.invoicesFilters.datesRange.end = dayjs(this.invoices.search.filters.datesRange[1]).format("YYYY-MM-DD");
+            }
+
+            console.log(searchRequestObject);
+
+            axios.get(`http://localhost:8080/crrt_war/manage/invoices`, {
+                params:{
+                    data: searchRequestObject
+                }
+            })
+            .then(response => {
+                console.log(response);
+                this.invoices.search.pagination.currentPage = pageIndex;
+                this.invoices.search.pagination.availablePages = Math.ceil(response.data.totalElements / this.invoices.search.pagination.itemsPerPage);
+                this.invoices.search.pagination.totalFoundEntities = response.data.totalElements;
+                this.invoices.list = response.data.entities;
+            })
+            .catch(error => {
+                console.log(error);
+                Notiflix.Notify.failure(error.response.data);
+            });
+        },
+
+        goToInvoicesPage(pageIndex){
+            this.performInvoicesSearch(pageIndex);
+        },
 
 
 
@@ -638,14 +734,13 @@ const app = createApp({
                     data: searchRequestObject
                 }
             })
-            .then(function (response) {
-                console.log(response.data);
-                app.users.search.pagination.currentPage = pageIndex;
-                app.users.search.pagination.availablePages = Math.ceil(response.data.totalElements / app.users.search.pagination.itemsPerPage);
-                app.users.search.pagination.totalFoundEntities = response.data.totalElements;
-                app.users.list = response.data.entities;
+            .then(response => {
+                this.users.search.pagination.currentPage = pageIndex;
+                this.users.search.pagination.availablePages = Math.ceil(response.data.totalElements / this.users.search.pagination.itemsPerPage);
+                this.users.search.pagination.totalFoundEntities = response.data.totalElements;
+                this.users.list = response.data.entities;
             })
-            .catch(function (error) {
+            .catch(error => {
                 console.log(error);
                 Notiflix.Notify.failure(error.response.data);
             });
@@ -700,14 +795,14 @@ const app = createApp({
                 axios.post('http://localhost:8080/crrt_war/admin/user', {
                     ...requestUserCreationData
                 })
-                .then(function (response) {
+                .then(response => {
                     console.log(response);
                     Notiflix.Notify.success(response.data);
                     $("#userCreate_modal").modal("hide");
-                    app.performUsersSearch(1);
-                    app.cleanUpUserModal("creation");
+                    this.performUsersSearch(1);
+                    this.cleanUpUserModal("creation");
                 })
-                .catch(function (error) {
+                .catch(error => {
                     console.log(error);
                     Notiflix.Notify.failure(error.response.data);
                 });
@@ -722,9 +817,9 @@ const app = createApp({
                     id: user_id
                 }
             })
-            .then(function (response) {
+            .then(response => {
                 console.log(response);
-                const targetDestination = app.users.editing;
+                const targetDestination = this.users.editing;
 
                 Object.keys(targetDestination.input_list).forEach(key => {
                     if(key in response.data){
@@ -734,29 +829,29 @@ const app = createApp({
 
                 targetDestination.chosenRole = response.data.role;
 
-                app.users.editing.originalData = response.data;
+                this.users.editing.originalData = response.data;
 
                 $("#userEdit_modal").modal("show");
             })
-            .catch(function (error) {
+            .catch(error => {
                 console.log(error);
                 Notiflix.Notify.failure(error.response.data);
             });
         },
         setUserState(state){
             axios.put('http://localhost:8080/crrt_war/admin/user/block', {
-                id: app.users.editing.originalData.id,
+                id: this.users.editing.originalData.id,
                 newState: state
             })
-                .then(function (response) {
-                    console.log(response);
-                    app.users.editing.originalData.state = state;
-                    app.performUsersSearch(1);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    Notiflix.Notify.failure(error.response.data);
-                });
+            .then(response => {
+                console.log(response);
+                this.users.editing.originalData.state = state;
+                this.performUsersSearch(1);
+            })
+            .catch(error => {
+                console.log(error);
+                Notiflix.Notify.failure(error.response.data);
+            });
         },
         updateUser(){
             let doInputsOkay = true;
@@ -781,16 +876,16 @@ const app = createApp({
                 const changedData = this.userUpdateChangedData;
 
                 axios.put('http://localhost:8080/crrt_war/admin/user', {
-                    id: app.users.editing.originalData.id,
+                    id: this.users.editing.originalData.id,
                     ...changedData
                 })
-                .then(function (response) {
+                .then(response => {
                     console.log(response);
                     Notiflix.Notify.success(response.data);
                     $("#userEdit_modal").modal("hide");
-                    app.performUsersSearch(1);
+                    this.performUsersSearch(1);
                 })
-                .catch(function (error) {
+                .catch(error => {
                     console.log(error);
                     Notiflix.Notify.failure(error.response.data);
                 });
@@ -820,11 +915,11 @@ const app = createApp({
                                 ids: selectedUsersIds
                             }
                         })
-                        .then(function (response) {
+                        .then(response => {
                             console.log(response);
-                            app.performUsersSearch(1);
+                            this.performUsersSearch(1);
                         })
-                        .catch(function (error) {
+                        .catch(error => {
                             console.log(error);
                             Notiflix.Notify.failure(error.response.data);
                         });
@@ -847,11 +942,11 @@ const app = createApp({
         // ======== STATS RELATED ======== //
         reloadStats(){
             axios.get('http://localhost:8080/crrt_war/admin/stats')
-                .then(function (response) {
+                .then(response => {
                     console.log(response);
-                    app.stats = response.data;
+                    this.stats = response.data;
                 })
-                .catch(function (error) {
+                .catch(error => {
                     console.log(error);
                 });
         },
@@ -867,20 +962,20 @@ const app = createApp({
                     continue;
 
                 if(field === "segment" || field === "city"){
-                    if(parseInt(app.cars.workingOn[field]) < 1){
+                    if(parseInt(this.cars.workingOn[field]) < 1){
                         doesPass = false;
                     }
                 }else{
-                    if(!(app.cars.workingOn[field]+"").length){
+                    if(!(this.cars.workingOn[field]+"").length){
                         doesPass = false;
                     }
                 }
 
                 if(!doesPass){
-                    app.$refs[prefix+field].classList.add("highlight");
+                    this.$refs[prefix+field].classList.add("highlight");
                     isAllValid = false;
                 }else{
-                    app.$refs[prefix+field].classList.remove("highlight");
+                    this.$refs[prefix+field].classList.remove("highlight");
                 }
             }
             return isAllValid;
@@ -890,7 +985,7 @@ const app = createApp({
 
             for(let index in fieldsToClean){
                 let field = fieldsToClean[index];
-                app.$refs[prefix+field].classList.remove("highlight");
+                this.$refs[prefix+field].classList.remove("highlight");
             }
         },
 
@@ -912,12 +1007,12 @@ const app = createApp({
                     id: car_id
                 }
             })
-            .then(function (response) {
+            .then(response => {
                 console.log(response);
-                app.cars.workingOn = response.data;
+                this.cars.workingOn = response.data;
                 $("#carEdit_modal").modal("show");
             })
-            .catch(function (error) {
+            .catch(error => {
                 console.log(error);
                 Notiflix.Notify.failure(error.response.data);
             });
@@ -931,18 +1026,18 @@ const app = createApp({
                     id: image_id
                 }
             })
-                .then(function (response) {
-                    console.log(response);
+            .then(response => {
+                console.log(response);
 
-                    app.cars.workingOn.images = app.cars.workingOn.images.filter(i => {
-                        return i.id !== image_id;
-                    });
-                    Notiflix.Notify.success(response.data);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    Notiflix.Notify.failure(error.response.data);
+                this.cars.workingOn.images = app.cars.workingOn.images.filter(i => {
+                    return i.id !== image_id;
                 });
+                Notiflix.Notify.success(response.data);
+            })
+            .catch(error => {
+                console.log(error);
+                Notiflix.Notify.failure(error.response.data);
+            });
         },
         deleteCar(){
             axios.delete('http://localhost:8080/crrt_war/admin/car', {
@@ -950,18 +1045,18 @@ const app = createApp({
                     id: app.cars.workingOn.id
                 }
             })
-                .then(function (response) {
+                .then(response => {
                     console.log(response);
 
-                    app.cars.list = app.cars.list.filter(i => {
-                        return i.id !== app.cars.workingOn.id;
+                    this.cars.list = this.cars.list.filter(i => {
+                        return i.id !== this.cars.workingOn.id;
                     });
 
                     $("#carEdit_modal").modal("hide");
 
                     Notiflix.Notify.success(response.data);
                 })
-                .catch(function (error) {
+                .catch(error => {
                     console.log(error);
                     Notiflix.Notify.failure(error.response.data);
                 });
@@ -971,17 +1066,17 @@ const app = createApp({
 
             if(isAllValid){
                 axios.put('http://localhost:8080/crrt_war/admin/car', {
-                    ...app.cars.workingOn
+                    ...this.cars.workingOn
                 })
-                    .then(function (response) {
-                        app.cleanCarFieldHighlight("car_edit-");
+                    .then(response => {
+                        this.cleanCarFieldHighlight("car_edit-");
                         console.log(response);
 
-                        delete app.cars.workingOn.images;
-                        for(let i in app.cars.list){
-                            let current = app.cars.list[i];
-                            if(current.id === app.cars.workingOn.id){
-                                app.cars.list[i] = JSON.parse(JSON.stringify(app.cars.workingOn));
+                        delete this.cars.workingOn.images;
+                        for(let i in this.cars.list){
+                            let current = this.cars.list[i];
+                            if(current.id === this.cars.workingOn.id){
+                                this.cars.list[i] = JSON.parse(JSON.stringify(this.cars.workingOn));
                                 break;
                             }
                         }
@@ -989,7 +1084,7 @@ const app = createApp({
                         Notiflix.Notify.success(response.data);
                         $("#carEdit_modal").modal("hide");
                     })
-                    .catch(function (error) {
+                    .catch(error => {
                         console.log(error);
                         Notiflix.Notify.failure(error.response.data);
                     });
@@ -1022,19 +1117,19 @@ const app = createApp({
                     url: `http://localhost:8080/crrt_war/admin/car`,
                     data: formData
                 })
-                    .then(function (response) {
-                        app.cleanCarFieldHighlight("car_create-");
+                    .then(response => {
+                        this.cleanCarFieldHighlight("car_create-");
 
                         console.log(response);
-                        app.cars.workingOn.id = response.data.carId;
-                        delete app.cars.workingOn.images;
-                        app.cars.list.push(JSON.parse(JSON.stringify(app.cars.workingOn)));
+                        this.cars.workingOn.id = response.data.carId;
+                        delete this.cars.workingOn.images;
+                        this.cars.list.push(JSON.parse(JSON.stringify(this.cars.workingOn)));
 
-                        Object.assign(app.cars.workingOn, carsWorkingOnObjectProto);
+                        Object.assign(this.cars.workingOn, carsWorkingOnObjectProto);
                         Notiflix.Notify.success(response.data.message);
                         $("#carCreate_modal").modal("hide");
                     })
-                    .catch(function (error) {
+                    .catch(error => {
                         console.log(error);
                         Notiflix.Notify.failure(error.response.data);
                     });
@@ -1051,7 +1146,9 @@ const app = createApp({
         },
 
     }
-}).mount('#app');
+});
+app.component("Datepicker", VueDatePicker);
+app.mount('#app');
 
 // Uploading new car photo (to existing entity)
 $(document).on('click','#carEdit_modal .mc-add-photo',function (e) {
@@ -1094,6 +1191,6 @@ const filters = {
     isBlocked: 0
 }
 
-function loadUsersList(filters){
-
+function _(str){
+    return str.trim().length > 0 ? str.trim() : null;
 }

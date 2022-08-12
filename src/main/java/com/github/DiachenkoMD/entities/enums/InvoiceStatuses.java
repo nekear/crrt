@@ -2,16 +2,18 @@ package com.github.DiachenkoMD.entities.enums;
 
 import java.util.HashMap;
 
-public enum InvoiceStatus implements DBCoupled{
+public enum InvoiceStatuses implements DBCoupled{
+    ANY(0, "any"),
     ALIVE(1, "alive"),
-    PAID(2, "paid"),
-    REJECTED(3, "rejected"),
-    CANCELED(4, "canceled");
+    REJECTED(2, "rejected"),
+    CANCELED(3, "cancelled"),
+    ACTIVE_REPAIRS(4, "active_repairs"),
+    EXPIRED_REPAIRS(5, "expired_repairs");
 
     private final int id;
     private final String keyword;
 
-    InvoiceStatus(int id, String keyword){
+    InvoiceStatuses(int id, String keyword){
         this.id = id;
         this.keyword = keyword;
     }
@@ -24,15 +26,15 @@ public enum InvoiceStatus implements DBCoupled{
         return this.keyword;
     }
 
-    private static HashMap<Integer, InvoiceStatus> cachedById = new HashMap<>();
+    private static HashMap<Integer, InvoiceStatuses> cachedById = new HashMap<>();
 
     static {
-        for(InvoiceStatus status : InvoiceStatus.values()) {
+        for(InvoiceStatuses status : InvoiceStatuses.values()) {
             cachedById.put(status.id(), status);
         }
     }
 
-    public static InvoiceStatus getById(int id){
+    public static InvoiceStatuses getById(int id){
         return cachedById.get(id);
     }
 }

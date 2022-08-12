@@ -25,7 +25,7 @@ public class Car {
     private Object id;
     private String brand;
     private String model;
-    @JsonAdapter(DBCoupledAdapter.class)
+
     @SerializedName("segment")
     private CarSegments segment;
     private Double price;
@@ -33,7 +33,7 @@ public class Car {
     // This field is omitted on getAll()
     private List<Image> images;
 
-    @JsonAdapter(DBCoupledAdapter.class)
+
     @SerializedName("city")
     private Cities city;
 

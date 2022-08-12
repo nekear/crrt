@@ -284,11 +284,11 @@ public class AdminService {
      * Returns list of {@link PanelUser PanelUser} depending on incoming criteria. Simply put, criteria contains pagination data + filters, collected from page. <br>
      * @see PaginationRequest PaginationWrapper
      * @see com.github.DiachenkoMD.entities.dto.Filters
-     * @param paginationWrapperJSON json string, that should have view like {"askedPage":1,"elementsPerPage":15,"filters":{"email":"","firstname":"","surname":"","patronymic":"","role":0,"state":0}}
+     * @param paginationRequestJSON json string, that should have view like {"askedPage":1,"elementsPerPage":15,"filters":{"email":"","firstname":"","surname":"","patronymic":"","role":0,"state":0}}
      */
-    public PaginationResponse<PanelUser> getUsers(String paginationWrapperJSON) throws DBException {
+    public PaginationResponse<PanelUser> getUsers(String paginationRequestJSON) throws DBException {
         Gson gson = (Gson) ctx.getAttribute("gson");
-        PaginationRequest pr = gson.fromJson(paginationWrapperJSON, PaginationRequest.class);
+        PaginationRequest pr = gson.fromJson(paginationRequestJSON, PaginationRequest.class);
 
         int askedPage = pr.getAskedPage();
         int elementsPerPage = pr.getElementsPerPage();
@@ -467,6 +467,12 @@ public class AdminService {
             throw new DescriptiveException("Zero rows were updated by calling setUserState()", ExceptionReason.DB_ACTION_ERROR);
     }
 
+    /**
+     * Method for deleting users. Accepting array of users` ids in encrypted state.
+     * @param usersListJSON json object containing inside a list of users` ids in encrypted state.
+     * @throws DBException
+     * @throws DescriptiveException
+     */
     public void deleteUsers(String usersListJSON) throws DBException, DescriptiveException {
         Gson gson = (Gson) ctx.getAttribute("gson");
         DeleteUsersJPC deleteUsersData = gson.fromJson(usersListJSON, DeleteUsersJPC.class);

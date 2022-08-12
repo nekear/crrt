@@ -21,9 +21,9 @@ public class LimitedUser {
     protected String surname;
     protected String patronymic;
 
-    @JsonAdapter(DBCoupledAdapter.class)
+
     protected Roles role = Roles.CLIENT;
-    @JsonAdapter(DBCoupledAdapter.class)
+
     protected AccountStates state = AccountStates.UNBLOCKED;
 
 

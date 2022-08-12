@@ -21,6 +21,8 @@ public class DBCoupledAdapter implements JsonSerializer<DBCoupled>, JsonDeserial
             return Roles.getById(jsonElement.getAsInt());
         }else if(type == AccountStates.class){
             return AccountStates.getById(jsonElement.getAsInt());
+        }else if(type == InvoiceStatuses.class){
+            return InvoiceStatuses.getById(jsonElement.getAsInt());
         }
 
         return null;

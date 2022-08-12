@@ -17,7 +17,7 @@ public class InformativeUser extends LimitedUser{
     private String confirmationCode;
     private int invoicesAmount;
 
-    @JsonAdapter(DBCoupledAdapter.class)
+
     private Cities city; // will be based on last invoice
     @SerializedName("regDate")
     private LocalDateTime tsCreated;

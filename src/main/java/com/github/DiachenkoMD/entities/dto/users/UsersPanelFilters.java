@@ -17,9 +17,9 @@ public class UsersPanelFilters extends Filters {
     private String firstname;
     private String surname;
     private String patronymic;
-    @JsonAdapter(DBCoupledAdapter.class)
+
     private Roles role;
-    @JsonAdapter(DBCoupledAdapter.class)
+
     private AccountStates state;
 
     public String getEmail() {

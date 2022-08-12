@@ -1,10 +1,7 @@
 package com.github.DiachenkoMD.web.utils;
 
 import com.github.DiachenkoMD.entities.dto.JSi18n;
-import com.github.DiachenkoMD.entities.enums.AccountStates;
-import com.github.DiachenkoMD.entities.enums.CarSegments;
-import com.github.DiachenkoMD.entities.enums.Cities;
-import com.github.DiachenkoMD.entities.enums.Roles;
+import com.github.DiachenkoMD.entities.enums.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -92,6 +89,18 @@ public class JSJS {
         return new GsonBuilder().setPrettyPrinting().create().toJson(res);
     }
 
+    public static String InvoiceStatusesList(String lang){
+        ResourceBundle langPack = bundle(lang);
+
+        HashMap<Integer, HashMap<String, String>> res = new HashMap<>();
+
+        for(InvoiceStatuses status : InvoiceStatuses.values()){
+            res.put(status.id(), new HashMap<>(Map.of("name", langPack.getString("invoice_status."+status.keyword()))));
+        }
+
+        return new GsonBuilder().setPrettyPrinting().create().toJson(res);
+    }
+
     public static String transForUsersDeleteConfirmation(String lang){
         ResourceBundle langPack = bundle(lang);
 
@@ -104,6 +113,8 @@ public class JSJS {
                 )
         );
     }
+
+
 
     private static ResourceBundle bundle(String lang){
         return ResourceBundle.getBundle( "langs.i18n_"+lang);
