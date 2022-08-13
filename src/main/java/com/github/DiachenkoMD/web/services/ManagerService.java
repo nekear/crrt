@@ -1,6 +1,5 @@
 package com.github.DiachenkoMD.web.services;
 
-import com.github.DiachenkoMD.entities.DB_Constants;
 import com.github.DiachenkoMD.entities.adapters.CryptoAdapter;
 import com.github.DiachenkoMD.entities.dto.*;
 import com.github.DiachenkoMD.entities.dto.drivers.LimitedDriver;
@@ -8,13 +7,7 @@ import com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice;
 import com.github.DiachenkoMD.entities.dto.invoices.PanelInvoice;
 import com.github.DiachenkoMD.entities.dto.invoices.RepairInvoice;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
-import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
-import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
-import com.github.DiachenkoMD.entities.dto.users.PanelUser;
-import com.github.DiachenkoMD.entities.enums.AccountStates;
 import com.github.DiachenkoMD.entities.enums.InvoiceStatuses;
-import com.github.DiachenkoMD.entities.enums.Roles;
-import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
@@ -25,25 +18,14 @@ import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.google.gson.Gson;
 import com.google.gson.annotations.JsonAdapter;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static com.github.DiachenkoMD.entities.Constants.IMAGES_UPLOAD_DIR;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 
 public class ManagerService {
@@ -204,7 +186,7 @@ public class ManagerService {
             String dateStart = informativeInvoice.getDatesRange().getStart().format(formatter);
             String dateEnd = informativeInvoice.getDatesRange().getEnd().format(formatter);
 
-            emailNotify(informativeInvoice.getDriver().getEmail(), "Invoice unbinding", String.format("Good afternoon, driver %s. You have been disconnected from the invoice scheduled on %s to %s.", driver.getCode(), dateStart, dateEnd));
+            emailNotify(informativeInvoice.getDriver().getEmail(), "Invoice unbinding", String.format("Good afternoon, driver %s. You have been disconnected from the invoice scheduled on %s to %s.", driver.getEmail(), dateStart, dateEnd));
         }
 
         // Updating informative invoice entity and returning to client

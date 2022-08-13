@@ -91,7 +91,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
                 "       tbl_invoices.exp_price, tbl_invoices.is_canceled, tbl_invoices.is_rejected,\n" +
                 "       getActiveRepairsByInvoiceId(tbl_invoices.id) AS activeRepairs,\n" +
                 "       getExpiredRepairsByInvoiceId(tbl_invoices.id) AS expiredRepairs,\n" +
-                "       tbl_invoices.driver_id, tbl_drivers.code AS driver_code, driver_u.avatar AS driver_avatar,driver_u.email AS driver_email,\n" +
+                "       tbl_invoices.driver_id, driver_u.avatar AS driver_avatar,driver_u.email AS driver_email,\n" +
                 "       client_u.email AS client_email,\n" +
                 "       tbl_cars.brand, tbl_cars.model\n" +
                 "FROM tbl_invoices\n" +
@@ -241,7 +241,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
         String query = "SELECT tbl_invoices.id AS invoice_id, tbl_invoices.code AS invoice_code,\n" +
                 "       tbl_invoices.date_start, tbl_invoices.date_end,\n" +
                 "       tbl_invoices.exp_price, tbl_invoices.is_canceled, tbl_invoices.is_rejected,\n" +
-                "       tbl_invoices.driver_id, tbl_drivers.code AS driver_code, driver_u.avatar AS driver_avatar,driver_u.email AS driver_email,\n" +
+                "       tbl_invoices.driver_id, driver_u.avatar AS driver_avatar,driver_u.email AS driver_email,\n" +
                 "       client_u.email AS client_email,\n" +
                 "       tbl_cars.brand, tbl_cars.model,\n" +
                 "       tbl_passport.firstname AS pp_firstname, tbl_passport.surname AS pp_surname, tbl_passport.patronymic AS pp_patronymic,\n" +

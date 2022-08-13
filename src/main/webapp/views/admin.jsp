@@ -347,7 +347,7 @@
                                 Price
                             </th>
                             <th>
-                                <input type="text" placeholder="Driver code or -" class="form-control" v-model="invoices.search.filters.driverCode">
+                                <input type="text" placeholder="Driver email or -" class="form-control" v-model="invoices.search.filters.driverEmail">
                             </th>
                             <th>
                                 <input type="email" placeholder="Client email" class="form-control" v-model="invoices.search.filters.clientEmail">
@@ -365,7 +365,7 @@
                             <td>{{invoice.brand}} {{invoice.model}}</td>
                             <td><span class="flat-chip status-chip" data-status-code="1">{{invoice.datesRange.start}}</span><span class="flat-chip status-chip" data-status-code="2">{{invoice.datesRange.end}}</span></td>
                             <td>{{invoice.price}}$</td>
-                            <td><div class="driver-chip" v-if="invoice.driver"><span class="driver-avatar cover-bg-type" :style="{backgroundImage: 'url(${avatarsDir}/'+invoice.driver.avatar+')'}"></span><span class="driver-code">{{invoice.driver.code}}</span></div></td>
+                            <td><div class="driver-chip" v-if="invoice.driver"><span class="driver-avatar cover-bg-type" v-if="invoice.driver.avatar" :style="{backgroundImage: 'url(${avatarsDir}/'+invoice.driver.avatar+')'}"></span><span class="driver-code">{{invoice.driver.email}}</span></div></td>
                             <td>{{invoice.clientEmail}}</td>
                             <td class="status-column">
                                 <span class="flat-chip invoice-status-chip" v-for="iStatus in invoice.statusList" :data-status-code="iStatus">{{invoiceStatuses[iStatus].name}}</span>
@@ -684,7 +684,7 @@
                             Driver:
                             <div class="driver-chip" v-if="invoices.details.driver">
                                 <span class="driver-avatar cover-bg-type" :style="{backgroundImage: 'url(${avatarsDir}/'+invoices.details.driver.avatar+')'}"></span>
-                                <span class="driver-code">{{invoices.details.driver.code}}</span></div>
+                                <span class="driver-code">{{invoices.details.driver.email}}</span></div>
                             <strong v-else class="ml-2"> without driver</strong>
                         </div>
                         <div class="mdx-divider solid mt-4 mb-4"></div>

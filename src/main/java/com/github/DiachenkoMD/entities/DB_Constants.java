@@ -45,7 +45,6 @@ public class DB_Constants {
 
 
     public static final String TBL_DRIVERS_ID="id";
-    public static final String TBL_DRIVERS_CODE="code";
     public static final String TBL_DRIVERS_USER_ID="user_id";
     public static final String TBL_DRIVERS_CITY_ID="city_id";
 }
