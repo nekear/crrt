@@ -1,6 +1,7 @@
 package com.github.DiachenkoMD.web.utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.enums.ValidationParameters;
@@ -208,12 +209,21 @@ public class Utils {
      * @param subject - subject of the mail
      * @param data - content of the mail (might be some html, for example)
      */
-    public static void emailNotify(AuthUser user, String subject, String data){
+    public static void emailNotify(LimitedUser user, String subject, String data){
+        emailNotify(user.getEmail(), subject, data);
+    }
 
+    /**
+     * Email notification util. Simplifies the thing it was created for. For now uses mailtrap as SMTP. Configure at app.properties.
+     * @param email
+     * @param subject - subject of the mail
+     * @param data - content of the mail (might be some html, for example)
+     */
+    public static void emailNotify(String email, String subject, String data){
         ResourceBundle rb = ResourceBundle.getBundle("app");
 
         if(rb.getString("mail.active").equalsIgnoreCase("true")){
-            String to = user.getEmail();
+            String to = email;
             String from = rb.getString("mail.from");
             String host = rb.getString("mail.host");
 

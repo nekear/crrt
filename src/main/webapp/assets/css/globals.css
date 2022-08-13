@@ -620,10 +620,59 @@ footer .right-content .copy-item .content:hover .text {
   color: var(--systemGray_accessible);
 }
 
+.mc-driver-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+}
+.mc-driver-wrapper .driver-chip {
+  margin-left: 10px;
+}
+
 .micro-caution {
   font-size: 12px;
   color: var(--systemGray_accessible);
   opacity: 0.7;
+}
+
+.passport-block {
+  border: 1px solid var(--borderColor_accessible);
+  border-radius: 5px;
+  margin: 10px;
+}
+.passport-block .title {
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+.passport-block .description {
+  margin-bottom: 5px;
+}
+
+.accordion {
+  --bs-accordion-bg: var(--systemGray6_accessible);
+  --bs-accordion-active-bg: var(--systemGray6_default);
+  --bs-accordion-btn-focus-border-color: var(--borderColor_accessible);
+  --bs-accordion-border-color: var(--borderColor_accessible);
+  --bs-accordion-btn-color: var(--systemGray_default);
+  --bs-accordion-color: var(--systemGray_accessible);
+}
+
+.accordion-button.collapsed {
+  background: var(--systemGray6_default);
+}
+
+.accordion-body {
+  border: 1px solid var(--borderColor_accessible);
 }
 
 .loader {

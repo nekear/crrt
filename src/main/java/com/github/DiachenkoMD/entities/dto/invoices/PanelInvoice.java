@@ -3,6 +3,7 @@ package com.github.DiachenkoMD.entities.dto.invoices;
 import com.github.DiachenkoMD.entities.dto.drivers.LimitedDriver;
 import com.google.gson.annotations.SerializedName;
 
+import java.awt.*;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +14,7 @@ public class PanelInvoice extends LimitedInvoice{
     private LimitedDriver driver;
     private String clientEmail;
     private BigDecimal price;
+    public PanelInvoice(){};
 
     protected PanelInvoice(ResultSet rs) throws SQLException{
         super(rs);
@@ -71,6 +73,8 @@ public class PanelInvoice extends LimitedInvoice{
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
+
+
 
     @Override
     public String toString() {

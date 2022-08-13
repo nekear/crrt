@@ -326,18 +326,6 @@
                     <table class="invoices-panel-table table table-bordered">
                         <thead class="invoices-panel-header">
                         <tr>
-                            <th class="admin-checkbox-cell">
-                                <div class="table-cell-flex">
-                                    <input class="input-mdx-square-checkbox" id="check-all-invoices-checkbox" type="checkbox" style="display: none" @change="invoicesCheckboxAll($event)"/>
-                                    <label class="mdx-square-checkbox" for="check-all-invoices-checkbox">
-                                        <span>
-                                            <svg width="12px" height="10px" viewbox="0 0 12 10">
-                                              <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                            </svg>
-                                        </span>
-                                    </label>
-                                </div>
-                            </th>
                             <th>
                                 <input type="text" placeholder="Code" class="form-control" v-model="invoices.search.filters.code">
                             </th>
@@ -359,7 +347,7 @@
                                 Price
                             </th>
                             <th>
-                                <input type="text" placeholder="Driver code or -" class="form-control" v-model="invoices.search.filters.driverEmail">
+                                <input type="text" placeholder="Driver code or -" class="form-control" v-model="invoices.search.filters.driverCode">
                             </th>
                             <th>
                                 <input type="email" placeholder="Client email" class="form-control" v-model="invoices.search.filters.clientEmail">
@@ -372,24 +360,12 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="invoice in invoices.list" :key="invoice.id" :class="{lostAttention: invoice.status === 2 || invoice.status === 3}">
-                            <td class="admin-checkbox-cell">
-                                <div class="table-cell-flex">
-                                    <input class="input-mdx-square-checkbox" :id="'invoice-checkbox-'+invoice.id" type="checkbox" style="display: none" v-model="invoice.isChecked">
-                                    <label class="mdx-square-checkbox" :for="'invoice-checkbox-'+invoice.id">
-                                            <span>
-                                                <svg width="12px" height="10px" viewBox="0 0 12 10">
-                                                  <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                                </svg>
-                                            </span>
-                                    </label>
-                                </div>
-                            </td>
+                        <tr v-for="invoice in invoices.list" :key="invoice.id" :class="{lostAttention: invoice.status === 2 || invoice.status === 3}" @click="openInvoiceDetailsModal(invoice.id)">
                             <td>{{invoice.code}}</td>
                             <td>{{invoice.brand}} {{invoice.model}}</td>
                             <td><span class="flat-chip status-chip" data-status-code="1">{{invoice.datesRange.start}}</span><span class="flat-chip status-chip" data-status-code="2">{{invoice.datesRange.end}}</span></td>
                             <td>{{invoice.price}}$</td>
-                            <td><div class="driver-chip" v-if="invoice.driver"><span class="driver-avatar cover-bg-type" style="background-image: url('/')"></span><span class="driver-code">{{invoice.driver.code}}</span></div></td>
+                            <td><div class="driver-chip" v-if="invoice.driver"><span class="driver-avatar cover-bg-type" :style="{backgroundImage: 'url(${avatarsDir}/'+invoice.driver.avatar+')'}"></span><span class="driver-code">{{invoice.driver.code}}</span></div></td>
                             <td>{{invoice.clientEmail}}</td>
                             <td class="status-column">
                                 <span class="flat-chip invoice-status-chip" v-for="iStatus in invoice.statusList" :data-status-code="iStatus">{{invoiceStatuses[iStatus].name}}</span>
@@ -664,6 +640,226 @@
                 <div class="modal-footer">
                     <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal">Закрити</button>
                     <button type="button" class="mdx-flat-button button-blue" :class="{disabled: Object.keys(userUpdateChangedData).length === 0}" @click="updateUser()">Зберегти</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="invoiceDetails_modal" tabindex="1" role="dialog" aria-labelledby="invoiceDetails_modal" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content" v-if="invoices.details">
+                <div class="modal-header">
+                    <h5 class="modal-title"><span class="inTitle-action">Details of invoice <span class="flat-chip status-chip" data-status-code="6">{{invoices.details.code}}</span></span></h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="ce-data-container">
+                        <div class="mc-item">
+                            <span class="flat-chip invoice-status-chip" v-for="status in invoices.details.statusList" :data-status-code="status">{{invoiceStatuses[status].name}}</span>
+                        </div>
+                        <div class="mc-part-title">
+                            Invoice information:
+                        </div>
+                        <div class="mc-item">
+                            Code: <strong>{{invoices.details.code}}</strong>
+                        </div>
+                        <div class="mc-item">
+                            Vehicle name: <strong>{{invoices.details.brand}} {{invoices.details.model}}</strong>
+                        </div>
+                        <div class="mc-item">
+                            City: <strong>{{cities[invoices.details.city].name}}</strong>
+                        </div>
+                        <div class="mc-item">
+                            Price: <strong>{{invoices.details.price}}$</strong>
+                        </div>
+                        <div class="mc-item">
+                            Client email: <strong>{{invoices.details.clientEmail}}</strong>
+                        </div>
+                        <div class="mc-item">
+                            Dates range: <span class="flat-chip status-chip" data-status-code="1">{{invoices.details.datesRange.start}}</span>to <span class="flat-chip status-chip" data-status-code="2">{{invoices.details.datesRange.end}}</span>
+                        </div>
+                        <div class="mc-item mc-driver-wrapper">
+                            Driver:
+                            <div class="driver-chip" v-if="invoices.details.driver">
+                                <span class="driver-avatar cover-bg-type" :style="{backgroundImage: 'url(${avatarsDir}/'+invoices.details.driver.avatar+')'}"></span>
+                                <span class="driver-code">{{invoices.details.driver.code}}</span></div>
+                            <strong v-else class="ml-2"> without driver</strong>
+                        </div>
+                        <div class="mdx-divider solid mt-4 mb-4"></div>
+                        <div class="mc-part-title">
+                            Passport data:
+                        </div>
+                        <div class="mc-item">
+                            <div class="row">
+                                <div class="passport-block col-6">
+                                    <div class="title">
+                                        Firstname / Surname / Patronymic
+                                    </div>
+                                    <div class="description">
+                                        {{invoices.details.passport.firstname}} / {{invoices.details.passport.surname}} / {{invoices.details.passport.patronymic}}
+                                    </div>
+                                </div>
+                                <div class="passport-block col-5">
+                                    <div class="title">
+                                        Date of birth / Date of issue
+                                    </div>
+                                    <div class="description">
+                                        {{invoices.details.passport.date_of_birth}} / {{invoices.details.passport.date_of_issue}}
+                                    </div>
+                                </div>
+                                <div class="passport-block col-4">
+                                    <div class="title">
+                                        Document number
+                                    </div>
+                                    <div class="description">
+                                        {{invoices.details.passport.doc_number}}
+                                    </div>
+                                </div>
+                                <div class="passport-block col-2">
+                                    <div class="title">
+                                        RNTRC
+                                    </div>
+                                    <div class="description">
+                                        {{invoices.details.passport.rntrc}}
+                                    </div>
+                                </div>
+                                <div class="passport-block col-2">
+                                    <div class="title">
+                                        Authority
+                                    </div>
+                                    <div class="description">
+                                        {{invoices.details.passport.authority}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mdx-divider solid mt-4 mb-4"></div>
+                        <div class="mc-part-title">
+                            Repairs:
+                            <div v-if="!invoices.details.repairInvoices.length" class="micro-caution">This invoice doesn`t have any coupled repairment invoices yet...</div>
+                        </div>
+                        <div class="mc-item">
+                            <div class="accordion repairs-list accordion-flush mb-4" id="repairs-accordion" v-if="invoices.details.repairInvoices.length">
+                                <div class="accordion-item" v-for="(repairInvoice, repIndex) in invoices.details.repairInvoices">
+                                    <h2 class="accordion-header" :id="'heading'+repIndex">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" :data-bs-target="'#collapse'+repIndex" aria-expanded="true" :aria-controls="'collapse'+repIndex">
+                                            Assigned on {{repairInvoice.tsCreated}}
+                                            <span class="flat-chip invoice-status-chip ml-4" data-status-code="1" v-if="repairInvoice.isPaid">Paid</span>
+                                            <span class="flat-chip invoice-status-chip ml-4" data-status-code="4" v-if="!repairInvoice.isPaid && !doesInvoiceDateExpired(repairInvoice.expirationDate)">Active</span>
+                                            <span class="flat-chip invoice-status-chip ml-4" data-status-code="5" v-if="!repairInvoice.isPaid && doesInvoiceDateExpired(repairInvoice.expirationDate)">Expired</span>
+                                        </button>
+                                    </h2>
+                                    <div :id="'collapse'+repIndex" class="accordion-collapse collapse" :aria-labelledby="'heading'+repIndex" data-bs-parent="#repairs-accordion">
+                                        <div class="accordion-body">
+                                            <div class="mb-3">Price: <span class="flat-chip status-chip" data-status-code="1">{{repairInvoice.price}}$</span></div>
+                                            <div class="mb-3">
+                                                <strong class="mb-2">Comment:</strong>
+                                                <div v-if="repairInvoice.comment">{{repairInvoice.comment}}</div>
+                                                <div v-else>not mentioned</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong class="mb-2">Expiration date:</strong>
+                                                <div>{{repairInvoice.expirationDate}}</div>
+                                            </div>
+                                            <div>
+                                                <button class="mdx-flat-button button-pink" @click="deleteRepairInvoice(repairInvoice.id)">Delete <span v-if="repairInvoice.isPaid" class="ml-1">and refund</span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="mdx-flat-button button-blue" @click="openCreateRepairInvoiceModal()">Create repair invoice</button>
+                            </div>
+                        </div>
+                        <div class="mdx-divider solid mb-4 mt-4"></div>
+                        <template v-if="invoices.details.statusList.includes(2)">
+                            <div class="mc-part-title">
+                                Rejection reason
+                            </div>
+                            <div class="mc-item">
+                                <textarea disabled class="form-control" :value="invoices.details.rejectionReason"></textarea>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="mdx-md-button button-red button-bordered" data-bs-dismiss="modal" v-if="!invoices.details.statusList.includes(2)" @click="openRejectInvoiceModal()">Reject invoice</button>
+                    <button type="button" class="mdx-md-button button-reversed button-bordered" data-bs-dismiss="modal">Закрити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createRepairInvoice_modal" tabindex="1" role="dialog" aria-labelledby="createRepairInvoice_modal" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><span class="inTitle-action">Creating repairment invoice for <span class="flat-chip status-chip" data-status-code="6">{{invoices.repairInvoice.originCode}}</span></span></h5>
+                    <button type="button" class="close" @click="closeCreateRepairInvoiceModal()" aria-label="Close">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="ce-data-container">
+                        <div class="mc-item">
+                            Target invoice code: <span class="flat-chip status-chip" data-status-code="6">{{invoices.repairInvoice.originCode}}</span>
+                        </div>
+                        <div class="mc-item">
+                            <input type="number" class="form-control" :data-validation-highlight="!invoices.repairInvoice.price.isValid" v-model="invoices.repairInvoice.price.value" placeholder="Penalty price" ref="">
+                        </div>
+                        <div class="mc-item">
+                            <Datepicker v-model="invoices.repairInvoice.expirationDate.date"
+                                        :flow="['year', 'month', 'calendar']"
+                                        placeholder="Expiration date"
+                                        :format="getFormattedDate"
+                                        dark
+                                        input-class-name="form-control"
+                                        :min-date="new Date()"
+                                        auto-apply
+                                        :enable-time-picker="false"
+                                        :state="invoices.repairInvoice.expirationDate.isValid"
+                            />
+                        </div>
+                        <div class="mc-item">
+                            <textarea class="form-control" placeholder="Comment" v-model="invoices.repairInvoice.comment"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="mdx-md-button button-reversed button-bordered" @click="closeCreateRepairInvoiceModal()">Close</button>
+                    <button type="button" class="mdx-md-button button-blue button-bordered" @click="createRepairInvoice()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="rejectInvoice_modal" tabindex="1" role="dialog" aria-labelledby="rejectInvoices_modal" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><span class="inTitle-action">Rejection of invoice <span class="flat-chip status-chip" data-status-code="6">{{invoices.rejection.originCode}}</span></span></h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" @click="closeRejectInvoiceModal()" aria-label="Close">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="ce-data-container">
+                        <div class="mc-part-title">
+                            Target invoice code: <span class="flat-chip status-chip" data-status-code="6">{{invoices.rejection.originCode}}</span>
+                        </div>
+                        <div class="mc-item">
+                            <textarea class="form-control" v-model="invoices.rejection.reason" placeholder="Reason">
+
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal" @click="closeRejectInvoiceModal()">Close</button>
+                    <button type="button" class="mdx-flat-button button-pink" @click="rejectInvoice()">Reject</button>
                 </div>
             </div>
         </div>

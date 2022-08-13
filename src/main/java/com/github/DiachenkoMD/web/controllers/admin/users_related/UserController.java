@@ -109,7 +109,6 @@ public class UserController extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{
-            logger.debug(req.getParameter("ids"));
             String idsToDeleteListJSON = req.getReader().lines().collect(Collectors.joining());
 
             adminService.deleteUsers(idsToDeleteListJSON);

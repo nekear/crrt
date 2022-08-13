@@ -315,23 +315,41 @@ const app = createApp({
                     }
                 },
                 list: [
-                    // {
-                    //     id: "223dfas",
-                    //     code: "fsadhfasp",
-                    //     name: "Mercedes AMG",
-                    //     datesRange: {
-                    //         start: "2022-08-02",
-                    //         end: "2022-08-31"
-                    //     },
-                    //     price: 1000,
-                    //     driver: {
-                    //         avatar: "sdfhsaf.jpg",
-                    //         code: "12415"
-                    //     },
-                    //     clientEmail: "diachenko_md@hotmail.com",
-                    //     statusList: []
-                    // }
-                ]
+                    {
+                        id: "223dfas",
+                        code: "fsadhfasp",
+                        name: "Mercedes AMG",
+                        datesRange: {
+                            start: "2022-08-02",
+                            end: "2022-08-31"
+                        },
+                        price: 1000,
+                        driver: {
+                            avatar: "sdfhsaf.jpg",
+                            code: "12415"
+                        },
+                        clientEmail: "diachenko_md@hotmail.com",
+                        statusList: []
+                    }
+                ],
+                details: null,
+                repairInvoice:{
+                    originId: "223dfas",
+                    originCode: "fsadhfasp",
+                    price: {
+                        value: 0,
+                        isValid: true
+                    },
+                    comment: "",
+                    expirationDate: {
+                        date: null,
+                        isValid: true
+                    }
+                },
+                rejection:{
+                  originCode: null,
+                  reason: null
+                },
             },
             segments: {},
             cities: {},
@@ -576,6 +594,9 @@ const app = createApp({
     },
     methods:{
 
+        doesInvoiceDateExpired(date){
+            return dayjs(date, "YYYY-MM-DD").add(2, 'day').isBefore(dayjs());
+        },
 
         // ========= USEFUL FUNCTIONS ========= //
         activateTab(group, tabName){
@@ -592,15 +613,6 @@ const app = createApp({
 
 
             return `${this.getFormattedDate(dateStart)} - ${this.getFormattedDate(dateEnd)}`;
-        },
-
-        invoicesCheckboxAll(event){
-            const setState = event.target.checked;
-
-            this.invoices.list = this.invoices.list.map(invoice => {
-                invoice.isChecked = setState;
-                return invoice;
-            });
         },
 
 
@@ -646,13 +658,131 @@ const app = createApp({
         },
 
 
+        openInvoiceDetailsModal(invoice_id){
+            console.log(invoice_id);
+            axios.get(`http://localhost:8080/crrt_war/manage/invoice`, {
+                params:{
+                    invoice_id: invoice_id
+                }
+            })
+            .then(response => {
+                console.log(response);
+                $("#invoiceDetails_modal").modal("show");
+                this.invoices.details = response.data;
+            })
+            .catch(error => {
+                console.log(error);
+                Notiflix.Notify.failure(error.response.data);
+            });
+
+        },
+
+        deleteRepairInvoice(repairInvoiceId){
+            axios.delete('http://localhost:8080/crrt_war/manage/repairInvoice', {
+                data: {
+                    originId: this.invoices.details.id,
+                    repairId: repairInvoiceId
+                }
+            })
+            .then(response => {
+                console.log(response);
+                this.invoices.details = response.data;
+            })
+            .catch(error => {
+                console.log(error);
+                Notiflix.Notify.failure(error.response.data);
+            });
+        },
+
+        createRepairInvoice(){
+            let isAllValid = true;
+
+            if(this.invoices.repairInvoice.price.value < 1){
+                this.invoices.repairInvoice.price.isValid = false;
+                isAllValid = false;
+            }
+
+            if(!this.invoices.repairInvoice.expirationDate.date){
+                this.invoices.repairInvoice.expirationDate.isValid = false;
+                isAllValid = false;
+            }
+
+            if(isAllValid){
+
+                axios.post('http://localhost:8080/crrt_war/manage/repairInvoice', {
+                    originId: this.invoices.repairInvoice.originId,
+                    price: this.invoices.repairInvoice.price.value,
+                    expirationDate: dayjs(this.invoices.repairInvoice.expirationDate.date).format("YYYY-MM-DD"),
+                    comment: _(this.invoices.repairInvoice.comment)
+                })
+                .then(response => {
+                    console.log(response);
+                    this.invoices.details = response.data;
+                    $("#createRepairInvoice_modal").modal("hide");
+                    $("#invoiceDetails_modal").modal("show");
+                })
+                .catch(error => {
+                    console.log(error);
+                    Notiflix.Notify.failure(error.response.data);
+                });
+            }
+        },
+
+        openCreateRepairInvoiceModal(){
+            this.invoices.repairInvoice.price = {
+                value: "",
+                isValid: true
+            }
+
+            this.invoices.repairInvoice.expirationDate = {
+                date: null,
+                isValid: true
+            }
+
+            this.invoices.repairInvoice.comment = "";
+
+            this.invoices.repairInvoice.originId = this.invoices.details.id;
+            this.invoices.repairInvoice.originCode = this.invoices.details.code;
+
+            $("#invoiceDetails_modal").modal("hide");
+            $("#createRepairInvoice_modal").modal("show");
+        },
+
+        closeCreateRepairInvoiceModal(){
+            $("#invoiceDetails_modal").modal("show");
+            $("#createRepairInvoice_modal").modal("hide");
+        },
 
 
+        openRejectInvoiceModal(){
+            this.invoices.rejection.originCode = this.invoices.details.code;
+            this.invoices.rejection.reason = null;
 
+            $("#rejectInvoice_modal").modal("show");
+        },
 
+        closeRejectInvoiceModal(){
+            $("#invoiceDetails_modal").modal("show");
+        },
 
+        rejectInvoice(){
+            const rejectionReason = _(this.invoices.rejection.reason);
 
-
+            axios.delete('http://localhost:8080/crrt_war/manage/invoice', {
+                data: {
+                    id: this.invoices.details.id,
+                    reason: rejectionReason
+                }
+            })
+            .then(response => {
+                console.log(response);
+                this.invoices.details = response.data;
+            })
+            .catch(error => {
+                console.log(error);
+                Notiflix.Notify.failure(error.response.data);
+            });
+        },
 
 
 
@@ -1192,5 +1322,8 @@ const filters = {
 }
 
 function _(str){
+    if(!str)
+        return null;
+
     return str.trim().length > 0 ? str.trim() : null;
 }
