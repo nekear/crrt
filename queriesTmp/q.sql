@@ -59,3 +59,20 @@ FROM tbl_invoices
 WHERE
     MATCH(tbl_cars.brand, tbl_cars.model) AGAINST ('*Mercedes* *Urus*' IN BOOLEAN MODE) AND
         client_u.email LIKE '%@mail%'
+
+
+SELECT tbl_invoices.id AS invoice_id, tbl_invoices.code AS invoice_code,
+       tbl_invoices.date_start, tbl_invoices.date_end,
+       tbl_invoices.exp_price, tbl_invoices.is_canceled, tbl_invoices.is_rejected,
+       tbl_invoices.driver_id, tbl_drivers.code AS driver_code, driver_u.avatar AS driver_avatar,
+       client_u.email AS client_email,
+       tbl_cars.brand, tbl_cars.model,
+       tbl_passport.firstname AS pp_firstname, tbl_passport.surname AS pp_surname, tbl_passport.patronymic AS pp_patronymic,
+       tbl_passport.date_of_birth AS pp_date_of_birth, tbl_passport.date_of_issue AS pp_date_of_issue,
+       tbl_passport.doc_number AS pp_doc_number, tbl_passport.rntrc AS pp_rntrc, tbl_passport.authority AS pp_authority
+FROM tbl_invoices
+         LEFT JOIN tbl_drivers ON tbl_invoices.driver_id = tbl_drivers.id
+         LEFT JOIN tbl_users AS driver_u ON tbl_drivers.user_id = driver_u.id
+         JOIN tbl_users AS client_u ON tbl_invoices.client_id = client_u.id
+         JOIN tbl_cars ON tbl_invoices.car_id = tbl_cars.id
+         JOIN tbl_passport ON tbl_passport.id = tbl_invoices.passport_id

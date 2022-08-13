@@ -32,7 +32,6 @@ public class InvoicePanelFilters extends Filters {
         // Automatically select non-empty strings
         // (from js comes an object where non-empty fields have an empty string, not null, so this cleanup is necessary)
         representation.put("tbl_invoices."+TBL_INVOICES_CODE, code);
-        representation.put("driver_u."+TBL_DRIVERS_CODE, driverCode);
         representation.put("client_u."+TBL_USERS_EMAIL, clientEmail);
 
         HashMap<String, String> res = representation.entrySet()
@@ -47,6 +46,31 @@ public class InvoicePanelFilters extends Filters {
                         )
                 );
 
+        if(driverCode != null && !driverCode.isBlank()){
+            String cleanDriverCode = clean(driverCode);
+
+            if(cleanDriverCode.equals("-")) {
+                res.put("tbl_drivers." + TBL_DRIVERS_CODE, null);
+            }else{
+                res.put("tbl_drivers."+TBL_DRIVERS_CODE, "%"+cleanDriverCode+"%");
+            }
+        }
+
+        // Statuses
+        if(status != null){
+            switch (status){
+                case ALIVE -> {
+                    res.put("tbl_invoices." + TBL_INVOICES_IS_CANCELED, "0");
+                    res.put("tbl_invoices." + TBL_INVOICES_IS_REJECTED, "0");
+                }
+                case CANCELED -> res.put("tbl_invoices." + TBL_INVOICES_IS_CANCELED, "1");
+                case REJECTED -> res.put("tbl_invoices." + TBL_INVOICES_IS_REJECTED, "1");
+                case ACTIVE_REPAIRS -> res.put("activeRepairs", "0");
+                case EXPIRED_REPAIRS -> res.put("expiredRepairs", "0");
+            }
+        }
+
+
         // Car naming, which consists of Brand and Model, is filtered in db with use of MATCH AGAINST so it should have special characters included like asterisks
         String cleanName = cleanGetString(this.carName);
         if(cleanName != null){
@@ -57,6 +81,8 @@ public class InvoicePanelFilters extends Filters {
                             .map(x -> "*"+x+"*")
                             .collect(Collectors.joining(" ")));
         }
+
+
 
         // Dates should be formatted before use in db query
         if(datesRange != null){

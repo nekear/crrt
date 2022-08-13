@@ -1,0 +1,44 @@
+{
+  code: "afasfd3",
+  brand: "Mercedes",
+  model: "AMG",
+  driver:{
+     code: "12345",
+     avatar: "1659889308181260658ar411.jpg"
+  },
+  datesRange: {
+     start: "2022-08-01",
+     end: "2022-08-10"
+  },
+  price: 1000,
+  clientEmail: "xpert14world@gmail.com",
+  status: 2,
+  repairs:[
+     {
+         id: 0,
+         price: 250,
+         expirationDate: "2022-08-10",
+         comment: "Something here",
+         isPaid: true,
+         tsCreated: "2022-08-08"
+     },
+     {
+         id: 1,
+         price: 350,
+         expirationDate: "2022-08-10",
+         comment: "Something here",
+         isPaid: false,
+         tsCreated: "2022-08-08"
+     }
+  ],
+  passport:{
+     firstname: "Mykhailo",
+     surname: "Diachenko",
+     patronymic: "Dmytrovich",
+     date_of_birth: "2003-10-22",
+     date_of_issue: "2010-10-02",
+     doc_number: "2131234124",
+     rntrc: "321412",
+     authority: "324124"
+  }
+  }

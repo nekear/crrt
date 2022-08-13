@@ -25,3 +25,4 @@
 
 <c:set var="userAvatarPath" value="${user.idenAvatar(pageContext.request.contextPath)}" scope="page" />
 <c:set var="imagesDir" value="${pageContext.request.contextPath}${Constants.IMAGES_UPLOAD_DIR}" scope="page" />
+<c:set var="avatarsDir" value="${pageContext.request.contextPath}${Constants.AVATAR_UPLOAD_DIR}" scope="page" />

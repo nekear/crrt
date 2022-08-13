@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
+import static com.github.DiachenkoMD.web.utils.Utils.sendException;
 
 @WebServlet("/profile/updateData")
 public class UpdateUserDataController extends HttpServlet {
@@ -55,13 +56,7 @@ public class UpdateUserDataController extends HttpServlet {
 
             logger.debug(exceptionToClient.get());
 
-            try {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write(exceptionToClient.get());
-                resp.getWriter().flush();
-            } catch (IOException ioExc) {
-                logger.error(ioExc);
-            }
+            sendException(exceptionToClient.get(), resp);
         }
     }
 }

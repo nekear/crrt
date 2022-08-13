@@ -41,6 +41,10 @@ public class LimitedUser {
         return user;
     }
 
+    public boolean isBlocked(){
+        return state.equals(AccountStates.BLOCKED);
+    }
+
     public boolean encrypt() throws DescriptiveException {
         if(this.id instanceof Integer decryptedId){
             this.id = CryptoStore.encrypt(String.valueOf(decryptedId));
@@ -136,4 +140,5 @@ public class LimitedUser {
 
         return String.format("LIMITED_USER:{%s, %s, %s, %s, %s, %s, %s}", id, email, firstname, surname, patronymic, role, state);
     }
+
 }
