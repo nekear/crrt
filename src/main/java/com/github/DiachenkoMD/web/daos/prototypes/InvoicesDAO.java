@@ -23,7 +23,7 @@ public interface InvoicesDAO {
      */
     HashMap<Integer, String> getOnCar(int carId) throws DBException;
 
-    List<PanelInvoice> getPanelInvoicesWithFilters(HashMap<String, String> filters, int limitOffset, int limitCount) throws DBException;
+    List<PanelInvoice> getPanelInvoicesWithFilters(HashMap<String, String> filters, List<String> orderBy, int limitOffset, int limitCount) throws DBException;
     int getPanelInvoicesNumberWithFilters(HashMap<String, String> filters) throws DBException;
 
     InformativeInvoice getInvoiceDetails(int invoiceId) throws DBException;
@@ -35,4 +35,16 @@ public interface InvoicesDAO {
     Optional<RepairInvoice> getRepairInvoiceInfo(int repairId) throws DBException;
 
     void rejectInvoice(int invoiceId, String reason) throws DBException;
+
+    /**
+     * Method for getting calculated stats. As the result of the execution, you will get: <br/>
+     * <ul>
+     *     <li>Rents in progress - rents, which date_start are in this month, but before tomorrows date.</li>
+     *     <li>New invoices - invoices, which have been created from 1 day of current month.</li>
+     *     <li>Earnings this month - sum of all invoices + 35% of sum of all repair invoices (35% goes to company and other for real repairment). Counts for this month.</li>
+     * </ul>
+     * @return
+     * @throws DBException
+     */
+    List<Double> getStats() throws DBException;
 }

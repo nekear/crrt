@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -85,7 +86,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
     }
 
     @Override
-    public List<PanelInvoice> getPanelInvoicesWithFilters(HashMap<String, String> filters, int limitOffset, int limitCount) throws DBException{
+    public List<PanelInvoice> getPanelInvoicesWithFilters(HashMap<String, String> filters, List<String> orderBy, int limitOffset, int limitCount) throws DBException{
         String query = "SELECT tbl_invoices.id AS invoice_id, tbl_invoices.code AS invoice_code,\n" +
                 "       tbl_invoices.date_start, tbl_invoices.date_end,\n" +
                 "       tbl_invoices.exp_price, tbl_invoices.is_canceled, tbl_invoices.is_rejected,\n" +
@@ -138,7 +139,20 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             query += conditions;
         }
 
-        query += " ORDER BY tbl_invoices.ts_created DESC LIMIT " + limitOffset + ", " + limitCount;
+        if(orderBy != null && orderBy.size() > 0){
+            StringJoiner orderingJoiner = new StringJoiner(",", " ORDER BY ", "");
+            orderBy.forEach(orderingJoiner::add);
+            query += orderingJoiner.toString();
+        }else{
+            query += " ORDER BY tbl_invoices.ts_created DESC";
+        }
+
+
+        if(limitCount != -1){
+            query += " LIMIT " + limitOffset + ", " + limitCount;
+        }
+
+        logger.info(query);
 
         try(
                 Connection con = ds.getConnection();
@@ -388,6 +402,41 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             stmt.setInt(2, invoiceId);
 
             stmt.executeUpdate();
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+
+    @Override
+    public List<Double> getStats() throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("SELECT (SELECT COUNT(id) FROM tbl_invoices WHERE date_start >= ? AND date_start <= ?) AS rentsInProgress,  \n" +
+                        "COUNT(id) AS newInvoices,  \n" +
+                        "((SELECT SUM(price) FROM tbl_repair_invoices WHERE ts_edited >= ? AND is_paid = 1)/100 * 35)+SUM(exp_price) AS earningsThisMonth\n" +
+                        "FROM tbl_invoices WHERE ts_created >= ? AND is_canceled = 0 AND is_rejected = 0")
+        ){
+            LocalDate firstDayOfMonth = YearMonth.now().atDay(1);
+
+            int index = 0;
+            stmt.setObject(++index, firstDayOfMonth);
+            stmt.setObject(++index, LocalDate.now().plusDays(1));
+            stmt.setObject(++index, firstDayOfMonth);
+            stmt.setObject(++index, firstDayOfMonth);
+
+            List<Double> stats = new ArrayList<>();
+
+            try(ResultSet rs = stmt.executeQuery()){
+                if(rs.next()){
+                    stats.add(rs.getDouble("rentsInProgress"));
+                    stats.add(rs.getDouble("newInvoices"));
+                    stats.add(rs.getDouble("earningsThisMonth"));
+                }
+            }
+
+            return stats;
         }catch (SQLException e){
             logger.error(e);
             throw new DBException(e);

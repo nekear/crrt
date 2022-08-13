@@ -4,6 +4,9 @@ import com.github.DiachenkoMD.entities.dto.invoices.InvoicePanelFilters;
 import com.github.DiachenkoMD.entities.dto.users.UsersPanelFilters;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class PaginationRequest {
     private int askedPage;
     private int elementsPerPage;
@@ -13,8 +16,6 @@ public class PaginationRequest {
 
     @SerializedName("invoicesFilters")
     private InvoicePanelFilters invoicesFilters;
-
-    private String orderBy;
 
     public int getAskedPage() {
         return askedPage;
@@ -48,13 +49,7 @@ public class PaginationRequest {
         this.invoicesFilters = invoicesFilters;
     }
 
-    public String getOrderBy() {
-        return orderBy;
-    }
 
-    public void setOrderBy(String orderBy) {
-        this.orderBy = orderBy;
-    }
 
     @Override
     public String toString() {
@@ -70,7 +65,6 @@ public class PaginationRequest {
                 "   AskedPage: %d,\n" +
                 "   ElementsPerPage: %d,\n" +
                 "   Filters: %s,\n" +
-                "   OrderBy: %s,\n" +
-                "}", this.getAskedPage(), this.getElementsPerPage(), current, this.getOrderBy());
+                "}", this.getAskedPage(), this.getElementsPerPage(), current);
     }
 }

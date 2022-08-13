@@ -2,5 +2,5 @@
 <%@ tag import="java.util.Optional" %>
 
 <%
-request.setAttribute("endLocale", Optional.of(request.getSession().getAttribute("lang")).orElse("en"));
+    request.setAttribute("endLocale", Optional.of(request.getSession().getAttribute("lang")).orElse("en"));
 %>

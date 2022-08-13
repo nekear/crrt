@@ -51,20 +51,50 @@ public class AdminService {
         this.ctx = ctx;
     }
 
-    // TODO: add stats
-    public List<Double> getStats(){
-        return List.of(1000d, 1001d, 10d);
+    /** Method for getting global stats. Just calls for {@link InvoicesDAO#getStats()}, so read about it {@link InvoicesDAO#getStats() here}.
+     *
+     * @return
+     * @throws DBException
+     */
+    public List<Double> getStats() throws DBException {
+        return invoicesDAO.getStats();
     }
 
+    /**
+     * Simple method for getting all cars info for reactive search at admin-panel. Inside just calls {@link CarsDAO#getAll()}.
+     * @return List of {@link Car}
+     * @throws DBException
+     */
     public List<Car> getCars() throws DBException {
         return carsDAO.getAll();
     }
 
+    /**
+     * Method for getting car data for specific car.
+     * @param car_id decrypted car id.
+     * @return {@link Car} info.
+     * @throws DBException comes from {@link CarsDAO#get(int)}.
+     * @throws DescriptiveException rudimentary
+     */
     public Car getCar(int car_id) throws DBException, DescriptiveException {
         Optional<Car> car = carsDAO.get(car_id);
 
         return car.orElseThrow(() -> new DescriptiveException("Unable to get car", ExceptionReason.DB_ACTION_ERROR));
     }
+
+    /**
+     * Service method for car creation. Awaits getting from req multipart data, where could be photos (if user decided to add them) and 100% "document" field with all car information.
+     * @param req
+     * @return HashMap with keys: <ul>
+     *     <li>Newly created car id</li>
+     *     <li>Car brand (for pretty message)</li>
+     *     <li>Car model (for pretty message)</li>
+     * </ul>
+     * @throws ServletException
+     * @throws IOException from {@link Part#getInputStream()}
+     * @throws DescriptiveException with reasons {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR}, {@link ExceptionReason#BAD_VALUE BAD_VALUE} (if car`s price is negative number).
+     * @throws DBException comes from {@link CarsDAO#create(Car)} and {@link CarsDAO#addImage(int, String)}
+     */
 
     public HashMap<String, String> createCar(HttpServletRequest req) throws ServletException, IOException, DescriptiveException, DBException {
 
@@ -151,7 +181,16 @@ public class AdminService {
         );
     }
 
-    public Image addImage(HttpServletRequest req) throws ServletException, IOException, DescriptiveException, DBException {
+    /**
+     * Method for adding images to car. Accepts only 1 image. Talking about interesting moments, this method almost randomly generates file name and file input should have name "car-image".
+     * @param req should contain image data + "document" parameter with encrypted "car_id" in json format.
+     * @return {@link Image} object with newly created image id and its generated name.
+     * @throws ServletException
+     * @throws IOException from {@link Part#getInputStream()} to read json data from "document" field. (contains car_id field).
+     * @throws DescriptiveException with reasons {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR} and {@link ExceptionReason#ACQUIRING_ERROR ACQUIRING_ERROR} (if incoming car id is null).
+     * @throws DBException comes from {@link CarsDAO#addImage(int, String)}
+     */
+    public Image addImageToCar(HttpServletRequest req) throws ServletException, IOException, DescriptiveException, DBException {
 
         // Parsing document object (to upload file and json data together, i decided to add json as "document" parameter to sent file data)
         Part jsonPart = req.getPart("document");
@@ -191,7 +230,19 @@ public class AdminService {
         return responseImage;
     }
 
-    public void deleteImage(HttpServletRequest req) throws ServletException, IOException, DescriptiveException, DBException {
+    /**
+     * Method for deleting images from car. Request object should contain "id" parameter. Generally, this method is well documented inside (as others).
+     * @param req should contain "id" parameter.
+     * @throws ServletException
+     * @throws IOException
+     * @throws DescriptiveException with reasons: <ul>
+     *     <li>{@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR} </li>
+     *     <li>{@link ExceptionReason#ACQUIRING_ERROR ACQUIRING_ERROR} if incoming image id is null</li>
+     *     <li>{@link ExceptionReason#IMAGE_NOT_FOUND_IN_DB IMAGE_NOT_FOUND_IN_DB} if incoming image id is null</li>
+     *     </ul>
+     * @throws DBException from {@link CarsDAO#getImage(int)} and {@link CarsDAO#deleteImage(int)}.
+     */
+    public void deleteImageFromCar(HttpServletRequest req) throws ServletException, IOException, DescriptiveException, DBException {
         // Acquiring image id (to know what image should be deleted)
         String jsonDataStr = new BufferedReader(req.getReader()).lines().collect(Collectors.joining());
 
@@ -222,6 +273,14 @@ public class AdminService {
             throw new DescriptiveException("Nothing was delete from db", ExceptionReason.DB_ACTION_ERROR);
     }
 
+    /**
+     * Method for updating car data. Doesn`t await any images, so accept only text data which is similar to {@link Car} class (because inside is being parsed by json with this class as prototype).
+     * @param req should have content similar to {@link Car}.
+     * @throws ServletException
+     * @throws IOException
+     * @throws DescriptiveException with reasons {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR}.
+     * @throws DBException from {@link CarsDAO#update(Car)}.
+     */
     public void updateCar(HttpServletRequest req) throws ServletException, IOException, DescriptiveException, DBException {
 
         // Acquiring gson
@@ -247,6 +306,13 @@ public class AdminService {
             throw new DescriptiveException("Failed to update db entry", ExceptionReason.DB_ACTION_ERROR);
     }
 
+    /**
+     * Method for deleting cars. In request body should contain encrypted car id.
+     * @param req should contain encrypted car id.
+     * @throws IOException
+     * @throws DescriptiveException with reasons {@link ExceptionReason#CAR_IN_USE CAR_IN_USE} (if car has connected invoices)
+     * @throws DBException comes from {@link InvoicesDAO#getOnCar(int)} (for getting connected Invoices and clients) and {@link CarsDAO#delete(int)}.
+     */
     public void deleteCar(HttpServletRequest req) throws IOException, DescriptiveException, DBException {
         // Acquiring car id
         String jsonDataStr = new BufferedReader(req.getReader()).lines().collect(Collectors.joining());
@@ -272,7 +338,6 @@ public class AdminService {
                 logger.debug("Deleting car image with name [{}] from [{}]",image.getFileName(), imagePath);
             }
         }
-
 
 
         // Removing file entry from db
@@ -310,9 +375,9 @@ public class AdminService {
 
     /**
      * Method for creating new user from admin-panel. Contains email, firstname?, surname?, patronymic?, password and role validation, so be sure to pass in JSON all needed data.
-     * @param creationUserJSON - json string containing email, firstname?, surname?, patronymic?, password and role. *"?" means optional.
-     * @throws DBException
-     * @throws DescriptiveException
+     * @param creationUserJSON - json string containing email, firstname?, surname?, patronymic?, password and role. Note: "?" means optional.
+     * @throws DBException depending on two calls of {@link UsersDAO#doesExist(LimitedUser)} and {@link UsersDAO#register(LimitedUser, String)}
+     * @throws DescriptiveException with reasons {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR} and {@link ExceptionReason#EMAIL_EXISTS EMAIL_EXISTS}
      */
     public void createUser(String creationUserJSON) throws DBException, DescriptiveException{
         Gson gson = (Gson) ctx.getAttribute("gson");
@@ -375,6 +440,8 @@ public class AdminService {
     /**
      * Method for getting extended user information for admin-panel.
      * @param userIdEncrypted User identifier in the encrypted state.
+     * @throws DescriptiveException comes from call to {@link CryptoStore#decrypt(String)}
+     * @throws DBException depending on call to {@link UsersDAO#getInformativeUser(int)}
      */
     public InformativeUser getUser(String userIdEncrypted) throws DescriptiveException, DBException {
         int userId = Integer.parseInt(CryptoStore.decrypt(userIdEncrypted));
@@ -390,6 +457,8 @@ public class AdminService {
     /**
      * Method for updating user data. Obtaining !only! changed fields, any other field, that is not on json object won`t be updated.
      * @param changedUserDataJSON changed user data in json format. Should correspond to {@link CreationUpdatingUserJPC CreationUpdatingUserJPC}, because will be parsed by Gson into that object.
+     * @throws DescriptiveException with reasons {@link ExceptionReason#ACQUIRING_ERROR ACQUIRING_ERROR} (if could not obtain user id from request) and {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR}.
+     * @throws DBException comes from {@link UsersDAO#updateUsersData(int, HashMap)}.
      */
     public void updateUser(String changedUserDataJSON) throws DescriptiveException, DBException {
         Gson gson = (Gson) ctx.getAttribute("gson");
@@ -408,7 +477,7 @@ public class AdminService {
 
         HashMap<String, String> resultFieldsToUpdate = new HashMap<>();
 
-        int userId = changedUserData.getCleanId().orElseThrow(() -> new DescriptiveException("Could`nt obtain user id from request json object", ExceptionReason.ACQUIRING_ERROR));
+        int userId = changedUserData.getCleanId().orElseThrow(() -> new DescriptiveException("Could not obtain user id from request json object", ExceptionReason.ACQUIRING_ERROR));
 
         // Validating data
         if (email != null){
@@ -454,8 +523,8 @@ public class AdminService {
      * Method for updating user state aka blocking / unblocking user.
      * @param userIdEncrypted encrypted user id as String.
      * @param newStateId id of state as int (by 2022.08.11 -> 1 = blocked, 2 = unblocked).
-     * @throws DescriptiveException
-     * @throws DBException
+     * @throws DescriptiveException throws (not) stupid {@link ExceptionReason#DB_ACTION_ERROR DB_ACTION_ERROR} which never ever will be thrown.
+     * @throws DBException comes from {@link UsersDAO#setUserState(int, int)}
      */
     public void updateUserState(String userIdEncrypted, int newStateId) throws DescriptiveException, DBException {
 
@@ -470,7 +539,7 @@ public class AdminService {
     /**
      * Method for deleting users. Accepting array of users` ids in encrypted state.
      * @param usersListJSON json object containing inside a list of users` ids in encrypted state.
-     * @throws DBException
+     * @throws DBException comes from {@link UsersDAO#deleteUsers(List)}
      * @throws DescriptiveException
      */
     public void deleteUsers(String usersListJSON) throws DBException, DescriptiveException {

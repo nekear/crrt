@@ -62,38 +62,23 @@
         <div class="view-content">
             <div class="sized__container">
                 <div class="canvas-container unstyled greetings-banner">
-                    <h3>🎉 Welcome, <strong>xpert14world</strong></h3>
+                    <h3>Welcome, <strong><l:prettyLogin /></strong></h3>
                 </div>
                 <div class="canvas-container">
                     <div class="row">
                         <div class="col-lg-4 stat-card">
                             <div class="stat-card-icon">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="8" y="9" width="3" height="10" rx="1.5" fill="currentColor"/>
-                                    <rect opacity="0.5" x="13" y="5" width="3" height="14" rx="1.5" fill="currentColor"/>
-                                    <rect x="18" y="11" width="3" height="8" rx="1.5" fill="currentColor"/>
-                                    <rect x="3" y="13" width="3" height="6" rx="1.5" fill="currentColor"/>
+                                    <path opacity="0.3" d="M21 11H18.9C18.5 7.9 16 5.49998 13 5.09998V3C13 2.4 12.6 2 12 2C11.4 2 11 2.4 11 3V5.09998C7.9 5.49998 5.50001 8 5.10001 11H3C2.4 11 2 11.4 2 12C2 12.6 2.4 13 3 13H5.10001C5.50001 16.1 8 18.4999 11 18.8999V21C11 21.6 11.4 22 12 22C12.6 22 13 21.6 13 21V18.8999C16.1 18.4999 18.5 16 18.9 13H21C21.6 13 22 12.6 22 12C22 11.4 21.6 11 21 11ZM12 17C9.2 17 7 14.8 7 12C7 9.2 9.2 7 12 7C14.8 7 17 9.2 17 12C17 14.8 14.8 17 12 17Z" fill="currentColor"/>
+                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="currentColor"/>
                                 </svg>
                             </div>
                             <div class="stat-card-title">
-                                {{stats[0]}} $
+                                {{stats[0]}}
                             </div>
                             <div class="stat-car-description">
-                                General earnings
-                            </div>
-                        </div>
-                        <div class="col-lg-4 stat-card">
-                            <div class="stat-card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path opacity="0.3" d="M12.5 22C11.9 22 11.5 21.6 11.5 21V3C11.5 2.4 11.9 2 12.5 2C13.1 2 13.5 2.4 13.5 3V21C13.5 21.6 13.1 22 12.5 22Z" fill="currentColor"/>
-                                    <path d="M17.8 14.7C17.8 15.5 17.6 16.3 17.2 16.9C16.8 17.6 16.2 18.1 15.3 18.4C14.5 18.8 13.5 19 12.4 19C11.1 19 10 18.7 9.10001 18.2C8.50001 17.8 8.00001 17.4 7.60001 16.7C7.20001 16.1 7 15.5 7 14.9C7 14.6 7.09999 14.3 7.29999 14C7.49999 13.8 7.80001 13.6 8.20001 13.6C8.50001 13.6 8.69999 13.7 8.89999 13.9C9.09999 14.1 9.29999 14.4 9.39999 14.7C9.59999 15.1 9.8 15.5 10 15.8C10.2 16.1 10.5 16.3 10.8 16.5C11.2 16.7 11.6 16.8 12.2 16.8C13 16.8 13.7 16.6 14.2 16.2C14.7 15.8 15 15.3 15 14.8C15 14.4 14.9 14 14.6 13.7C14.3 13.4 14 13.2 13.5 13.1C13.1 13 12.5 12.8 11.8 12.6C10.8 12.4 9.99999 12.1 9.39999 11.8C8.69999 11.5 8.19999 11.1 7.79999 10.6C7.39999 10.1 7.20001 9.39998 7.20001 8.59998C7.20001 7.89998 7.39999 7.19998 7.79999 6.59998C8.19999 5.99998 8.80001 5.60005 9.60001 5.30005C10.4 5.00005 11.3 4.80005 12.3 4.80005C13.1 4.80005 13.8 4.89998 14.5 5.09998C15.1 5.29998 15.6 5.60002 16 5.90002C16.4 6.20002 16.7 6.6 16.9 7C17.1 7.4 17.2 7.69998 17.2 8.09998C17.2 8.39998 17.1 8.7 16.9 9C16.7 9.3 16.4 9.40002 16 9.40002C15.7 9.40002 15.4 9.29995 15.3 9.19995C15.2 9.09995 15 8.80002 14.8 8.40002C14.6 7.90002 14.3 7.49995 13.9 7.19995C13.5 6.89995 13 6.80005 12.2 6.80005C11.5 6.80005 10.9 7.00005 10.5 7.30005C10.1 7.60005 9.79999 8.00002 9.79999 8.40002C9.79999 8.70002 9.9 8.89998 10 9.09998C10.1 9.29998 10.4 9.49998 10.6 9.59998C10.8 9.69998 11.1 9.90002 11.4 9.90002C11.7 10 12.1 10.1 12.7 10.3C13.5 10.5 14.2 10.7 14.8 10.9C15.4 11.1 15.9 11.4 16.4 11.7C16.8 12 17.2 12.4 17.4 12.9C17.6 13.4 17.8 14 17.8 14.7Z" fill="currentColor"/>
-                                </svg>
-                            </div>
-                            <div class="stat-card-title">
-                                {{stats[1]}} $
-                            </div>
-                            <div class="stat-car-description">
-                                Clear profit
+                                <div>Active rents</div>
+                                <div class="micro-caution">Rents started from {{getMonthStart}}</div>
                             </div>
                         </div>
                         <div class="col-lg-4 stat-card">
@@ -104,10 +89,26 @@
                                 </svg>
                             </div>
                             <div class="stat-card-title">
+                                {{stats[1]}}
+                            </div>
+                            <div class="stat-car-description">
+                                <div>New invoices</div>
+                                <div class="micro-caution">Starting from {{getMonthStart}}</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 stat-card">
+                            <div class="stat-card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path opacity="0.3" d="M12.5 22C11.9 22 11.5 21.6 11.5 21V3C11.5 2.4 11.9 2 12.5 2C13.1 2 13.5 2.4 13.5 3V21C13.5 21.6 13.1 22 12.5 22Z" fill="currentColor"/>
+                                    <path d="M17.8 14.7C17.8 15.5 17.6 16.3 17.2 16.9C16.8 17.6 16.2 18.1 15.3 18.4C14.5 18.8 13.5 19 12.4 19C11.1 19 10 18.7 9.10001 18.2C8.50001 17.8 8.00001 17.4 7.60001 16.7C7.20001 16.1 7 15.5 7 14.9C7 14.6 7.09999 14.3 7.29999 14C7.49999 13.8 7.80001 13.6 8.20001 13.6C8.50001 13.6 8.69999 13.7 8.89999 13.9C9.09999 14.1 9.29999 14.4 9.39999 14.7C9.59999 15.1 9.8 15.5 10 15.8C10.2 16.1 10.5 16.3 10.8 16.5C11.2 16.7 11.6 16.8 12.2 16.8C13 16.8 13.7 16.6 14.2 16.2C14.7 15.8 15 15.3 15 14.8C15 14.4 14.9 14 14.6 13.7C14.3 13.4 14 13.2 13.5 13.1C13.1 13 12.5 12.8 11.8 12.6C10.8 12.4 9.99999 12.1 9.39999 11.8C8.69999 11.5 8.19999 11.1 7.79999 10.6C7.39999 10.1 7.20001 9.39998 7.20001 8.59998C7.20001 7.89998 7.39999 7.19998 7.79999 6.59998C8.19999 5.99998 8.80001 5.60005 9.60001 5.30005C10.4 5.00005 11.3 4.80005 12.3 4.80005C13.1 4.80005 13.8 4.89998 14.5 5.09998C15.1 5.29998 15.6 5.60002 16 5.90002C16.4 6.20002 16.7 6.6 16.9 7C17.1 7.4 17.2 7.69998 17.2 8.09998C17.2 8.39998 17.1 8.7 16.9 9C16.7 9.3 16.4 9.40002 16 9.40002C15.7 9.40002 15.4 9.29995 15.3 9.19995C15.2 9.09995 15 8.80002 14.8 8.40002C14.6 7.90002 14.3 7.49995 13.9 7.19995C13.5 6.89995 13 6.80005 12.2 6.80005C11.5 6.80005 10.9 7.00005 10.5 7.30005C10.1 7.60005 9.79999 8.00002 9.79999 8.40002C9.79999 8.70002 9.9 8.89998 10 9.09998C10.1 9.29998 10.4 9.49998 10.6 9.59998C10.8 9.69998 11.1 9.90002 11.4 9.90002C11.7 10 12.1 10.1 12.7 10.3C13.5 10.5 14.2 10.7 14.8 10.9C15.4 11.1 15.9 11.4 16.4 11.7C16.8 12 17.2 12.4 17.4 12.9C17.6 13.4 17.8 14 17.8 14.7Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <div class="stat-card-title">
                                 {{stats[2]}} $
                             </div>
                             <div class="stat-car-description">
-                                Invoices
+                                <div>General earnings this month</div>
+                                <div class="micro-caution">35% profit from repairs included</div>
                             </div>
                         </div>
                     </div>
@@ -307,8 +308,9 @@
                             <h5>Invoices list</h5>
                             <h6>Found invoices amount: <span>{{invoices.search.pagination.totalFoundEntities}}</span></h6>
                             <div>
-                                <button class="mdx-md-button button-blue button-bordered" @click="performInvoicesSearch(1)">Search</button>
-                                <button class="mdx-md-button button-red button-bordered ml-4">Reject selected</button>
+                                <button class="mdx-md-button button-blue button-bordered" @click="performInvoicesSearch(1)">
+                                    Search
+                                </button>
                             </div>
                         </div>
                         <div>
@@ -331,20 +333,43 @@
                             </th>
                             <th>
                                 <input type="text" placeholder="Name" class="form-control" v-model="invoices.search.filters.carName">
+                                <div class="sort-marker" :data-sort-type="getSortOrder('carName')" @click="increaseSort('carName')">
+                                    <div class="sort-wrap">
+                                        <div class="sort-asc-arrow"></div>
+                                        <div v-if="invoices.search.orderBy.length > 1">{{getSortIndex('carName')}}</div>
+                                        <div class="sort-desc-arrow"></div>
+                                    </div>
+                                </div>
                             </th>
                             <th>
-                                <Datepicker v-model="invoices.search.filters.datesRange"
-                                            range
-                                            :format="format"
-                                            :preview-format="format"
-                                            :enable-time-picker="false"
-                                            dark hide-input-icon
-                                            input-class-name="form-control invoices-dates-range-input"
-                                            auto-apply
-                                            placeholder="Dates range"/>
+                                <div>
+                                    <Datepicker v-model="invoices.search.filters.datesRange"
+                                                range
+                                                :format="format"
+                                                :preview-format="format"
+                                                :enable-time-picker="false"
+                                                dark hide-input-icon
+                                                input-class-name="form-control invoices-dates-range-input"
+                                                auto-apply
+                                                placeholder="Dates range"/>
+                                </div>
+                                <div class="sort-marker" :data-sort-type="getSortOrder('datesRange')" @click="increaseSort('datesRange')">
+                                    <div class="sort-wrap">
+                                        <div class="sort-asc-arrow"></div>
+                                        <div v-if="invoices.search.orderBy.length > 1">{{getSortIndex('datesRange')}}</div>
+                                        <div class="sort-desc-arrow"></div>
+                                    </div>
+                                </div>
                             </th>
                             <th class="sortableTh">
                                 Price
+                                <div class="sort-marker" :data-sort-type="getSortOrder('price')" @click="increaseSort('price')">
+                                    <div class="sort-wrap">
+                                        <div class="sort-asc-arrow"></div>
+                                        <div v-if="invoices.search.orderBy.length > 1">{{getSortIndex('price')}}</div>
+                                        <div class="sort-desc-arrow"></div>
+                                    </div>
+                                </div>
                             </th>
                             <th>
                                 <input type="text" placeholder="Driver email or -" class="form-control" v-model="invoices.search.filters.driverEmail">
@@ -400,8 +425,10 @@
                             <input type="file" style="display: none" class="car-add-photo-input" name="car-image" accept="image/png, image/gif, image/jpeg">
                         </form>
                         <div class="car-photos-container mb-2">
-                            <div class="mc-photo cover-bg-type"  v-for="imageItem in cars.workingOn.images" :key="imageItem.id"
-                                 :style="{backgroundImage: 'url(${imagesDir}/'+imageItem.fileName+')'}"
+                            <div class="mc-photo cover-bg-type"
+                                 v-for="imageItem in cars.workingOn.images"
+                                 :key="imageItem.id"
+                                 :style="{'background-image': 'url(&quot;${imagesDir}/'+imageItem.fileName+'&quot;)'}"
                                  :class="{'mc-photo-focused': focusedImage && focusedImage.id === imageItem.id}"
                                  @click="focusOnImage(imageItem.id)"
                             ></div>

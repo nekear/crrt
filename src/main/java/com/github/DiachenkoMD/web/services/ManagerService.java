@@ -52,6 +52,7 @@ public class ManagerService {
      * @return {@link PaginationResponse<PanelInvoice>} with {@link PanelInvoice} list inside entities field.
      */
     public PaginationResponse<PanelInvoice> getInvoices(String paginationRequestJSON) throws DBException {
+        logger.info(paginationRequestJSON);
         Gson gson = (Gson) ctx.getAttribute("gson");
         PaginationRequest pr = gson.fromJson(paginationRequestJSON, PaginationRequest.class);
 
@@ -67,8 +68,12 @@ public class ManagerService {
 
         logger.info(searchCriteria);
 
+        List<String> orderBy = pr.getInvoicesFilters().getOrderPresentation();
+
+        logger.info(orderBy);
+
         PaginationResponse<PanelInvoice> paginationResponse = new PaginationResponse<>();
-        paginationResponse.setResponseData(invoicesDAO.getPanelInvoicesWithFilters(searchCriteria, limitOffset, limitCount));
+        paginationResponse.setResponseData(invoicesDAO.getPanelInvoicesWithFilters(searchCriteria, orderBy, limitOffset, limitCount));
         paginationResponse.setTotalElements(invoicesDAO.getPanelInvoicesNumberWithFilters(searchCriteria));
 
         return paginationResponse;

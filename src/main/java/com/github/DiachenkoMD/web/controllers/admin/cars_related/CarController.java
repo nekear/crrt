@@ -48,7 +48,7 @@ public class CarController extends HttpServlet {
 
             Car car = adminService.getCar(Integer.parseInt(CryptoStore.decrypt(carIdString)));
 
-            sendSuccess(new Gson().toJson(car), resp);
+            sendSuccess(gson.toJson(car), resp);
         }catch (Exception e){
             logger.error(e);
 

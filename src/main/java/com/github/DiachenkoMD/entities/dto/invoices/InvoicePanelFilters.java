@@ -2,17 +2,18 @@ package com.github.DiachenkoMD.entities.dto.invoices;
 
 import com.github.DiachenkoMD.entities.dto.DatesRange;
 import com.github.DiachenkoMD.entities.dto.Filters;
+import com.github.DiachenkoMD.entities.dto.Ordery;
 import com.github.DiachenkoMD.entities.enums.InvoiceStatuses;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.entities.DB_Constants.*;
-import static com.github.DiachenkoMD.web.utils.Utils.clean;
-import static com.github.DiachenkoMD.web.utils.Utils.cleanGetString;
+import static com.github.DiachenkoMD.web.utils.Utils.*;
 
 public class InvoicePanelFilters extends Filters {
 
@@ -23,6 +24,8 @@ public class InvoicePanelFilters extends Filters {
     private String clientEmail;
 
     private InvoiceStatuses status;
+
+    private List<Ordery> orderBy;
 
     @Override
     public HashMap<String, String> getDBPresentation() {
@@ -95,6 +98,32 @@ public class InvoicePanelFilters extends Filters {
         return res;
     }
 
+    /**
+     * Method for getting matchings of sort params from request to db columns names
+     * @return List of ORDER BY ready parameters in form of "ORDER BY _col_ ASC/DESC"
+     */
+    public List<String> getOrderPresentation(){
+        if(orderBy == null || orderBy.size() == 0)
+            return null;
+
+        return orderBy.stream()
+                .filter(x -> multieq(x.getName(), "carName", "datesRange", "price"))
+                .filter(x -> multieq(x.getType(), "asc", "desc"))
+                .map( x -> {
+                    String name = x.getName();
+                    String type = x.getType().toUpperCase();
+                    if(name.equalsIgnoreCase("carName")){
+                        return String.format("tbl_cars.brand %s, tbl_cars.model %s", type, type);
+                    }else if(name.equalsIgnoreCase("datesRange")){
+                        return "tbl_invoices.date_start " + type;
+                    }else if(name.equalsIgnoreCase("price")){
+                        return "tbl_invoices.exp_price " + type;
+                    }else{
+                        return null;
+                    }
+                })
+                .collect(Collectors.toList());
+    }
 
     @Override
     public String toString() {
@@ -159,5 +188,13 @@ public class InvoicePanelFilters extends Filters {
 
     public void setStatus(InvoiceStatuses status) {
         this.status = status;
+    }
+
+    public List<Ordery> getOrderBy() {
+        return orderBy;
+    }
+
+    public void setOrderBy(List<Ordery> orderBy) {
+        this.orderBy = orderBy;
     }
 }
