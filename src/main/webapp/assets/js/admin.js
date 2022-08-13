@@ -303,7 +303,7 @@ const app = createApp({
                         code: "",
                         carName: "", // brand + model
                         datesRange: null,
-                        driverCode: "",
+                        driverEmail: "",
                         clientEmail: "",
                         status: 0
                     },
@@ -326,7 +326,7 @@ const app = createApp({
                         price: 1000,
                         driver: {
                             avatar: "sdfhsaf.jpg",
-                            code: "12415"
+                            email: "12415"
                         },
                         clientEmail: "diachenko_md@hotmail.com",
                         statusList: []

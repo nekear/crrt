@@ -19,7 +19,7 @@ public class InvoicePanelFilters extends Filters {
     private String code;
     private String carName;
     private DatesRange datesRange;
-    private String driverCode;
+    private String driverEmail;
     private String clientEmail;
 
     private InvoiceStatuses status;
@@ -46,13 +46,13 @@ public class InvoicePanelFilters extends Filters {
                         )
                 );
 
-        if(driverCode != null && !driverCode.isBlank()){
-            String cleanDriverCode = clean(driverCode);
+        if(driverEmail != null && !driverEmail.isBlank()){
+            String cleanDriverEmail = clean(driverEmail);
 
-            if(cleanDriverCode.equals("-")) {
-                res.put("tbl_drivers." + TBL_DRIVERS_CODE, null);
+            if(cleanDriverEmail.equals("-")) {
+                res.put("driver_u."+TBL_USERS_EMAIL, null);
             }else{
-                res.put("tbl_drivers."+TBL_DRIVERS_CODE, "%"+cleanDriverCode+"%");
+                res.put("driver_u."+TBL_USERS_EMAIL, "%"+cleanDriverEmail+"%");
             }
         }
 
@@ -102,10 +102,10 @@ public class InvoicePanelFilters extends Filters {
                 "   Code: %s,\n" +
                 "   Name: %s,\n" +
                 "   DatesRange: %s,\n" +
-                "   DriverCode: %s,\n" +
+                "   DriverEmail: %s,\n" +
                 "   ClientEmail: %s,\n" +
                 "   Status: %s\n" +
-                "}", this.getCode(), this.getCarName(), this.getDatesRange(), this.getDriverCode(), this.getClientEmail(), this.getStatus());
+                "}", this.getCode(), this.getCarName(), this.getDatesRange(), this.getDriverEmail(), this.getClientEmail(), this.getStatus());
     }
 
     private String dgp(String glued, String str){
@@ -137,12 +137,12 @@ public class InvoicePanelFilters extends Filters {
         this.datesRange = datesRange;
     }
 
-    public String getDriverCode() {
-        return driverCode;
+    public String getDriverEmail() {
+        return driverEmail;
     }
 
-    public void setDriverCode(String driverCode) {
-        this.driverCode = driverCode;
+    public void setDriverEmail(String driverEmail) {
+        this.driverEmail = driverEmail;
     }
 
     public String getClientEmail() {
