@@ -43,7 +43,7 @@ public class CarImagesController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{
-            Image newImage = adminService.addImage(req);
+            Image newImage = adminService.addImageToCar(req);
 
             resp.setContentType("application/json");
             sendSuccess(gson.toJson(newImage), resp);
@@ -63,7 +63,7 @@ public class CarImagesController extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         try{
-            adminService.deleteImage(req);
+            adminService.deleteImageFromCar(req);
 
             sendSuccess(new StatusText("admin.car_editing.image_delete_successfully", true, StatusStates.SUCCESS).convert(getLang(req)), resp);
         }catch (Exception e){

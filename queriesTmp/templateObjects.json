@@ -42,3 +42,35 @@
      authority: "324124"
   }
   }
+
+{
+  id: "223dfas",
+  code: "fsadhfasp",
+  name: "Mercedes AMG",
+  datesRange: {
+    start: "2022-08-02",
+    end: "2022-08-31"
+  },
+  price: 1000,
+  driver: {
+    avatar: "sdfhsaf.jpg",
+    email: "12415"
+  },
+  clientEmail: "diachenko_md@hotmail.com",
+  statusList: []
+}
+
+
+repairInvoice:{
+  originId: "223dfas",
+  originCode: "fsadhfasp",
+  price: {
+  value: 0,
+  isValid: true
+  },
+  comment: "",
+  expirationDate: {
+  date: null,
+  isValid: true
+  }
+}

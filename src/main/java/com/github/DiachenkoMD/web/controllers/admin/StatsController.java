@@ -1,6 +1,7 @@
 package com.github.DiachenkoMD.web.controllers.admin;
 
 import com.github.DiachenkoMD.web.services.AdminService;
+import com.github.DiachenkoMD.web.utils.Utils;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -18,29 +19,24 @@ import java.util.List;
 public class StatsController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(StatsController.class);
     private AdminService adminService;
+    private Gson gson;
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         adminService = ((AdminService) config.getServletContext().getAttribute("admin_service"));
+        gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{
             List<Double> statsList = adminService.getStats();
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(new Gson().toJson(statsList));
-            resp.getWriter().flush();
+            Utils.sendSuccess(gson.toJson(statsList), resp);
         }catch (Exception e){
 
             logger.error(e);
 
-            try {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().flush();
-            } catch (IOException ioExc) {
-                logger.error(ioExc);
-            }
+            Utils.sendException("", resp);
         }
     }
 }

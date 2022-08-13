@@ -69,14 +69,14 @@ body {
   letter-spacing: 1px;
   color: var(--systemGray_accessible);
 }
-.stat-card:nth-child(1) rect {
+.stat-card:nth-child(1) path, .stat-card:nth-child(1) rect {
   fill: var(--systemRed_accessible);
 }
-.stat-card:nth-child(2) path {
-  fill: var(--systemGreen_accessible);
-}
-.stat-card:nth-child(3) path {
+.stat-card:nth-child(2) path, .stat-card:nth-child(2) rect {
   fill: var(--systemIndigo_accessible);
+}
+.stat-card:nth-child(3) path, .stat-card:nth-child(3) rect {
+  fill: var(--systemGreen_accessible);
 }
 
 .car-photos-container {

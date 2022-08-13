@@ -26,10 +26,13 @@ public class ReplenishBalanceController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(UpdatePasswordController.class);
     private UsersService usersService;
 
+    private Gson gson;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         this.usersService = (UsersService) config.getServletContext().getAttribute("users_service");
+        this.gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
     @Override
@@ -40,7 +43,7 @@ public class ReplenishBalanceController extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.setContentType("application/json");
             resp.getWriter().write(
-                    new Gson().toJson(
+                    gson.toJson(
                             Map.of(
                             "newBalance", newBalance,
                             "message", new StatusText("profile.replenishment_successful", true, StatusStates.SUCCESS).convert(getLang(req))

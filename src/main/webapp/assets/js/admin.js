@@ -22,7 +22,7 @@ const app = createApp({
         return {
             tabs:{
                 panel: {
-                    active: "invoices"
+                    active: "cars"
                 }
             },
             cars:{
@@ -312,30 +312,14 @@ const app = createApp({
                         availablePages: 1,
                         currentPage: 1,
                         totalFoundEntities: 0
-                    }
+                    },
+                    orderBy: []
                 },
-                list: [
-                    {
-                        id: "223dfas",
-                        code: "fsadhfasp",
-                        name: "Mercedes AMG",
-                        datesRange: {
-                            start: "2022-08-02",
-                            end: "2022-08-31"
-                        },
-                        price: 1000,
-                        driver: {
-                            avatar: "sdfhsaf.jpg",
-                            email: "12415"
-                        },
-                        clientEmail: "diachenko_md@hotmail.com",
-                        statusList: []
-                    }
-                ],
+                list: [],
                 details: null,
                 repairInvoice:{
-                    originId: "223dfas",
-                    originCode: "fsadhfasp",
+                    originId: "",
+                    originCode: "",
                     price: {
                         value: 0,
                         isValid: true
@@ -451,6 +435,11 @@ const app = createApp({
               if(newState === "users"){
                   if(this.users.list.length === 0){
                       this.performUsersSearch(1);
+                  }
+              }
+              if(newState === "invoices"){
+                  if(this.invoices.list.length === 0){
+                      this.performInvoicesSearch(1);
                   }
               }
           },
@@ -589,10 +578,57 @@ const app = createApp({
             }
 
             return resultUpdateData;
+        },
+
+        getMonthStart(){
+            return new dayjs().startOf("month").format('DD.MM.YYYY');
         }
 
     },
     methods:{
+
+        getSortOrder(name){
+            let sortOrder = "null";
+            for(index in this.invoices.search.orderBy){
+                if(this.invoices.search.orderBy[index].name === name){
+                    sortOrder = this.invoices.search.orderBy[index].type;
+                    break;
+                }
+            }
+            return sortOrder;
+        },
+
+        getSortIndex(name){
+            let sortIndex = null;
+            for(index in this.invoices.search.orderBy){
+                if(this.invoices.search.orderBy[index].name === name){
+                    sortIndex = index;
+                    break;
+                }
+            }
+            return sortIndex ? parseInt(sortIndex) + 1 : null;
+        },
+
+        increaseSort(name){
+            console.log('increasing!');
+            let wasFound = false;
+            for(index in this.invoices.search.orderBy){
+                let current = this.invoices.search.orderBy[index];
+                if(current.name === name){
+                    if(current.type === "asc"){
+                        current.type = "desc";
+                    }else if(current.type === "desc"){
+                        this.invoices.search.orderBy.splice(index, 1);
+                    }
+                    wasFound = true;
+                    break;
+                }
+            }
+
+            if(!wasFound){
+                this.invoices.search.orderBy.push({name: name, type: "asc"});
+            }
+        },
 
         doesInvoiceDateExpired(date){
             return dayjs(date, "YYYY-MM-DD").add(2, 'day').isBefore(dayjs());
@@ -620,7 +656,7 @@ const app = createApp({
             let searchRequestObject = {
                 askedPage: pageIndex,
                 elementsPerPage: this.invoices.search.pagination.itemsPerPage,
-                invoicesFilters: {}
+                invoicesFilters: {},
             };
 
             Object.assign(searchRequestObject.invoicesFilters, this.invoices.search.filters);
@@ -633,11 +669,15 @@ const app = createApp({
                 searchRequestObject.invoicesFilters.datesRange.end = dayjs(this.invoices.search.filters.datesRange[1]).format("YYYY-MM-DD");
             }
 
+            if(this.invoices.search.orderBy.length){
+                searchRequestObject.invoicesFilters.orderBy = this.invoices.search.orderBy;
+            }
+
             console.log(searchRequestObject);
 
             axios.get(`http://localhost:8080/crrt_war/manage/invoices`, {
                 params:{
-                    data: searchRequestObject
+                    data: searchRequestObject,
                 }
             })
             .then(response => {
@@ -1159,7 +1199,7 @@ const app = createApp({
             .then(response => {
                 console.log(response);
 
-                this.cars.workingOn.images = app.cars.workingOn.images.filter(i => {
+                this.cars.workingOn.images = this.cars.workingOn.images.filter(i => {
                     return i.id !== image_id;
                 });
                 Notiflix.Notify.success(response.data);
@@ -1172,7 +1212,7 @@ const app = createApp({
         deleteCar(){
             axios.delete('http://localhost:8080/crrt_war/admin/car', {
                 data: {
-                    id: app.cars.workingOn.id
+                    id: this.cars.workingOn.id
                 }
             })
                 .then(response => {
@@ -1240,7 +1280,8 @@ const app = createApp({
                     formData.append(filesInput.files[i].name, filesInput.files[i]);
                 }
 
-                formData.append("document", new Blob([JSON.stringify(app.cars.workingOn)], {type: 'application/json'}));
+
+                formData.append("document", new Blob([JSON.stringify(this.cars.workingOn)], {type: 'application/json'}));
 
                 axios({
                     method: 'post',
@@ -1278,7 +1319,7 @@ const app = createApp({
     }
 });
 app.component("Datepicker", VueDatePicker);
-app.mount('#app');
+const vm = app.mount('#app');
 
 // Uploading new car photo (to existing entity)
 $(document).on('click','#carEdit_modal .mc-add-photo',function (e) {
@@ -1291,7 +1332,9 @@ $(document).on('submit','#carEdit_modal .car-add-photo-form', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
 
-    formData.append("document", new Blob([JSON.stringify({car_id: app.cars.workingOn.id})], {type: 'application/json'}));
+    console.log(vm.cars);
+
+    formData.append("document", new Blob([JSON.stringify({car_id: vm.cars.workingOn.id})], {type: 'application/json'}));
 
     axios({
         method: 'post',
@@ -1299,7 +1342,10 @@ $(document).on('submit','#carEdit_modal .car-add-photo-form', function(e) {
         data: formData
     })
     .then(function (response) {
-        app.cars.workingOn.images.push(response.data);
+        if(!vm.cars.workingOn.images)
+            vm.cars.workingOn.images = [];
+
+        vm.cars.workingOn.images.push(response.data);
     })
     .catch(function (error) {
         console.log(error);
