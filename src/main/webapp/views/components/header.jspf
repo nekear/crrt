@@ -1,9 +1,6 @@
 <%@ page import="com.github.DiachenkoMD.web.utils.Utils" %>
-<%@ page import="java.text.DecimalFormat" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
-    String login = currentUser.getEmail().split("@")[0];
-    pageContext.setAttribute("login", login);
     pageContext.setAttribute("roleTranslation", Utils.getRoleTranslation(currentUser.getRole()));
 %>
 <div class="navigation">
@@ -33,7 +30,7 @@
                 <div id="profile-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                     <div class="profile-short-info">
                         <div class="user-mail">
-                            ${login}
+                            <l:prettyLogin />
                         </div>
                         <div class="user-role">
                             <fmt:message key="${roleTranslation}" />

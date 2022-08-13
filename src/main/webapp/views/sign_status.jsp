@@ -1,4 +1,4 @@
-<%@ page import="com.github.DiachenkoMD.entities.dto.StatusStates" %>
+<%@ page import="com.github.DiachenkoMD.entities.enums.StatusStates" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="${assets}modules/argon/argon.min.css">
 
     <!--  Custom  -->
+    <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
     <link rel="stylesheet" href="${assets}css/colorize.css">
     <link rel="stylesheet" href="${assets}css/mdx.css">

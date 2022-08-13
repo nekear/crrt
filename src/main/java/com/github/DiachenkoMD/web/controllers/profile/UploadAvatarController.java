@@ -1,6 +1,5 @@
 package com.github.DiachenkoMD.web.controllers.profile;
 
-import com.github.DiachenkoMD.entities.dto.StatusStates;
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
@@ -20,7 +19,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.github.DiachenkoMD.web.utils.Utils.getLang;
+import static com.github.DiachenkoMD.web.utils.Utils.*;
 
 
 @WebServlet("/profile/uploadAvatar")
@@ -44,10 +43,8 @@ public class UploadAvatarController extends HttpServlet {
         try{
             String avatarFileName = usersService.uploadAvatar(req, resp);
 
-            resp.setStatus(HttpServletResponse.SC_OK);
             resp.setContentType("application/json");
-            resp.getWriter().write(new Gson().toJson(Map.of("avatar", req.getContextPath()+"/uploads/avatars/"+avatarFileName)));
-            resp.getWriter().flush();
+            sendSuccess(new Gson().toJson(Map.of("avatar", req.getContextPath()+"/uploads/avatars/"+avatarFileName)), resp);
         }catch (Exception e){
             AtomicReference<String> exceptionToClient = new AtomicReference<>("");
 
@@ -59,18 +56,12 @@ public class UploadAvatarController extends HttpServlet {
                 desExc.execute(ExceptionReason.TOO_MANY_FILES, () -> exceptionToClient.set(new StatusText("profile.too_many_files").convert(getLang(req))));
             }
 
-            if(exceptionToClient.get() == null)
+            if(exceptionToClient.get().isEmpty())
                 exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
             logger.error(exceptionToClient.get());
 
-            try {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().flush();
-                resp.getWriter().write(exceptionToClient.get());
-            } catch (IOException ioExc) {
-                logger.error(ioExc);
-            }
+            sendException(exceptionToClient.get(), resp);
         }
     }
 }

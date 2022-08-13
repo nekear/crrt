@@ -96,6 +96,7 @@
       <version>2.9.1</version>
     </dependency>
 
+
     <dependency>
       <groupId>at.favre.lib</groupId>
       <artifactId>bcrypt</artifactId>

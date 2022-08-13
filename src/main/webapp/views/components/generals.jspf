@@ -1,5 +1,6 @@
-<%@ page import="com.github.DiachenkoMD.entities.dto.User" %>
+<%@ page import="com.github.DiachenkoMD.entities.dto.users.AuthUser" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="com.github.DiachenkoMD.entities.Constants" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -15,7 +16,7 @@
 <c:set var="assets" value="${pageContext.request.contextPath}/assets/" scope="page" />
 
 <%
-    User currentUser = ((User) session.getAttribute("auth"));
+    AuthUser currentUser = ((AuthUser) session.getAttribute("auth"));
     ResourceBundle i18n = ResourceBundle.getBundle("langs.i18n_"+pageContext.getAttribute("lang"));
 
     pageContext.setAttribute("i18n", i18n);
@@ -23,3 +24,5 @@
 %>
 
 <c:set var="userAvatarPath" value="${user.idenAvatar(pageContext.request.contextPath)}" scope="page" />
+<c:set var="imagesDir" value="${pageContext.request.contextPath}${Constants.IMAGES_UPLOAD_DIR}" scope="page" />
+<c:set var="avatarsDir" value="${pageContext.request.contextPath}${Constants.AVATAR_UPLOAD_DIR}" scope="page" />

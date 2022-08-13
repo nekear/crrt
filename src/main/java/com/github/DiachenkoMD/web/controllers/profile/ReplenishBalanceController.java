@@ -1,8 +1,7 @@
 package com.github.DiachenkoMD.web.controllers.profile;
 
-import com.github.DiachenkoMD.entities.dto.StatusStates;
+import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.dto.StatusText;
-import com.github.DiachenkoMD.entities.dto.User;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
@@ -27,10 +26,13 @@ public class ReplenishBalanceController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(UpdatePasswordController.class);
     private UsersService usersService;
 
+    private Gson gson;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         this.usersService = (UsersService) config.getServletContext().getAttribute("users_service");
+        this.gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
     @Override
@@ -41,7 +43,7 @@ public class ReplenishBalanceController extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.setContentType("application/json");
             resp.getWriter().write(
-                    new Gson().toJson(
+                    gson.toJson(
                             Map.of(
                             "newBalance", newBalance,
                             "message", new StatusText("profile.replenishment_successful", true, StatusStates.SUCCESS).convert(getLang(req))
@@ -60,7 +62,7 @@ public class ReplenishBalanceController extends HttpServlet {
                 descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("profile.replenishment_validation_error").convert(getLang(req))));
             }
 
-            if(exceptionToClient.get() == null)
+            if(exceptionToClient.get().isEmpty())
                 exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
             logger.debug(exceptionToClient.get());

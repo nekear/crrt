@@ -1,9 +1,8 @@
 package com.github.DiachenkoMD.web.controllers.profile;
 
-import com.github.DiachenkoMD.entities.dto.Status;
-import com.github.DiachenkoMD.entities.dto.StatusStates;
+import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.dto.StatusText;
-import com.github.DiachenkoMD.entities.dto.User;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
@@ -18,9 +17,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
+import static com.github.DiachenkoMD.web.utils.Utils.sendException;
 
 @WebServlet("/profile/updateData")
 public class UpdateUserDataController extends HttpServlet {
@@ -36,7 +35,7 @@ public class UpdateUserDataController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{
-            User updated = this.usersService.updateData(req, resp);
+            AuthUser updated = this.usersService.updateData(req, resp);
 
             req.getSession().setAttribute("auth", updated);
 
@@ -52,18 +51,12 @@ public class UpdateUserDataController extends HttpServlet {
                 descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("profile.validation_failed").convert(getLang(req))));
             }
 
-            if(exceptionToClient.get() == null)
+            if(exceptionToClient.get().isEmpty())
                 exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
             logger.debug(exceptionToClient.get());
 
-            try {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write(exceptionToClient.get());
-                resp.getWriter().flush();
-            } catch (IOException ioExc) {
-                logger.error(ioExc);
-            }
+            sendException(exceptionToClient.get(), resp);
         }
     }
 }

@@ -1,34 +1,30 @@
 package com.github.DiachenkoMD.web.utils;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import com.github.DiachenkoMD.entities.dto.Roles;
-import com.github.DiachenkoMD.entities.dto.User;
-import com.github.DiachenkoMD.entities.dto.ValidationParameters;
+import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
+import com.github.DiachenkoMD.entities.enums.Roles;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
+import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Utils {
     private static final Logger logger = LogManager.getLogger(Utils.class);
@@ -201,7 +197,7 @@ public class Utils {
         int targetStringLength = bound;
         StringBuilder buffer = new StringBuilder(targetStringLength);
         for (int i = 0; i < targetStringLength; i++) {
-            int randomLimitedInt = leftLimit + (random.nextInt() * (rightLimit - leftLimit + 1));
+            int randomLimitedInt = leftLimit + (int) (random.nextDouble() * (rightLimit - leftLimit + 1));
             buffer.append((char) randomLimitedInt);
         }
         return buffer.toString();
@@ -213,12 +209,21 @@ public class Utils {
      * @param subject - subject of the mail
      * @param data - content of the mail (might be some html, for example)
      */
-    public static void emailNotify(User user, String subject, String data){
+    public static void emailNotify(LimitedUser user, String subject, String data){
+        emailNotify(user.getEmail(), subject, data);
+    }
 
+    /**
+     * Email notification util. Simplifies the thing it was created for. For now uses mailtrap as SMTP. Configure at app.properties.
+     * @param email
+     * @param subject - subject of the mail
+     * @param data - content of the mail (might be some html, for example)
+     */
+    public static void emailNotify(String email, String subject, String data){
         ResourceBundle rb = ResourceBundle.getBundle("app");
 
         if(rb.getString("mail.active").equalsIgnoreCase("true")){
-            String to = user.getEmail();
+            String to = email;
             String from = rb.getString("mail.from");
             String host = rb.getString("mail.host");
 
@@ -264,21 +269,46 @@ public class Utils {
     }
 
     public static String getRoleTranslation(Roles role){
-        String trans = null;
-
-        switch (role){
-            case ANY -> trans = "roles.any";
-            case DEFAULT -> trans = "roles.default";
-            case DRIVER -> trans = "roles.driver";
-            case MANAGER -> trans = "roles.manager";
-            case ADMIN -> trans = "roles.admin";
-        }
-
-        return trans;
+        return "roles."+role.keyword();
     }
 
     public static String getLang(HttpServletRequest req){
         return (String) req.getSession().getAttribute("lang");
     }
 
+    public static boolean containsColumn(ResultSet rs, String column){
+        try{
+            rs.findColumn(column);
+            return true;
+        } catch (SQLException e){
+            return false;
+        }
+    }
+
+    public static void sendSuccess(String data, HttpServletResponse resp) throws IOException {
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.getWriter().write(data);
+        resp.getWriter().flush();
+    }
+
+    public static void sendException(String data, HttpServletResponse resp){
+        try{
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write(data);
+            resp.getWriter().flush();
+        }catch (IOException e){
+            logger.error(e);
+        }
+    }
+
+    public static String clean(String str){
+        return str.trim().replace("!", "!!")
+                .replace("%", "!%")
+                .replace("_", "!_")
+                .replace("[", "![");
+    }
+
+    public static boolean multieq(String str, String... els){
+        return Arrays.stream(els).parallel().filter(x -> x.equalsIgnoreCase(str)).toList().size() > 0;
+    }
 }

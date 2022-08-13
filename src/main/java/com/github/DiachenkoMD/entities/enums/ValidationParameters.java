@@ -1,4 +1,4 @@
-package com.github.DiachenkoMD.entities.dto;
+package com.github.DiachenkoMD.entities.enums;
 
 public enum ValidationParameters {
     EMAIL,

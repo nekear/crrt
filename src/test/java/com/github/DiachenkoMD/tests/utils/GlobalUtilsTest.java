@@ -1,13 +1,17 @@
 package com.github.DiachenkoMD.tests.utils;
 
-import com.github.DiachenkoMD.entities.dto.Roles;
-import com.github.DiachenkoMD.entities.dto.User;
+import com.github.DiachenkoMD.entities.dto.Car;
+import com.github.DiachenkoMD.entities.enums.CarSegments;
+import com.github.DiachenkoMD.entities.enums.Cities;
+import com.github.DiachenkoMD.entities.enums.Roles;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.github.DiachenkoMD.entities.dto.ValidationParameters;
+import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.github.DiachenkoMD.web.utils.Utils;
+import com.google.gson.Gson;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,11 +39,11 @@ public class GlobalUtilsTest {
                     "    \"firstname\": \"user1\"\n" +
                     "}";
 
-            User expectedUser = new User();
+            AuthUser expectedUser = new AuthUser();
             expectedUser.setEmail("some@gmail.com");
             expectedUser.setFirstname("user1");
 
-            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, User.class), expectedUser));
+            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, AuthUser.class), expectedUser));
         }
 
         @Test
@@ -51,11 +55,11 @@ public class GlobalUtilsTest {
                     "    \"notPresentField1\": \"11.11.11\"\n" +
                     "}";
 
-            User expectedUser = new User();
+            AuthUser expectedUser = new AuthUser();
             expectedUser.setEmail("some2@gmail.com");
             expectedUser.setFirstname("user2");
 
-            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, User.class), expectedUser));
+            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, AuthUser.class), expectedUser));
         }
 
         @Test
@@ -66,7 +70,7 @@ public class GlobalUtilsTest {
                     "    \"notPresentField2\": 1" +
                     "}";
 
-            assertNull(Utils.flatJsonParser(testingJsonObject, User.class));
+            assertNull(Utils.flatJsonParser(testingJsonObject, AuthUser.class));
         }
     }
 
@@ -90,20 +94,20 @@ public class GlobalUtilsTest {
         private static Stream<Arguments> provideTrueParameters() {
             return Stream.of(
                     Arguments.of(
-                            new User(null, "John", null, null),
-                            new User(null, "John", null, null)
+                            AuthUser.of(null, "John", null, null),
+                            AuthUser.of(null, "John", null, null)
                     ),
                     Arguments.of(
-                            new User("martin@gmail.com", null, null, "martevich"),
-                            new User("martin@gmail.com", null, null, "martevich")
+                            AuthUser.of("martin@gmail.com", null, null, "martevich"),
+                            AuthUser.of("martin@gmail.com", null, null, "martevich")
                     ),
                     Arguments.of(
-                            new User(null, null, null, null),
-                            new User(null, null, null, null)
+                            AuthUser.of(null, null, null, null),
+                            AuthUser.of(null, null, null, null)
                     ),
                     Arguments.of(
-                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null),
-                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null)
+                            AuthUser.of(null, null, null, null, null, Roles.ADMIN, null, 0, null),
+                            AuthUser.of(null, null, null, null, null, Roles.ADMIN, null, 0, null)
                     ),
                     Arguments.of(
                             new ForComparing(1, 0),
@@ -119,20 +123,20 @@ public class GlobalUtilsTest {
         private static Stream<Arguments> provideFalseParameters() {
             return Stream.of(
                     Arguments.of(
-                            new User(null, "John", null, null),
-                            new User(null, "John2", null, null)
+                            AuthUser.of(null, "John", null, null),
+                            AuthUser.of(null, "John2", null, null)
                     ),
                     Arguments.of(
-                            new User("martin@gmail.com", "Luther", "King", "martevich"),
-                            new User("martin@gmail.com", null, null, "martevich")
+                            AuthUser.of("martin@gmail.com", "Luther", "King", "martevich"),
+                            AuthUser.of("martin@gmail.com", null, null, "martevich")
                     ),
                     Arguments.of(
-                            new User("somecryptedid", null, null, null, null, null, null, 0, null),
-                            new User(null, null, null, null)
+                            AuthUser.of("somecryptedid", null, null, null, null, null, null, 0, null),
+                            AuthUser.of(null, null, null, null)
                     ),
                     Arguments.of(
-                            new User(null, null, null, null, null, Roles.DEFAULT, null, 0, null),
-                            new User(null, null, null, null, null, Roles.ADMIN, null, 0, null)
+                            AuthUser.of(null, null, null, null, null, Roles.CLIENT, null, 0, null),
+                            AuthUser.of(null, null, null, null, null, Roles.ADMIN, null, 0, null)
                     ),
                     Arguments.of(
                             new ForComparing(0, 10.0),
@@ -208,12 +212,12 @@ public class GlobalUtilsTest {
 
     @Test
     public void testUserEncryptDecrypt() throws Exception {
-        User user = new User();
+        AuthUser user = new AuthUser();
         user.setId(1);
 
-        user.encrypt();
+        System.out.println("--> " + user.encrypt());
 
-        System.out.println(user);
+        System.out.println("User:" + user);
 
         String encryptedId = CryptoStore.encrypt("1");
 
@@ -224,5 +228,27 @@ public class GlobalUtilsTest {
         System.out.println(user);
 
         assertEquals(user.getId().toString(), CryptoStore.decrypt(encryptedId));
+    }
+    @Test
+    public void testSegments(){
+        System.out.println(CarSegments.D_SEGMENT);
+    }
+
+    @Test
+    public void testAdapters(){
+        Car car = new Car();
+
+        car.setId("1");
+        car.setModel("Mercedes");
+        car.setBrand("G117");
+        car.setSegment(CarSegments.D_SEGMENT);
+        car.setCity(Cities.LVIV);
+        car.setPrice(3000d);
+
+        String jsoned = new Gson().toJson(car);
+
+        System.out.println(jsoned);
+
+        System.out.println(new Gson().fromJson(jsoned, Car.class));
     }
 }

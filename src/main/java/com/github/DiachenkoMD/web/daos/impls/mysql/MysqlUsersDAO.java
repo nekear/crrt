@@ -1,15 +1,19 @@
 package com.github.DiachenkoMD.web.daos.impls.mysql;
 
 import com.github.DiachenkoMD.entities.DB_Constants;
+import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
+import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
+import com.github.DiachenkoMD.entities.dto.users.PanelUser;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
-import com.github.DiachenkoMD.entities.dto.User;
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.generateRandomString;
@@ -23,16 +27,16 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public User get(String email) throws DBException {
+    public AuthUser get(String email) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT * FROM tbl_users WHERE email=?");
         ){
             stmt.setString(1, email);
-            User user = null;
+            AuthUser user = null;
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next()){
-                    user = User.getFromRS(rs);
+                    user = AuthUser.of(rs);
                 }
             }
             return user;
@@ -41,17 +45,17 @@ public class MysqlUsersDAO implements UsersDAO {
             throw new DBException(e);
         }
     }
-    public List<User> getAll() throws DBException{
+    public List<AuthUser> getAll() throws DBException{
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT * FROM tbl_users");
                 ResultSet rs = stmt.executeQuery();
         ){
 
-            List<User> foundUsers = new ArrayList<>();
+            List<AuthUser> foundUsers = new ArrayList<>();
 
             while(rs.next()){
-                foundUsers.add(User.getFromRS(rs));
+                foundUsers.add(AuthUser.of(rs));
             }
 
             return foundUsers;
@@ -62,10 +66,10 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public User register(User user, String password) throws DBException{
+    public LimitedUser register(LimitedUser user, String password) throws DBException{
         try(
                 Connection con = ds.getConnection();
-                PreparedStatement stmt = con.prepareStatement("INSERT INTO tbl_users (email, password, firstname, surname, patronymic) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement stmt = con.prepareStatement("INSERT INTO tbl_users (email, password, firstname, surname, patronymic, role_id, is_blocked) VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
         ){
 
             int index = 0;
@@ -74,6 +78,8 @@ public class MysqlUsersDAO implements UsersDAO {
             stmt.setString(++index, user.getFirstname());
             stmt.setString(++index, user.getSurname());
             stmt.setString(++index, user.getPatronymic());
+            stmt.setInt(++index, user.getRole().id());
+            stmt.setInt(++index, user.getState().id());
 
             int affectedRows = stmt.executeUpdate();
 
@@ -97,7 +103,7 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public User completeRegister(User user, String password) throws DBException{
+    public AuthUser completeRegister(AuthUser user, String password) throws DBException{
         try(
             Connection con = ds.getConnection();
         ){
@@ -148,7 +154,7 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public boolean doesExist(User user) throws DBException{
+    public boolean doesExist(LimitedUser user) throws DBException{
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT id FROM tbl_users WHERE email=?");
@@ -168,13 +174,13 @@ public class MysqlUsersDAO implements UsersDAO {
 
 
     @Override
-    public boolean setConfirmationCode(int user_id, String confirmationCode) throws DBException{
+    public boolean setConfirmationCode(int userId, String confirmationCode) throws DBException{
         try(
             Connection con = ds.getConnection();
             PreparedStatement stmt = con.prepareStatement("UPDATE tbl_users SET conf_code=? WHERE id=?");
         ){
             stmt.setString(1, confirmationCode);
-            stmt.setInt(2, user_id);
+            stmt.setInt(2, userId);
 
             return stmt.executeUpdate() > 0;
         }catch (SQLException e){
@@ -208,8 +214,8 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public User getUserByConfirmationCode(String code) throws DBException{
-        User user = null;
+    public AuthUser getUserByConfirmationCode(String code) throws DBException{
+        AuthUser user = null;
 
         try(
             Connection con = ds.getConnection();
@@ -219,7 +225,7 @@ public class MysqlUsersDAO implements UsersDAO {
 
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next())
-                    user = User.getFromRS(rs);
+                    user = AuthUser.of(rs);
             }
 
         }catch (SQLException e){
@@ -231,10 +237,10 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public boolean updateUsersData(int user_id, HashMap<String, String> fields_to_update) throws DBException {
+    public boolean updateUsersData(int user_id, HashMap<String, String> fieldsToUpdate) throws DBException {
         StringBuilder query = new StringBuilder("UPDATE tbl_users SET ");
 
-        query.append(fields_to_update.keySet().stream().map(s -> s + "=?").collect(Collectors.joining(", ")));
+        query.append(fieldsToUpdate.keySet().stream().map(s -> s + "=?").collect(Collectors.joining(", ")));
 
         query.append("WHERE " + DB_Constants.TBL_USERS_USER_ID + " = ?");
         try(
@@ -242,7 +248,7 @@ public class MysqlUsersDAO implements UsersDAO {
             PreparedStatement stmt = con.prepareStatement(query.toString());
         ){
             int index = 0;
-            for(String value : fields_to_update.values()){
+            for(String value : fieldsToUpdate.values()){
                 stmt.setString(++index, value);
             }
             stmt.setInt(++index, user_id);
@@ -366,6 +372,136 @@ public class MysqlUsersDAO implements UsersDAO {
             stmt.setInt(2, user_id);
 
             return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public List<PanelUser> getUsersWithFilters(HashMap<String, String> filters, int limitOffset, int limitCount) throws DBException {
+        if(filters.size() == 0)
+            filters.put("id", "%");
+
+        String query = "SELECT id, email, firstname, surname, patronymic, role_id, is_blocked FROM tbl_users WHERE "
+                + filters.keySet().stream().map(s -> s + " LIKE ?").collect(Collectors.joining(" AND "))
+                + " LIMIT " + limitOffset + ", " + limitCount;
+
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement(query);
+        ){
+
+            int index = 0;
+            for(String value : filters.values()){
+                stmt.setString(++index, value);
+            }
+
+            List<PanelUser> foundUsers = new ArrayList<>();
+
+            try(ResultSet rs = stmt.executeQuery()){
+                while(rs.next()){
+                    foundUsers.add(PanelUser.of(rs));
+                }
+            }
+
+            return foundUsers;
+
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public int getUsersNumberWithFilters(HashMap<String, String> filters) throws DBException {
+        if(filters.size() == 0)
+            filters.put("id", "%");
+
+        String query = "SELECT COUNT(id) AS counted FROM tbl_users WHERE "
+                + filters.keySet().stream().map(s -> s + " LIKE ?").collect(Collectors.joining(" AND "));
+
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement(query);
+        ){
+
+            int index = 0;
+            for(String value : filters.values()){
+                stmt.setString(++index, value);
+            }
+
+
+            try(ResultSet rs = stmt.executeQuery()){
+                rs.next();
+
+                return rs.getInt("counted");
+
+            }
+
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public InformativeUser getInformativeUser(int userId) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement(
+                        "SELECT id, email,firstname,surname,patronymic,role_id,is_blocked,balance, conf_code, ts_created, " +
+                                "(SELECT COUNT(id) FROM tbl_invoices WHERE tbl_invoices.client_id = tbl_users.id) AS invoicesAmount, " +
+                                "getLastInvoiceCity(tbl_users.id) AS lastInvoiceCity " +
+                                "FROM tbl_users WHERE id=?");
+        ){
+            stmt.setInt(1, userId);
+            InformativeUser user = null;
+            try(ResultSet rs = stmt.executeQuery()){
+                if(rs.next()){
+                    user = InformativeUser.of(rs);
+                }
+            }
+
+            return user;
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public boolean setUserState(int userId, int stateId) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("UPDATE tbl_users SET is_blocked=? WHERE id=?");
+        ){
+
+            stmt.setInt(1, stateId);
+            stmt.setInt(2, userId);
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public boolean deleteUsers(List<Integer> userIds) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("DELETE FROM tbl_users WHERE id=?");
+        ){
+
+            for(Integer userId : userIds){
+                stmt.setInt(1, userId);
+                stmt.addBatch();
+            }
+
+            return stmt.executeBatch().length == userIds.size();
 
         } catch (SQLException e) {
             logger.error(e);

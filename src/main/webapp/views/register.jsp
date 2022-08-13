@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="com.github.DiachenkoMD.web.utils.JSLS" %>
+<%@ page import="com.github.DiachenkoMD.web.utils.JSJS" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="crrt" uri="crrt" %>
@@ -37,7 +37,7 @@
   <script src="${assets}js/register.js" defer></script>
 
   <script>
-    const js_localization = <%=JSLS.forRegisterPage((String) pageContext.getAttribute("lang"))%>;
+    const js_localization = <%=JSJS.transForRegisterPage((String) pageContext.getAttribute("lang"))%>;
   </script>
 </head>
 <body>

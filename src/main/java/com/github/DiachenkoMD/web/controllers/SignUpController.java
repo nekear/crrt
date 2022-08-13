@@ -2,8 +2,7 @@ package com.github.DiachenkoMD.web.controllers;
 
 import com.github.DiachenkoMD.entities.Constants;
 import com.github.DiachenkoMD.entities.dto.Status;
-import com.github.DiachenkoMD.entities.dto.StatusStates;
-import com.github.DiachenkoMD.entities.exceptions.DBException;
+import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
