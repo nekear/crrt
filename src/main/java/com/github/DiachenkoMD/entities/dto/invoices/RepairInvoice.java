@@ -28,6 +28,9 @@ public class RepairInvoice {
     @Skip
     private String clientEmail; // for informing client about delete his repairment invoice (should not be exposed to client side)
 
+    @Skip
+    private int originInvoiceId;
+
     public static RepairInvoice of(ResultSet rs) throws SQLException{
         RepairInvoice invoice = new RepairInvoice();
         invoice.setId(rs.getInt("id"));
@@ -36,6 +39,7 @@ public class RepairInvoice {
         invoice.setComment(rs.getString("comment"));
         invoice.setPaid(rs.getInt("is_paid") == 1);
         invoice.setTsCreated(rs.getTimestamp("ts_created").toLocalDateTime());
+        invoice.setOriginInvoiceId(rs.getInt("invoice_id"));
         return invoice;
     }
 
@@ -95,5 +99,13 @@ public class RepairInvoice {
 
     public void setClientEmail(String clientEmail) {
         this.clientEmail = clientEmail;
+    }
+
+    public int getOriginInvoiceId() {
+        return originInvoiceId;
+    }
+
+    public void setOriginInvoiceId(int originInvoiceId) {
+        this.originInvoiceId = originInvoiceId;
     }
 }

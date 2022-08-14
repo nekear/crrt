@@ -628,6 +628,13 @@ footer .right-content .copy-item .content:hover .text {
 .invoice-status-chip[data-status-code="5"]:hover {
   background: rgba(var(--a-ascentColor), 0.2);
 }
+.invoice-status-chip[data-status-code="6"] {
+  background: rgba(var(--a-systemBlue_accessible), 0.1);
+  color: var(--systemBlue_accessible);
+}
+.invoice-status-chip[data-status-code="6"]:hover {
+  background: rgba(var(--a-systemBlue_accessible), 0.2);
+}
 
 .invoices-dates-range-input {
   font-size: 0.875rem !important;
@@ -690,6 +697,12 @@ footer .right-content .copy-item .content:hover .text {
   font-size: 12px;
   color: var(--systemGray_accessible);
   opacity: 0.7;
+}
+
+.micro-caution-alert {
+  font-size: 12px;
+  color: var(--systemRed_default);
+  opacity: 1;
 }
 
 .passport-block {
@@ -783,4 +796,72 @@ input.highlight, select.highlight {
 .pagination .page-link.active:hover {
   background-color: rgba(var(--a-ascentColor), 0.8);
   color: var(--systemGray6_default);
+}
+
+.banner-alert {
+  height: 300px;
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: flex;
+  -ms-flex-direction: row;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+          flex-direction: row;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+          justify-content: center;
+  -ms-flex-line-pack: center;
+  align-content: center;
+  -ms-flex-align: center;
+  -webkit-box-align: center;
+          align-items: center;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  background: var(--systemGray6_accessible);
+  color: var(--systemGray_default);
+  border: 1px solid var(--borderColor_accessible);
+  border-top: 0;
+  font-size: 20px;
+}
+.banner-alert .banner-icon svg {
+  -webkit-transform: scale(2);
+          transform: scale(2);
+}
+.banner-alert .banner-text {
+  margin-top: 20px;
+  text-align: center;
+  line-height: 2;
+}
+.banner-alert .banner-text a {
+  -webkit-transition: 0.25s;
+  transition: 0.25s;
+}
+.banner-alert.danger .banner-icon svg [fill="#000000"] {
+  fill: var(--systemRed_default);
+}
+.banner-alert.danger .banner-text a {
+  color: var(--systemRed_default);
+}
+.banner-alert.danger .banner-text a:after {
+  background-color: var(--systemRed_default);
+}
+.banner-alert.success .banner-icon svg path, .banner-alert.success .banner-icon svg .face-rect {
+  fill: var(--systemGreen_default);
+}
+.banner-alert.success .banner-text a {
+  color: var(--systemGreen_default);
+}
+.banner-alert.success .banner-text a:after {
+  background-color: var(--systemGreen_default);
+}
+.banner-alert.neutral .banner-icon svg path, .banner-alert.neutral .banner-icon svg .face-rect {
+  fill: var(--systemIndigo_default);
+}
+.banner-alert.neutral .banner-text a {
+  color: var(--systemIndigo_default);
+}
+.banner-alert.neutral .banner-text a:after {
+  background-color: var(--systemIndigo_default);
 }

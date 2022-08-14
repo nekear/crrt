@@ -33,20 +33,13 @@ public class CarsController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{
             List<Car> carsList = adminService.getCars();
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(gson.toJson(carsList));
-            resp.getWriter().flush();
+
+            Utils.sendSuccess(gson.toJson(carsList), resp);
         }catch (Exception e){
 
             logger.error(e);
 
-            try {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write(new StatusText("global.unexpectedError").convert(Utils.getLang(req)));
-                resp.getWriter().flush();
-            } catch (IOException ioExc) {
-                logger.error(ioExc);
-            }
+           Utils.sendException(new StatusText("global.unexpectedError").convert(Utils.getLang(req)), resp);
         }
     }
 }

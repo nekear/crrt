@@ -32,14 +32,12 @@ public class ManagerService {
 
     private static final Logger logger = LogManager.getLogger(ManagerService.class);
     private final UsersDAO usersDAO;
-    private final CarsDAO carsDAO;
     private final InvoicesDAO invoicesDAO;
 
     private final ServletContext ctx;
 
-    public ManagerService(UsersDAO usersDAO, CarsDAO carsDAO, InvoicesDAO invoicesDAO, ServletContext ctx){
+    public ManagerService(UsersDAO usersDAO, InvoicesDAO invoicesDAO, ServletContext ctx){
         this.usersDAO = usersDAO;
-        this.carsDAO = carsDAO;
         this.invoicesDAO = invoicesDAO;
         this.ctx = ctx;
     }

@@ -23,7 +23,6 @@ public class LimitedInvoice {
     public LimitedInvoice(){}
 
     protected LimitedInvoice(ResultSet rs) throws SQLException{
-        System.out.println("RS ON LimitedInvoice");
         int id = rs.getInt("invoice_id");
         String code = rs.getString("invoice_"+TBL_INVOICES_CODE);
 

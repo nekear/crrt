@@ -8,7 +8,8 @@ public enum InvoiceStatuses implements DBCoupled{
     REJECTED(2, "rejected"),
     CANCELED(3, "cancelled"),
     ACTIVE_REPAIRS(4, "active_repairs"),
-    EXPIRED_REPAIRS(5, "expired_repairs");
+    EXPIRED_REPAIRS(5, "expired_repairs"),
+    WITH_DRIVER(6, "with_driver");
 
     private final int id;
     private final String keyword;

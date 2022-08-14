@@ -1,9 +1,6 @@
 package com.github.DiachenkoMD.web.daos.prototypes;
 
-import com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice;
-import com.github.DiachenkoMD.entities.dto.invoices.LimitedInvoice;
-import com.github.DiachenkoMD.entities.dto.invoices.PanelInvoice;
-import com.github.DiachenkoMD.entities.dto.invoices.RepairInvoice;
+import com.github.DiachenkoMD.entities.dto.invoices.*;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 
 import java.math.BigDecimal;
@@ -47,4 +44,15 @@ public interface InvoicesDAO {
      * @throws DBException
      */
     List<Double> getStats() throws DBException;
+
+    /**
+     * Method for obtaining invoices for specific client. Used at client-panel, where clients can manage their invoices.
+     * @return
+     * @throws DBException
+     */
+    List<ClientInvoice> getInvoicesForClient(int clientId) throws DBException;
+
+    void payRepairInvoice(int repairInvoiceId) throws DBException;
+
+    void cancelInvoice(int invoiceId) throws DBException;
 }

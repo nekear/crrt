@@ -4,15 +4,17 @@ import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.dto.users.PanelUser;
-import com.github.DiachenkoMD.entities.enums.AccountStates;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
 public interface UsersDAO {
     AuthUser get(String email) throws DBException;
+
+    AuthUser get(int userId) throws DBException;
 
     List<AuthUser> getAll() throws DBException;
 
@@ -42,12 +44,13 @@ public interface UsersDAO {
 
     AuthUser getUserByConfirmationCode(String code) throws DBException;
 
-    boolean updateUsersData(int user_id, HashMap<String, String> fieldsToUpdate) throws DBException;
-    String getPassword(int user_id) throws DBException;
-    boolean setPassword(int user_id, String password) throws DBException;
+    boolean updateUsersData(int userId, HashMap<String, String> fieldsToUpdate) throws DBException;
+    String getPassword(int userId) throws DBException;
+    boolean setPassword(int userId, String password) throws DBException;
 
-    double getBalance(int user_id) throws DBException;
-    boolean setBalance(int user_id, double newBalance) throws DBException;
+    double getBalance(int userId) throws DBException;
+    boolean setBalance(int userId, double newBalance) throws DBException;
+    void setBalance(int userId, BigDecimal newBalance) throws DBException;
 
     Optional<String> getAvatar(int id) throws DBException;
     boolean setAvatar(int id, String avatarName) throws DBException;

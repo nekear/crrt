@@ -48,7 +48,7 @@
             "cities": <%=JSJS.CitiesList((String) pageContext.getAttribute("lang"))%>,
             "roles": <%=JSJS.RolesList((String) pageContext.getAttribute("lang"))%>,
             "accountStates": <%=JSJS.AccountStatesList((String) pageContext.getAttribute("lang"))%>,
-            "invoiceStatuses": <%=JSJS.InvoiceStatusesList((String) pageContext.getAttribute("lang"))%>,
+            "invoiceStatuses": <%=JSJS.InvoiceStatusesList((String) pageContext.getAttribute("lang"), false)%>,
         };
 
         const js_localization = <%=JSJS.transForRegisterPage((String) pageContext.getAttribute("lang"))%>;

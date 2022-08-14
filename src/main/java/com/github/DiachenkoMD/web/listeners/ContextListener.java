@@ -7,6 +7,7 @@ import com.github.DiachenkoMD.entities.enums.DBCoupled;
 import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.services.AdminService;
+import com.github.DiachenkoMD.web.services.ClientService;
 import com.github.DiachenkoMD.web.services.ManagerService;
 import com.github.DiachenkoMD.web.services.UsersService;
 import com.github.DiachenkoMD.web.daos.DBTypes;
@@ -69,9 +70,13 @@ public class ContextListener implements ServletContextListener {
         ctx.setAttribute("admin_service", adminService);
         logger.info("[✓] AdminService -> initialized");
 
-        ManagerService managerService = new ManagerService(usersDAO, carsDAO, invoicesDAO, ctx);
+        ManagerService managerService = new ManagerService(usersDAO, invoicesDAO, ctx);
         ctx.setAttribute("manager_service", managerService);
         logger.info("[✓] ManagerService -> initialized");
+
+        ClientService clientService = new ClientService(usersDAO, invoicesDAO, ctx);
+        ctx.setAttribute("client_service", clientService);
+        logger.info("[✓] ClientService -> initialized");
     }
 
     private static void initPinger(ServletContext ctx){
@@ -84,12 +89,6 @@ public class ContextListener implements ServletContextListener {
     }
 
     private static void initGson(ServletContext ctx){
-
-        // TypeAdapter to parse different PaginationWrappers with their Filters field included. So as long as Filters is abstract class, this type adapter will decide what exact child of Filters came in json.
-        RuntimeTypeAdapterFactory<Filters> filtersTypeAdapterFactory = RuntimeTypeAdapterFactory
-                .of(Filters.class, "filters")
-                .registerSubtype(UsersPanelFilters.class);
-
         Gson gson = new GsonBuilder()
                 .addSerializationExclusionStrategy(new ExclusionStrategy()
                 {

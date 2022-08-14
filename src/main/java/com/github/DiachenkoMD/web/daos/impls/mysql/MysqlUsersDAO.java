@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
@@ -45,6 +46,28 @@ public class MysqlUsersDAO implements UsersDAO {
             throw new DBException(e);
         }
     }
+
+    @Override
+    public AuthUser get(int userId) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("SELECT * FROM tbl_users WHERE id=?");
+        ){
+            stmt.setInt(1, userId);
+            AuthUser user = null;
+            try(ResultSet rs = stmt.executeQuery()){
+                if(rs.next()){
+                    user = AuthUser.of(rs);
+                }
+            }
+            return user;
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
     public List<AuthUser> getAll() throws DBException{
         try(
                 Connection con = ds.getConnection();
@@ -237,7 +260,7 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public boolean updateUsersData(int user_id, HashMap<String, String> fieldsToUpdate) throws DBException {
+    public boolean updateUsersData(int userId, HashMap<String, String> fieldsToUpdate) throws DBException {
         StringBuilder query = new StringBuilder("UPDATE tbl_users SET ");
 
         query.append(fieldsToUpdate.keySet().stream().map(s -> s + "=?").collect(Collectors.joining(", ")));
@@ -251,7 +274,7 @@ public class MysqlUsersDAO implements UsersDAO {
             for(String value : fieldsToUpdate.values()){
                 stmt.setString(++index, value);
             }
-            stmt.setInt(++index, user_id);
+            stmt.setInt(++index, userId);
 
             return stmt.executeUpdate() > 0;
         }catch (SQLException e){
@@ -260,12 +283,12 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public String getPassword(int user_id) throws DBException {
+    public String getPassword(int userId) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT password FROM tbl_users WHERE id=?");
         ){
-            stmt.setInt(1, user_id);
+            stmt.setInt(1, userId);
 
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next()){
@@ -282,14 +305,14 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public boolean setPassword(int user_id, String password) throws DBException {
+    public boolean setPassword(int userId, String password) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("UPDATE tbl_users SET password=? WHERE id=?");
         ){
 
             stmt.setString(1, password);
-            stmt.setInt(2, user_id);
+            stmt.setInt(2, userId);
 
             return stmt.executeUpdate() > 0;
 
@@ -300,18 +323,18 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public double getBalance(int user_id) throws DBException {
+    public double getBalance(int userId) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT balance FROM tbl_users WHERE id=?");
         ){
-            stmt.setInt(1, user_id);
+            stmt.setInt(1, userId);
 
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next()){
                     return rs.getDouble(DB_Constants.TBL_USERS_BALANCE);
                 }else{
-                    throw new DBException("Couldn`t get users balance. Target user id: " + user_id);
+                    throw new DBException("Couldn`t get users balance. Target user id: " + userId);
                 }
             }
 
@@ -322,16 +345,22 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public boolean setBalance(int user_id, double newBalance) throws DBException {
+    public boolean setBalance(int userId, double newBalance) throws DBException {
+        this.setBalance(userId, BigDecimal.valueOf(newBalance));
+        return true;
+    }
+
+    @Override
+    public void setBalance(int userId, BigDecimal newBalance) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("UPDATE tbl_users SET balance=? WHERE id=?");
         ){
 
-            stmt.setDouble(1, newBalance);
-            stmt.setInt(2, user_id);
+            stmt.setBigDecimal(1, newBalance);
+            stmt.setInt(2, userId);
 
-            return stmt.executeUpdate() > 0;
+            stmt.executeUpdate();
 
         } catch (SQLException e) {
             logger.error(e);

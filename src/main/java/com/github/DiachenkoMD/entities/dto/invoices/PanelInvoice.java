@@ -18,7 +18,6 @@ public class PanelInvoice extends LimitedInvoice{
 
     protected PanelInvoice(ResultSet rs) throws SQLException{
         super(rs);
-        System.out.println("RS ON PanelInvoice");
         this.brand = rs.getString("brand");
         this.model = rs.getString("model");
 

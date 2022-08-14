@@ -89,13 +89,14 @@ public class JSJS {
         return new GsonBuilder().setPrettyPrinting().create().toJson(res);
     }
 
-    public static String InvoiceStatusesList(String lang){
+    public static String InvoiceStatusesList(String lang, boolean isFull){
         ResourceBundle langPack = bundle(lang);
 
         HashMap<Integer, HashMap<String, String>> res = new HashMap<>();
 
         for(InvoiceStatuses status : InvoiceStatuses.values()){
-            res.put(status.id(), new HashMap<>(Map.of("name", langPack.getString("invoice_status."+status.keyword()))));
+            if(status != InvoiceStatuses.WITH_DRIVER || isFull)
+                res.put(status.id(), new HashMap<>(Map.of("name", langPack.getString("invoice_status."+status.keyword()))));
         }
 
         return new GsonBuilder().setPrettyPrinting().create().toJson(res);

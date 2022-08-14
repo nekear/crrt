@@ -52,8 +52,8 @@ public class UserController extends HttpServlet {
             logger.error(e);
 
             if (e instanceof DescriptiveException descExc) {
-                descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("admin.user_creation.validation_error", true, StatusStates.ERROR).convert("en")));
-                descExc.execute(ExceptionReason.EMAIL_EXISTS, () -> exceptionToClient.set(new StatusText("admin.user_creation.email_exists", true, StatusStates.ERROR).convert("en")));
+                descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("admin.user_creation.validation_error").convert(getLang(req))));
+                descExc.execute(ExceptionReason.EMAIL_EXISTS, () -> exceptionToClient.set(new StatusText("admin.user_creation.email_exists").convert(getLang(req))));
             }
 
             if(exceptionToClient.get().isEmpty())

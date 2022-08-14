@@ -48,8 +48,8 @@ public class InvoiceController extends HttpServlet {
     }
 
     /**
-     * Despite its naming, this route was developed to rejection invoices.
-     * @param req
+     * Served under <code>DELETE:/manage/invoice</code>. Despite its naming, this route was developed for rejecting invoices.
+     * @param req should contain "id" field inside json body, representing encrypted invoice id, which we are going to reject and "reason" field with rejection reason (but it is optional).
      * @param resp
      */
     @Override

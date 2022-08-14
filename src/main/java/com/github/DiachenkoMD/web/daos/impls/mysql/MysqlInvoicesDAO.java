@@ -2,10 +2,7 @@ package com.github.DiachenkoMD.web.daos.impls.mysql;
 
 import static com.github.DiachenkoMD.entities.DB_Constants.*;
 
-import com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice;
-import com.github.DiachenkoMD.entities.dto.invoices.LimitedInvoice;
-import com.github.DiachenkoMD.entities.dto.invoices.PanelInvoice;
-import com.github.DiachenkoMD.entities.dto.invoices.RepairInvoice;
+import com.github.DiachenkoMD.entities.dto.invoices.*;
 import com.github.DiachenkoMD.entities.dto.users.PanelUser;
 import com.github.DiachenkoMD.entities.enums.InvoiceStatuses;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
@@ -437,6 +434,64 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             }
 
             return stats;
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public List<ClientInvoice> getInvoicesForClient(int clientId) throws DBException {
+        try(
+            Connection con = ds.getConnection();
+            PreparedStatement stmt = con.prepareStatement("SELECT tbl_invoices.id AS invoice_id, tbl_invoices.code AS invoice_code, tbl_cars.brand, tbl_cars.model, tbl_invoices.date_start, tbl_invoices.date_end, tbl_invoices.exp_price,  tbl_cars.city_id,\n" +
+                    "tbl_invoices.is_canceled, tbl_invoices.is_rejected, getActiveRepairsByInvoiceId(tbl_invoices.id) AS activeRepairs,\n" +
+                    "getExpiredRepairsByInvoiceId(tbl_invoices.id) AS expiredRepairs\n" +
+                    "FROM tbl_invoices\n" +
+                    "JOIN tbl_cars ON tbl_invoices.car_id = tbl_cars.id\n" +
+                    "WHERE tbl_invoices.client_id = ? ORDER BY tbl_invoices.ts_created DESC");
+        ){
+            stmt.setInt(1, clientId);
+
+            List<ClientInvoice> foundInvoices = new LinkedList<>();
+            try(ResultSet rs = stmt.executeQuery()){
+                while(rs.next()){
+                    foundInvoices.add(ClientInvoice.of(rs));
+                }
+            }
+
+            return foundInvoices;
+
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public void payRepairInvoice(int repairInvoiceId) throws DBException {
+        try(
+            Connection con = ds.getConnection();
+            PreparedStatement stmt = con.prepareStatement("UPDATE tbl_repair_invoices SET is_paid = 1 WHERE id = ? AND is_paid = 0");
+        ){
+            stmt.setInt(1, repairInvoiceId);
+
+            stmt.executeUpdate();
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public void cancelInvoice(int invoiceId) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("UPDATE tbl_invoices SET is_canceled = 1 WHERE id = ?");
+        ){
+            stmt.setInt(1, invoiceId);
+
+            stmt.executeUpdate();
         }catch (SQLException e){
             logger.error(e);
             throw new DBException(e);
