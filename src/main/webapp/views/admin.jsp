@@ -677,7 +677,7 @@
             <div class="modal-content" v-if="invoices.details">
                 <div class="modal-header">
                     <h5 class="modal-title"><span class="inTitle-action">Details of invoice <span class="flat-chip status-chip" data-status-code="6">{{invoices.details.code}}</span></span></h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" @click="closeInvoiceDetailsModal()">
                         <i class="material-icons">close</i>
                     </button>
                 </div>
@@ -814,7 +814,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="mdx-md-button button-red button-bordered" data-bs-dismiss="modal" v-if="!invoices.details.statusList.includes(2)" @click="openRejectInvoiceModal()">Reject invoice</button>
-                    <button type="button" class="mdx-md-button button-reversed button-bordered" data-bs-dismiss="modal">Закрити</button>
+                    <button type="button" class="mdx-md-button button-reversed button-bordered" data-bs-dismiss="modal" @click="closeInvoiceDetailsModal()">Закрити</button>
                 </div>
             </div>
         </div>

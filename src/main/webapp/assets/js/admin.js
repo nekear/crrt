@@ -587,6 +587,29 @@ const app = createApp({
     },
     methods:{
 
+        // ========= USEFUL FUNCTIONS ========= //
+        activateTab(group, tabName){
+            this.tabs[group].active = tabName;
+        },
+
+        getFormattedDate(date){
+            return  dayjs(date).format('DD.MM.YYYY');
+        },
+
+        format(dates){
+            const dateStart = dates[0];
+            const dateEnd = dates[1];
+
+
+            return `${this.getFormattedDate(dateStart)} - ${this.getFormattedDate(dateEnd)}`;
+        },
+
+
+
+
+
+        // ========= INVOICES RELATED ========= //
+
         getSortOrder(name){
             let sortOrder = "null";
             for(index in this.invoices.search.orderBy){
@@ -634,22 +657,7 @@ const app = createApp({
             return dayjs(date, "YYYY-MM-DD").add(2, 'day').isBefore(dayjs());
         },
 
-        // ========= USEFUL FUNCTIONS ========= //
-        activateTab(group, tabName){
-            this.tabs[group].active = tabName;
-        },
 
-        getFormattedDate(date){
-            return  dayjs(date).format('DD.MM.YYYY');
-        },
-
-        format(dates){
-            const dateStart = dates[0];
-            const dateEnd = dates[1];
-
-
-            return `${this.getFormattedDate(dateStart)} - ${this.getFormattedDate(dateEnd)}`;
-        },
 
 
         performInvoicesSearch(pageIndex){
@@ -715,6 +723,10 @@ const app = createApp({
                 Notiflix.Notify.failure(error.response.data);
             });
 
+        },
+
+        closeInvoiceDetailsModal() {
+            this.performInvoicesSearch(this.invoices.search.pagination.currentPage);
         },
 
         deleteRepairInvoice(repairInvoiceId){
@@ -817,18 +829,14 @@ const app = createApp({
             .then(response => {
                 console.log(response);
                 this.invoices.details = response.data;
+                $("#rejectInvoice_modal").modal("hide");
+                $("#invoiceDetails_modal").modal("show");
             })
             .catch(error => {
                 console.log(error);
                 Notiflix.Notify.failure(error.response.data);
             });
         },
-
-
-
-
-
-
 
 
 

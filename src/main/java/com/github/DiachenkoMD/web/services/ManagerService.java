@@ -47,28 +47,23 @@ public class ManagerService {
 
     /**
      * Method for acquiring invoices list used at admin-panel and manager-panel. <br/>
-     * Incoming json object should have structure of {@link PaginationRequest} with {@link com.github.DiachenkoMD.entities.dto.invoices.InvoicePanelFilters InvoicePanelFilters}
-     * @param paginationRequestJSON
+     * @param paginationRequest
      * @return {@link PaginationResponse<PanelInvoice>} with {@link PanelInvoice} list inside entities field.
      */
-    public PaginationResponse<PanelInvoice> getInvoices(String paginationRequestJSON) throws DBException {
-        logger.info(paginationRequestJSON);
-        Gson gson = (Gson) ctx.getAttribute("gson");
-        PaginationRequest pr = gson.fromJson(paginationRequestJSON, PaginationRequest.class);
+    public PaginationResponse<PanelInvoice> getInvoices(PaginationRequest paginationRequest) throws DBException {
+        logger.debug(paginationRequest);
 
-        logger.debug(pr);
-
-        int askedPage = pr.getAskedPage();
-        int elementsPerPage = pr.getElementsPerPage();
+        int askedPage = paginationRequest.getAskedPage();
+        int elementsPerPage = paginationRequest.getElementsPerPage();
 
         int limitOffset = (askedPage - 1) * elementsPerPage;
         int limitCount = elementsPerPage;
 
-        HashMap<String, String> searchCriteria = pr.getInvoicesFilters().getDBPresentation();
+        HashMap<String, String> searchCriteria = paginationRequest.getInvoicesFilters().getDBPresentation();
 
         logger.info(searchCriteria);
 
-        List<String> orderBy = pr.getInvoicesFilters().getOrderPresentation();
+        List<String> orderBy = paginationRequest.getInvoicesFilters().getOrderPresentation();
 
         logger.info(orderBy);
 
@@ -96,6 +91,8 @@ public class ManagerService {
      * Method for creating repairment invoices. Inside chained with {@link InvoicesDAO#getInvoiceDetails(int)} to return updated invoice data and reload it on the admin`s/manager`s page.
      * @param jsonBody should contain originId! (id of the invoice for which we create repairment invoice), price!, expirationDate! and comment?.
      * @return {@link InformativeInvoice} with updated invoice data
+     * @throws DescriptiveException with {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR} or {@link ExceptionReason#REP_INVOICE_EXPIRATION_SHOULD_BE_LATER REP_INVOICE_EXPIRATION_SHOULD_BE_LATER}.
+     * @throws DBException caused by {@link InvoicesDAO#createRepairInvoice(int, BigDecimal, LocalDate, String) createRepairInvoice} or {@link InvoicesDAO#getInvoiceDetails(int) getInvoiceDetails}
      */
     public InformativeInvoice createRepairmentInvoice(String jsonBody) throws DescriptiveException, DBException {
         Gson gson = (Gson) ctx.getAttribute("gson");
@@ -109,6 +106,9 @@ public class ManagerService {
 
         if(price == null || expirationDate == null)
             throw new DescriptiveException("Price or expiration date are null!", ExceptionReason.VALIDATION_ERROR);
+
+        if(expirationDate.isBefore(LocalDate.now()))
+            throw new DescriptiveException("Repairment invoice expiration date should be greater than previuos date", ExceptionReason.REP_INVOICE_EXPIRATION_SHOULD_BE_LATER);
 
         invoicesDAO.createRepairInvoice(invoiceId, price, expirationDate, comment);
 

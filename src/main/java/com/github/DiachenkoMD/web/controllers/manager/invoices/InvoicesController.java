@@ -1,5 +1,6 @@
 package com.github.DiachenkoMD.web.controllers.manager.invoices;
 
+import com.github.DiachenkoMD.entities.dto.PaginationRequest;
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.web.services.AdminService;
 import com.github.DiachenkoMD.web.services.ManagerService;
@@ -16,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
+import static com.github.DiachenkoMD.web.utils.Utils.sendException;
 import static com.github.DiachenkoMD.web.utils.Utils.sendSuccess;
 
 @WebServlet("/manage/invoices")
@@ -30,21 +32,23 @@ public class InvoicesController extends HttpServlet {
         gson = ((Gson) config.getServletContext().getAttribute("gson"));
     }
 
+    /**
+     * Route for obtaining invoices list at admin-panel.
+     * @param req incoming json object should have structure of {@link PaginationRequest} with {@link com.github.DiachenkoMD.entities.dto.invoices.InvoicePanelFilters InvoicePanelFilters}
+     * @param resp
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{
-            String paginationWrapperJSON = req.getParameter("data");
-            sendSuccess(gson.toJson(managerService.getInvoices(paginationWrapperJSON)), resp);
+            String paginationRequestJSON = req.getParameter("data");
+
+            PaginationRequest paginationRequest = gson.fromJson(paginationRequestJSON, PaginationRequest.class);
+
+            sendSuccess(gson.toJson(managerService.getInvoices(paginationRequest)), resp);
         }catch (Exception e){
             logger.error(e);
 
-            try {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write(new StatusText("global.unexpectedError").convert(Utils.getLang(req)));
-                resp.getWriter().flush();
-            } catch (IOException ioExc) {
-                logger.error(ioExc);
-            }
+            sendException(new StatusText("global.unexpectedError").convert(Utils.getLang(req)), resp);
         }
     }
 }

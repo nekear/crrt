@@ -42,14 +42,16 @@ public class RepairInvoiceController extends HttpServlet {
             String jsonBody = new BufferedReader(req.getReader()).lines().collect(Collectors.joining());
 
             sendSuccess(gson.toJson(managerService.createRepairmentInvoice(jsonBody)), resp);
-        }catch (Exception e){
+        }catch (Exception e) {
             AtomicReference<String> exceptionToClient = new AtomicReference<>("");
 
             logger.error(e);
 
-            if (e instanceof DescriptiveException descExc)
+            if (e instanceof DescriptiveException descExc){
                 descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("manager.repair_invoices.creation_validation_fail").convert(getLang(req))));
-
+                descExc.execute(ExceptionReason.REP_INVOICE_EXPIRATION_SHOULD_BE_LATER, () -> exceptionToClient.set(new StatusText("manager.repair_invoices.expiration_date_should_be_greater").convert(getLang(req))));
+            }
+            
             if(exceptionToClient.get().isEmpty())
                 exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
