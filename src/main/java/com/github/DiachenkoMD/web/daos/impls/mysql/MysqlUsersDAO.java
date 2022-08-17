@@ -1,6 +1,7 @@
 package com.github.DiachenkoMD.web.daos.impls.mysql;
 
 import com.github.DiachenkoMD.entities.DB_Constants;
+import com.github.DiachenkoMD.entities.dto.drivers.ExtendedDriver;
 import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.dto.users.PanelUser;
@@ -13,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,6 +63,56 @@ public class MysqlUsersDAO implements UsersDAO {
                 }
             }
             return user;
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public Optional<LimitedUser> getFromDriver(int driverId) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("SELECT tbl_users.id, tbl_users.firstname, tbl_users.surname, tbl_users.patronymic, tbl_users.email, tbl_users.role_id, tbl_users.is_blocked FROM tbl_drivers\n" +
+                        "JOIN tbl_users ON tbl_drivers.user_id = tbl_users.id\n" +
+                        "WHERE tbl_drivers.id = ?");
+        ){
+            stmt.setInt(1, driverId);
+
+            LimitedUser driver = null;
+
+            try(ResultSet rs = stmt.executeQuery()){
+                if(rs.next()){
+                    driver = LimitedUser.of(rs);
+                }
+            }
+
+            return Optional.ofNullable(driver);
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public Optional<ExtendedDriver> getDriverFromUser(int userId) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("SELECT tbl_drivers.id, tbl_drivers.city_id, tbl_users.email AS driver_email, tbl_users.avatar AS driver_avatar FROM tbl_drivers\n" +
+                        "JOIN tbl_users ON tbl_drivers.user_id = tbl_users.id\n" +
+                        "WHERE tbl_drivers.user_id = ?");
+        ){
+            stmt.setInt(1, userId);
+
+            ExtendedDriver driver = null;
+
+            try(ResultSet rs = stmt.executeQuery()){
+                if(rs.next()){
+                    driver = ExtendedDriver.of(rs);
+                }
+            }
+
+            return Optional.ofNullable(driver);
         } catch (SQLException e) {
             logger.error(e);
             throw new DBException(e);
@@ -533,6 +585,49 @@ public class MysqlUsersDAO implements UsersDAO {
             return stmt.executeBatch().length == userIds.size();
 
         } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+
+    @Override
+    public List<Integer> getAvailableDriversOnRange(LocalDate start, LocalDate end, int cityId) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("SELECT id FROM tbl_drivers WHERE (SELECT COUNT(id) FROM tbl_invoices WHERE date_start <= ? AND date_end >= ? AND tbl_invoices.driver_id = tbl_drivers.id) = 0 AND tbl_drivers.city_id = ?");
+        ){
+
+            stmt.setObject(1, end);
+            stmt.setObject(2, start);
+            stmt.setInt(3, cityId);
+
+            List<Integer> foundAvailableDrivers = new LinkedList<>();
+            try(ResultSet rs = stmt.executeQuery()){
+                while(rs.next())
+                    foundAvailableDrivers.add(rs.getInt("id"));
+            }
+
+            return foundAvailableDrivers;
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public boolean setDriverCity(int driverId, int cityId) throws DBException {
+        try(
+            Connection con = ds.getConnection();
+            PreparedStatement stmt = con.prepareStatement("UPDATE tbl_drivers SET city_id = ? WHERE id = ?");
+        ){
+
+            stmt.setInt(1, cityId);
+            stmt.setInt(2, driverId);
+
+            return stmt.executeUpdate() > 0;
+
+        }catch (SQLException e){
             logger.error(e);
             throw new DBException(e);
         }

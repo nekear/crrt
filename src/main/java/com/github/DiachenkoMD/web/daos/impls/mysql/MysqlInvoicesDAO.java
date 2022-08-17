@@ -2,8 +2,10 @@ package com.github.DiachenkoMD.web.daos.impls.mysql;
 
 import static com.github.DiachenkoMD.entities.DB_Constants.*;
 
+import com.github.DiachenkoMD.entities.dto.DatesRange;
 import com.github.DiachenkoMD.entities.dto.invoices.*;
 import com.github.DiachenkoMD.entities.dto.users.PanelUser;
+import com.github.DiachenkoMD.entities.dto.users.Passport;
 import com.github.DiachenkoMD.entities.enums.InvoiceStatuses;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
@@ -13,16 +15,14 @@ import org.apache.logging.log4j.Logger;
 import javax.sql.DataSource;
 import javax.swing.text.html.Option;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static com.github.DiachenkoMD.web.utils.Utils.generateRandomString;
 import static com.github.DiachenkoMD.web.utils.Utils.multieq;
 
 public class MysqlInvoicesDAO implements InvoicesDAO {
@@ -446,7 +446,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             Connection con = ds.getConnection();
             PreparedStatement stmt = con.prepareStatement("SELECT tbl_invoices.id AS invoice_id, tbl_invoices.code AS invoice_code, tbl_cars.brand, tbl_cars.model, tbl_invoices.date_start, tbl_invoices.date_end, tbl_invoices.exp_price,  tbl_cars.city_id,\n" +
                     "tbl_invoices.is_canceled, tbl_invoices.is_rejected, getActiveRepairsByInvoiceId(tbl_invoices.id) AS activeRepairs,\n" +
-                    "getExpiredRepairsByInvoiceId(tbl_invoices.id) AS expiredRepairs\n" +
+                    "getExpiredRepairsByInvoiceId(tbl_invoices.id) AS expiredRepairs\n, tbl_invoices.driver_id AS driver_id " +
                     "FROM tbl_invoices\n" +
                     "JOIN tbl_cars ON tbl_invoices.car_id = tbl_cars.id\n" +
                     "WHERE tbl_invoices.client_id = ? ORDER BY tbl_invoices.ts_created DESC");
@@ -457,6 +457,35 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             try(ResultSet rs = stmt.executeQuery()){
                 while(rs.next()){
                     foundInvoices.add(ClientInvoice.of(rs));
+                }
+            }
+
+            return foundInvoices;
+
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public List<DriverInvoice> getInvoicesForDriver(int userId) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("SELECT tbl_invoices.id AS invoice_id, tbl_cars.brand, tbl_cars.model, tbl_invoices.date_start, tbl_invoices.date_end, tbl_invoices.exp_price,  tbl_cars.city_id,\n" +
+                        "                        tbl_invoices.is_canceled, tbl_invoices.is_rejected\n" +
+                        "                        FROM tbl_invoices\n" +
+                        "                        JOIN tbl_cars ON tbl_invoices.car_id = tbl_cars.id\n" +
+                        "                        JOIN tbl_drivers ON tbl_drivers.id = tbl_invoices.driver_id\n" +
+                        "                        JOIN tbl_users ON tbl_users.id = tbl_drivers.user_id\n" +
+                        "                        WHERE tbl_users.id = ? ORDER BY tbl_invoices.date_start DESC");
+        ){
+            stmt.setInt(1, userId);
+
+            List<DriverInvoice> foundInvoices = new LinkedList<>();
+            try(ResultSet rs = stmt.executeQuery()){
+                while(rs.next()){
+                    foundInvoices.add(DriverInvoice.of(rs));
                 }
             }
 
@@ -492,6 +521,132 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             stmt.setInt(1, invoiceId);
 
             stmt.executeUpdate();
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public int createInvoice(int carId, int clientId, DatesRange range, Passport passport, BigDecimal expectedPrice, Integer driverId) throws DBException {
+        try(
+            Connection con = ds.getConnection();
+        ){
+            int newInvoiceId;
+
+            try{
+                con.setAutoCommit(false);
+
+                // Generating unique code for invoice
+                String generatedCode = null;
+                boolean doesCodeExists = false;
+
+                do{
+                    generatedCode = generateRandomString(7); // alphabet has 26 letters, so 26^6 will result in possible 308_915_776 codes, so we're extending to 7 letters possible getting 8_031_810_176 codes
+                    try(PreparedStatement stmt = con.prepareStatement("SELECT COUNT(id) AS counted FROM tbl_invoices WHERE code=?")){
+                        stmt.setString(1, generatedCode);
+                        try(ResultSet rs = stmt.executeQuery()){
+                            rs.next();
+                            doesCodeExists = rs.getInt("counted") > 0;
+                        }
+                    }
+                }while(doesCodeExists);
+
+                // Creating passport to further use newly created id in invoice creation query
+                String passportCreationQuery = "INSERT INTO tbl_passport (firstname, surname, patronymic, date_of_birth, date_of_issue, doc_number, rntrc, authority) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+
+                int newPassportId;
+                try(PreparedStatement stmt = con.prepareStatement(passportCreationQuery, Statement.RETURN_GENERATED_KEYS)){
+                    int index = 0;
+
+                    stmt.setString(++index, passport.getFirstname());
+                    stmt.setString(++index, passport.getSurname());
+                    stmt.setString(++index, passport.getPatronymic());
+                    stmt.setObject(++index, passport.getDateOfBirth());
+                    stmt.setObject(++index, passport.getDateOfIssue());
+                    stmt.setObject(++index, passport.getDocNumber());
+                    stmt.setObject(++index, passport.getRntrc());
+                    stmt.setInt(++index, passport.getAuthority());
+
+                    stmt.executeUpdate();
+
+                    try (ResultSet rs = stmt.getGeneratedKeys()) {
+                        rs.next();
+                        newPassportId = rs.getInt(1);
+                    }
+                }
+
+                // Creating invoice in tbl_invoices
+                String newInvoiceQuery = "INSERT INTO tbl_invoices (code, car_id, driver_id, client_id, exp_price, date_start, date_end, passport_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+
+                try(PreparedStatement stmt = con.prepareStatement(newInvoiceQuery, Statement.RETURN_GENERATED_KEYS)){
+                    int index = 0;
+                    stmt.setString(++index, generatedCode);
+                    stmt.setInt(++index, carId);
+                    stmt.setObject(++index, driverId);
+                    stmt.setInt(++index, clientId);
+                    stmt.setBigDecimal(++index, expectedPrice);
+                    stmt.setObject(++index, range.getStart());
+                    stmt.setObject(++index, range.getEnd());
+                    stmt.setInt(++index, newPassportId);
+
+                    stmt.executeUpdate();
+
+                    try (ResultSet rs = stmt.getGeneratedKeys()) {
+                        rs.next();
+                        newInvoiceId = rs.getInt(1);
+                    }
+                }
+
+                // Getting users current balance
+                BigDecimal currentBalance = null;
+                try(PreparedStatement stmt = con.prepareStatement("SELECT balance FROM tbl_users WHERE id = ?")){
+                    stmt.setInt(1, clientId);
+                    try(ResultSet rs = stmt.executeQuery()){
+                        rs.next();
+                        currentBalance = rs.getBigDecimal("balance");
+                    }
+                }
+
+                // Setting new balance (current - expected price)
+                BigDecimal newBalance = currentBalance.subtract(expectedPrice);
+
+                try(PreparedStatement stmt = con.prepareStatement("UPDATE tbl_users SET balance = ? WHERE id = ?")){
+                    stmt.setBigDecimal(1, newBalance);
+                    stmt.setInt(2, clientId);
+
+                    stmt.executeUpdate();
+                }
+
+                con.commit();
+                con.setAutoCommit(true);
+
+                return newInvoiceId;
+            }catch (SQLException e){
+                con.rollback();
+                con.setAutoCommit(true);
+                throw e;
+            }
+
+        }catch (SQLException e){
+           logger.error(e);
+           throw new DBException(e);
+        }
+    }
+
+    @Override
+    public void setInvoiceDriver(int invoiceId, Integer driverId) throws DBException {
+        try(
+               Connection con = ds.getConnection();
+               PreparedStatement stmt = con.prepareStatement("UPDATE tbl_invoices SET driver_id = ? WHERE id = ?");
+        ){
+            stmt.setObject(1, driverId);
+            stmt.setInt(2, invoiceId);
+
+            stmt.executeUpdate();
+
         }catch (SQLException e){
             logger.error(e);
             throw new DBException(e);

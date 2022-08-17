@@ -65,6 +65,13 @@ public class ClientService {
     public InformativeInvoice getInvoiceDetails(int invoiceId) throws DBException {
         InformativeInvoice informativeInvoice = invoicesDAO.getInvoiceDetails(invoiceId);
 
+
+        if(informativeInvoice.getDriver() != null){
+            List<InvoiceStatuses> statuses = informativeInvoice.getStatusList();
+            statuses.add(InvoiceStatuses.WITH_DRIVER);
+            informativeInvoice.setStatusList(statuses);
+        }
+
         // Clearing data which should not be exposed to end-user.
         informativeInvoice.setDriver(null);
         informativeInvoice.setClientEmail(null);

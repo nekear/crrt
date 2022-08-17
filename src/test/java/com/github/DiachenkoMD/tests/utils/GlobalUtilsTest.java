@@ -1,17 +1,23 @@
 package com.github.DiachenkoMD.tests.utils;
 
+import com.github.DiachenkoMD.entities.adapters.DBCoupledAdapter;
+import com.github.DiachenkoMD.entities.adapters.LocalDateAdapter;
+import com.github.DiachenkoMD.entities.adapters.LocalDateTimeAdapter;
+import com.github.DiachenkoMD.entities.adapters.Skip;
 import com.github.DiachenkoMD.entities.dto.Car;
-import com.github.DiachenkoMD.entities.enums.CarSegments;
-import com.github.DiachenkoMD.entities.enums.Cities;
-import com.github.DiachenkoMD.entities.enums.Roles;
+import com.github.DiachenkoMD.entities.dto.users.Passport;
+import com.github.DiachenkoMD.entities.enums.*;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.Validatable;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,6 +29,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.List;
 import java.util.stream.Stream;
 @ExtendWith({MockitoExtension.class})
 @DisplayName("Global utils")
@@ -250,5 +260,60 @@ public class GlobalUtilsTest {
         System.out.println(jsoned);
 
         System.out.println(new Gson().fromJson(jsoned, Car.class));
+    }
+
+    @Test
+    public void getFileExtensionTest(){
+        String fileName = "hello.jpg";
+
+        System.out.println(Utils.getFileExtension("Frame 1 (2).jpg"));
+
+        assertEquals(".jpg", Utils.getFileExtension(fileName));
+    }
+
+    @Test
+    public void validatableTest(){
+        Validatable birth = Validatable.of(LocalDate.of(2014, Month.JANUARY, 1), ValidationParameters.DATE_OF_BIRTH);
+        Validatable name = Validatable.of("Vaisl", ValidationParameters.NAME);
+        Validatable nameFail = Validatable.of("hf123", ValidationParameters.NAME);
+        Validatable email = Validatable.of("xpert@gmail.com", ValidationParameters.EMAIL);
+
+        assertTrue(birth.validate());
+        assertTrue(name.validate());
+        assertFalse(nameFail.validate());
+        assertTrue(email.validate());
+
+        assertTrue(Utils.validate(birth, name, email));
+        assertFalse(Utils.validate(birth, name, nameFail, email));
+
+        assertTrue(Utils.validate(List.of(birth, name, email)));
+    }
+    @Test
+    public void validatableTest2() throws DescriptiveException {
+        String json = "{\"firstname\":\"asdfasfd\",\"surname\":\"asdfasdf\",\"patronymic\":\"asdfasf\",\"date_of_birth\":\"2003-10-22\",\"date_of_issue\":\"2004-10-22\",\"doc_number\":324123434,\"rntrc\":5555555555,\"authority\":6666}";
+
+        Gson gson = new GsonBuilder()
+                .addSerializationExclusionStrategy(new ExclusionStrategy()
+                {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f)
+                    {
+                        return f.getAnnotation(Skip.class) != null;
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz)
+                    {
+                        return false;
+                    }
+                })
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .registerTypeHierarchyAdapter(DBCoupled.class, new DBCoupledAdapter())
+                .create();
+
+        Passport passport = gson.fromJson(json, Passport.class);
+
+        passport.validate();
     }
 }

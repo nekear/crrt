@@ -1,15 +1,19 @@
 package com.github.DiachenkoMD.web.daos.impls.mysql;
 
 import com.github.DiachenkoMD.entities.dto.Car;
+import com.github.DiachenkoMD.entities.dto.DatesRange;
 import com.github.DiachenkoMD.entities.dto.Image;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
+import com.github.DiachenkoMD.web.daos.factories.DAOFactory;
 import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -206,6 +210,63 @@ public class MysqlCarsDAO implements CarsDAO {
             stmt.setInt(1, carId);
 
             return stmt.executeUpdate() > 0;
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+
+    @Override
+    public List<Integer> getIdsOfCarsNotRentedInRange(LocalDate start, LocalDate end) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("SELECT tbl_cars.id FROM tbl_cars WHERE " +
+                        "(SELECT COUNT(id) FROM tbl_invoices " +
+                        "WHERE date_end >= ? AND date_start <= ?  " +
+                        "AND tbl_invoices.car_id =  tbl_cars.id " +
+                        "AND tbl_invoices.is_canceled = 0 AND tbl_invoices.is_rejected = 0 " +
+                        ") = 0");
+        ){
+
+            stmt.setObject(1, start);
+            stmt.setObject(2, end);
+
+            List<Integer> foundCarsIds = new LinkedList<>();
+            try(ResultSet rs = stmt.executeQuery()){
+                while(rs.next())
+                    foundCarsIds.add(rs.getInt("id"));
+            }
+
+            return foundCarsIds;
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public List<DatesRange> getRentedDatesOnCar(int carId, LocalDate searchStart) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("SELECT date_start, date_end FROM tbl_invoices WHERE date_start >= ? AND car_id = ?");
+        ){
+
+            stmt.setObject(1, searchStart);
+            stmt.setInt(2, carId);
+
+            List<DatesRange> foundRanges = new LinkedList<>();
+            try(ResultSet rs = stmt.executeQuery()){
+                while(rs.next())
+                    foundRanges.add(
+                            new DatesRange(
+                                rs.getObject("date_start", LocalDate.class),
+                                rs.getObject("date_end", LocalDate.class)
+                            )
+                    );
+            }
+
+            return foundRanges;
         }catch (SQLException e){
             logger.error(e);
             throw new DBException(e);

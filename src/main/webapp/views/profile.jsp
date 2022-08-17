@@ -17,14 +17,13 @@
 
     <!-- Design libs -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="${assets}modules/argon/argon.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="${assets}modules/notiflix/notiflix-3.2.5.min.css">
 
     <!--  Custom  -->
     <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
-    <link rel="stylesheet" href="${assets}css/colorize.css">
+    <link rel="stylesheet" href="${assets}css/inside.css">
     <link rel="stylesheet" href="${assets}css/mdx.css">
     <link rel="stylesheet" href="${assets}css/profile.css">
 
@@ -84,15 +83,15 @@
                         </div>
                         <div class="profile-canvas-item row">
                             <div class="col-lg-4 col-md-4 col-xs-12">
-                                <label for="i-firstname"><fmt:message key="pages.sign.input.firstname.placeholder" /></label>
+                                <label for="i-firstname" class="mb-2"><fmt:message key="pages.sign.input.firstname.placeholder" /></label>
                                 <input type="text" id="i-firstname" class="form-control" placeholder="${i18n.getString("pages.sign.input.firstname.placeholder")}" v-model="userDataCurrent.firstname">
                             </div>
                             <div class="col-lg-4 col-md-4 col-xs-12">
-                                <label for="i-surname"><fmt:message key="pages.sign.input.surname.placeholder" /></label>
+                                <label for="i-surname" class="mb-2"><fmt:message key="pages.sign.input.surname.placeholder" /></label>
                                 <input type="text" id="i-surname" class="form-control" placeholder="${i18n.getString("pages.sign.input.surname.placeholder")}" v-model="userDataCurrent.surname">
                             </div>
                             <div class="col-lg-4 col-md-4 col-xs-12">
-                                <label for="i-patronymic"><fmt:message key="pages.sign.input.patronymic.placeholder" /></label>
+                                <label for="i-patronymic" class="mb-2"><fmt:message key="pages.sign.input.patronymic.placeholder" /></label>
                                 <input type="text" id="i-patronymic" class="form-control" placeholder="${i18n.getString("pages.sign.input.patronymic.placeholder")}" v-model="userDataCurrent.patronymic">
                             </div>
                         </div>
@@ -141,7 +140,6 @@
 <!-- Design libs-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="${assets}modules/argon/argon.min.js"></script>
 <script src="https://unpkg.com/vue@3"></script>
 </body>
 </html>

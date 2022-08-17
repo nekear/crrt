@@ -115,8 +115,6 @@ const app = createApp({
             return dayjs().isBetween(date1, date2, "day", "[]");
         },
 
-
-
         goToInvoicesPage(pageIndex){
             this.invoices.search.pagination.currentPage = pageIndex;
         },
@@ -191,14 +189,19 @@ const app = createApp({
                 }
             })
             .then(response => {
+
+                console.log(response);
+
                 // Updating invoice entity in the list
                 for(let index in this.invoices.list){
                     let currentInvoice = this.invoices.list[index];
                     if(currentInvoice.id === this.invoices.details.id){
-                        currentInvoice.statusList.push(JSON.parse(response.data));
+                        currentInvoice.statusList.push(JSON.parse(response.data.status));
                         break;
                     }
                 }
+
+                document.getElementById("balance-amount").innerText = response.data.newBalance.toFixed(2);
 
                 $("#invoiceDetails_modal").modal("hide");
             })

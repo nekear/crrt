@@ -11,9 +11,11 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
+
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -141,18 +143,25 @@ public class Utils {
      * @return true/false depending on whether validation was successful or not respectively
      */
     public static boolean validate(String str, ValidationParameters parameter){
-        if(str == null)
+        return Validatable.of(str, parameter, false).validate();
+    }
+
+    public static boolean validate(Validatable... args){
+        if(args == null || args.length == 0)
             return false;
 
-        Pattern pattern = null;
+        return validate(Arrays.asList(args));
+    }
 
-        switch (parameter){
-            case NAME -> pattern = Pattern.compile("[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+");
-            case EMAIL -> pattern = Pattern.compile("\\w+@[a-zA-Z0-9]+\\.[a-z]+");
-            case PASSWORD -> pattern = Pattern.compile("(?=.*\\d)[a-zA-Z\\d]{4,}$");
+    public static boolean validate(List<Validatable> args){
+        if(args == null || args.size() == 0)
+            return false;
+
+        for(Validatable val : args){
+            if(!val.validate())
+                return false;
         }
-
-        return pattern != null && pattern.matcher(str).matches();
+        return true;
     }
 
     /**
@@ -310,5 +319,22 @@ public class Utils {
 
     public static boolean multieq(String str, String... els){
         return Arrays.stream(els).parallel().filter(x -> x.equalsIgnoreCase(str)).toList().size() > 0;
+    }
+
+    public static String getFileExtension(String name) {
+        int lastIndexOf = name.lastIndexOf(".");
+        if (lastIndexOf == -1) {
+            return ""; // empty extension
+        }
+        return name.substring(lastIndexOf);
+    }
+
+    public static boolean notNulls(Object... args){
+        for(Object arg : args){
+            if(arg == null)
+                return false;
+        }
+
+        return true;
     }
 }

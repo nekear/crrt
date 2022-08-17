@@ -2,6 +2,7 @@
   height: 100vh;
   background: #000;
   position: relative;
+  overflow: hidden;
 }
 .intro-wrapper header {
   display: -webkit-box;
@@ -18,6 +19,8 @@
       -ms-flex-pack: start;
           justify-content: flex-start;
   padding: 2rem;
+  background: #000000;
+  border-bottom: 0;
   position: absolute;
   top: 0;
   left: 0;
@@ -117,17 +120,28 @@
       -ms-flex-align: center;
           align-items: center;
   padding: 0.6rem 1rem;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #fff;
   border-radius: 8px;
   -webkit-transition: 0.25s;
   transition: 0.25s;
+  text-decoration: none;
   cursor: pointer;
 }
 .intro-wrapper header nav .sign-button .sign-icon {
   margin-right: 10px;
 }
+.intro-wrapper header nav .sign-button .sign-icon svg path {
+  stroke: #fff;
+}
+.intro-wrapper header nav .sign-button .sign-icon .avatar {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--systemBlue_default);
+}
 .intro-wrapper header nav .sign-button .sign-text {
-  color: #000;
+  color: #fff;
   font-weight: 500;
 }
 .intro-wrapper header nav .sign-button:hover {
@@ -150,6 +164,7 @@
       -ms-flex-pack: center;
           justify-content: center;
   height: 100%;
+  overflow: hidden;
 }
 .intro-wrapper .intro-content .centered-data .main-title {
   color: #ffffff;
@@ -167,38 +182,44 @@
 .intro-wrapper .intro-content .centered-data .gradient-rotator-wrapper .rotatable {
   display: block;
   background: url("../imgs/rotation_gradient.png") no-repeat center;
-  background-size: 200px 200px;
+  background-size: 300px 380px;
   mix-blend-mode: darken;
   width: 250px;
   height: 250px;
   position: absolute;
   top: -60px;
-  left: -30px;
-  -webkit-animation: rotation 2s linear infinite;
-          animation: rotation 2s linear infinite;
+  left: 10px;
+  -webkit-animation: rotationWScale 2s linear infinite;
+          animation: rotationWScale 2s linear infinite;
 }
 .intro-wrapper .intro-content .centered-data .additional-title {
   color: #9A9A9A;
   font-weight: 400;
+  font-size: 18px;
 }
 .intro-wrapper .intro-content .centered-data .find_car-button {
   padding: 0.8rem 1rem;
-  background-color: #12AAEB;
+  background-color: rgba(18, 170, 235, 0.4);
   color: #fff;
   text-decoration: none;
   border-radius: 8px;
+  border: 2px solid #12AAEB;
+  -webkit-transition: 0.25s;
+  transition: 0.25s;
 }
 .intro-wrapper .intro-content .centered-data .find_car-button svg {
   margin-right: 10px;
-}
-.intro-wrapper .intro-content .centered-data .find_car-button:hover svg {
   -webkit-animation: rotation 4s linear infinite;
           animation: rotation 4s linear infinite;
+  margin-top: -4px;
+}
+.intro-wrapper .intro-content .centered-data .find_car-button:hover {
+  background-color: rgba(18, 170, 235, 0.8);
 }
 .intro-wrapper .car_preview {
   position: absolute;
   left: 50%;
-  bottom: 0;
+  bottom: -40%;
   -webkit-transform: translateX(-50%);
           transform: translateX(-50%);
 }
@@ -217,6 +238,27 @@
   right: 0;
 }
 
+@-webkit-keyframes rotationWScale {
+  from {
+    -webkit-transform: rotate(0deg) scale(1.5);
+            transform: rotate(0deg) scale(1.5);
+  }
+  to {
+    -webkit-transform: rotate(360deg) scale(1.5);
+            transform: rotate(360deg) scale(1.5);
+  }
+}
+
+@keyframes rotationWScale {
+  from {
+    -webkit-transform: rotate(0deg) scale(1.5);
+            transform: rotate(0deg) scale(1.5);
+  }
+  to {
+    -webkit-transform: rotate(360deg) scale(1.5);
+            transform: rotate(360deg) scale(1.5);
+  }
+}
 @-webkit-keyframes rotation {
   from {
     -webkit-transform: rotate(0deg);
@@ -227,7 +269,6 @@
             transform: rotate(360deg);
   }
 }
-
 @keyframes rotation {
   from {
     -webkit-transform: rotate(0deg);
@@ -414,4 +455,8 @@
 .search-wrapper .search-container .search-content .filters-sidebar .form-control::placeholder {
   color: #8898aa;
   font-size: 14px;
+}
+
+.search-results thead th {
+  font-weight: 500;
 }

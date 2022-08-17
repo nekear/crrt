@@ -1,11 +1,14 @@
 package com.github.DiachenkoMD.entities.dto.invoices;
 
 import com.github.DiachenkoMD.entities.enums.Cities;
+import com.github.DiachenkoMD.entities.enums.InvoiceStatuses;
+
 import static com.github.DiachenkoMD.entities.DB_Constants.*;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class ClientInvoice extends LimitedInvoice{
     private String brand;
@@ -22,6 +25,15 @@ public class ClientInvoice extends LimitedInvoice{
         this.model = rs.getString(TBL_CARS_MODEL);
         this.price = rs.getBigDecimal(TBL_INVOICES_EXP_PRICE);
         this.city = Cities.getById(rs.getInt(TBL_CARS_CITY_ID));
+
+        rs.getObject("driver_id");
+
+        if(!rs.wasNull()){
+            List<InvoiceStatuses> statuses = this.getStatusList();
+            statuses.add(InvoiceStatuses.WITH_DRIVER);
+            this.setStatusList(statuses);
+        }
+
     }
 
     public static ClientInvoice of(ResultSet rs) throws SQLException {

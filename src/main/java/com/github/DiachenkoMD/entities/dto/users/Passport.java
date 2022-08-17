@@ -1,10 +1,17 @@
 package com.github.DiachenkoMD.entities.dto.users;
 
+import com.github.DiachenkoMD.entities.enums.ValidationParameters;
+import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
+import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
+import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.Validatable;
 import com.google.gson.annotations.SerializedName;
 
+import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Map;
 
 public class Passport {
     private String firstname;
@@ -18,11 +25,11 @@ public class Passport {
     private LocalDate dateOfIssue;
 
     @SerializedName("doc_number")
-    private int docNumber;
+    private BigInteger docNumber;
 
-    private int rntrc;
+    private BigInteger rntrc;
 
-    private int authority;
+    private Integer authority;
 
     public static Passport of(ResultSet rs) throws SQLException {
         Passport passport = new Passport();
@@ -32,13 +39,26 @@ public class Passport {
         passport.setPatronymic(rs.getString("pp_patronymic"));
         passport.setDateOfBirth(rs.getDate("pp_date_of_birth").toLocalDate());
         passport.setDateOfIssue(rs.getDate("pp_date_of_issue").toLocalDate());
-        passport.setDocNumber(rs.getInt("pp_doc_number"));
-        passport.setRntrc(rs.getInt("pp_rntrc"));
+        passport.setDocNumber(rs.getObject("pp_doc_number", BigInteger.class));
+        passport.setRntrc(rs.getObject("pp_rntrc", BigInteger.class));
         passport.setAuthority(rs.getInt("pp_authority"));
 
         return passport;
     }
 
+    public void validate() throws DescriptiveException {
+        Validatable firstnameVT = Validatable.of(firstname, ValidationParameters.NAME);
+        Validatable surnameVT = Validatable.of(surname, ValidationParameters.NAME);
+        Validatable patronymicVT = Validatable.of(patronymic, ValidationParameters.NAME);
+        Validatable dateOfBirthVT = Validatable.of(dateOfBirth, ValidationParameters.DATE_OF_BIRTH);
+        Validatable dateOfIssueVT = Validatable.of(dateOfIssue, ValidationParameters.DATE_OF_ISSUE);
+        Validatable docNumberVT = Validatable.of(docNumber, ValidationParameters.DOC_NUMBER);
+        Validatable rntrcVT = Validatable.of(rntrc, ValidationParameters.RNTRC);
+        Validatable authorityVT = Validatable.of(authority, ValidationParameters.AUTHORITY);
+
+        if(!Utils.validate(firstnameVT, surnameVT, patronymicVT, dateOfBirthVT, dateOfIssueVT, docNumberVT, rntrcVT, authorityVT))
+            throw new DescriptiveException("VALIDATION ERROR: " + this, ExceptionReason.PASSPORT_VALIDATION_ERROR);
+    }
 
     public String getFirstname() {
         return firstname;
@@ -80,19 +100,19 @@ public class Passport {
         this.dateOfIssue = dateOfIssue;
     }
 
-    public int getDocNumber() {
+    public BigInteger getDocNumber() {
         return docNumber;
     }
 
-    public void setDocNumber(int docNumber) {
+    public void setDocNumber(BigInteger docNumber) {
         this.docNumber = docNumber;
     }
 
-    public int getRntrc() {
+    public BigInteger getRntrc() {
         return rntrc;
     }
 
-    public void setRntrc(int rntrc) {
+    public void setRntrc(BigInteger rntrc) {
         this.rntrc = rntrc;
     }
 
@@ -102,5 +122,19 @@ public class Passport {
 
     public void setAuthority(int authority) {
         this.authority = authority;
+    }
+
+    @Override
+    public String toString() {
+        return "Passport{" +
+                "firstname='" + firstname + '\'' +
+                ", surname='" + surname + '\'' +
+                ", patronymic='" + patronymic + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", dateOfIssue=" + dateOfIssue +
+                ", docNumber=" + docNumber +
+                ", rntrc=" + rntrc +
+                ", authority=" + authority +
+                '}';
     }
 }

@@ -4,6 +4,7 @@ package com.github.DiachenkoMD.entities.exceptions;
  * Exception reasons used at {@link DescriptiveException DescriptiveException}
  */
 public enum ExceptionReason {
+    ACCESS_DENIED,
     BAD_FILE_EXTENSION,
     TOO_BIG_FILE_SIZE,
     TOO_MANY_FILES,
@@ -11,6 +12,7 @@ public enum ExceptionReason {
     CRYPTO_OPERATION_ERROR,
     DB_ACTION_ERROR,
     VALIDATION_ERROR,
+    PASSPORT_VALIDATION_ERROR,
     EMAIL_EXISTS,
     REGISTRATION_PROCESS_ERROR,
 //  Confirmation codes
@@ -42,5 +44,8 @@ public enum ExceptionReason {
 // Client panel
     REP_INVOICE_WAS_NOT_FOUND,
     NOT_ENOUGH_MONEY,
-    REP_INVOICE_IS_ALREADY_PAID
+    REP_INVOICE_IS_ALREADY_PAID,
+
+    DRIVER_NOT_ALLOWED,
+    NO_SUITABLE_DRIVER
 }

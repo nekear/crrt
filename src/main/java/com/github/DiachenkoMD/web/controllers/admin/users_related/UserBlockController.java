@@ -38,10 +38,6 @@ public class UserBlockController extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{
-
-            logger.debug(req.getParameter("id"));
-            logger.debug(req.getParameter("newState"));
-
             String updateStateDataJSON = new BufferedReader(req.getReader()).lines().collect(Collectors.joining());
 
             JSONObject object = new JSONObject(updateStateDataJSON);

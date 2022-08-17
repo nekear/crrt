@@ -6,10 +6,7 @@ import com.github.DiachenkoMD.entities.dto.users.UsersPanelFilters;
 import com.github.DiachenkoMD.entities.enums.DBCoupled;
 import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
-import com.github.DiachenkoMD.web.services.AdminService;
-import com.github.DiachenkoMD.web.services.ClientService;
-import com.github.DiachenkoMD.web.services.ManagerService;
-import com.github.DiachenkoMD.web.services.UsersService;
+import com.github.DiachenkoMD.web.services.*;
 import com.github.DiachenkoMD.web.daos.DBTypes;
 import com.github.DiachenkoMD.web.daos.factories.DAOFactory;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
@@ -25,6 +22,7 @@ import jakarta.servlet.annotation.WebListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.Driver;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ResourceBundle;
@@ -77,6 +75,15 @@ public class ContextListener implements ServletContextListener {
         ClientService clientService = new ClientService(usersDAO, invoicesDAO, ctx);
         ctx.setAttribute("client_service", clientService);
         logger.info("[✓] ClientService -> initialized");
+
+        IntroService introService = new IntroService(carsDAO, usersDAO, invoicesDAO, ctx);
+        ctx.setAttribute("intro_service", introService);
+        logger.info("[✓] IntroService -> initialized");
+
+        DriverService driverService = new DriverService(usersDAO, invoicesDAO, ctx);
+        ctx.setAttribute("driver_service", driverService);
+        logger.info("[✓] DriverService -> initialized");
+
     }
 
     private static void initPinger(ServletContext ctx){

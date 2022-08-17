@@ -1,9 +1,4 @@
 <%@ page import="com.github.DiachenkoMD.web.utils.JSJS" %>
-<%@ page import="com.google.gson.Gson" %>
-<%@ page import="com.github.DiachenkoMD.entities.dto.invoices.PanelInvoice" %>
-<%@ page import="com.github.DiachenkoMD.web.utils.CryptoStore" %>
-<%@ page import="java.util.List" %>
-<%@ page import="com.github.DiachenkoMD.entities.dto.PaginationResponse" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -22,14 +17,13 @@
 
     <!-- Design libs -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="${assets}modules/argon/argon.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="${assets}modules/notiflix/notiflix-3.2.5.min.css">
     <link rel="stylesheet" href="${assets}modules/loaders/loaders.css">
     <!--  Custom  -->
     <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
-    <link rel="stylesheet" href="${assets}css/colorize.css">
+    <link rel="stylesheet" href="${assets}css/inside.css">
     <link rel="stylesheet" href="${assets}css/mdx.css">
     <link rel="stylesheet" href="${assets}css/client.css">
 
@@ -116,7 +110,12 @@
                                 <span class='status-chip flat-chip' :data-status-code="invoice.city % 4 + 2">{{cities[invoice.city].name}}</span>
                             </td>
                             <td>
-                                <span v-for="status in invoice.statusList" class='invoice-status-chip flat-chip' :data-status-code="status">{{invoiceStatuses[status].name}}</span>
+                                <template v-if="invoice.statusList.length">
+                                    <span v-for="status in invoice.statusList" class='invoice-status-chip flat-chip' :data-status-code="status">{{invoiceStatuses[status].name}}</span>
+                                </template>
+                                <template v-else>
+                                    <span class="micro-caution" style="opacity: .3">Empty...</span>
+                                </template>
                             </td>
                             <td>
                                 <button class="mdx-md-button button-blue button-bordered" @click="openInvoiceDetailsModal(invoice.id)">Details</button>
@@ -298,7 +297,6 @@
 <!-- Design libs-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="${assets}modules/argon/argon.min.js"></script>
 <script src="https://unpkg.com/vue@3"></script>
 </body>
 </html>

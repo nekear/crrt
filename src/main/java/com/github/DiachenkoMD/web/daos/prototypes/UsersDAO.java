@@ -1,5 +1,6 @@
 package com.github.DiachenkoMD.web.daos.prototypes;
 
+import com.github.DiachenkoMD.entities.dto.drivers.ExtendedDriver;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
@@ -7,6 +8,7 @@ import com.github.DiachenkoMD.entities.dto.users.PanelUser;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,8 @@ public interface UsersDAO {
     AuthUser get(String email) throws DBException;
 
     AuthUser get(int userId) throws DBException;
+    Optional<LimitedUser> getFromDriver(int driverId) throws DBException;
+    Optional<ExtendedDriver> getDriverFromUser(int userId) throws DBException;
 
     List<AuthUser> getAll() throws DBException;
 
@@ -91,4 +95,15 @@ public interface UsersDAO {
     boolean setUserState(int userId, int stateId) throws DBException;
 
     boolean deleteUsers(List<Integer> userIds) throws DBException;
+
+    /**
+     * Method for getting available drivers on a specified dates range. Logic of founding such in the db goes here the same as at {@link CarsDAO#getRentedDatesOnCar(int, LocalDate) there}.
+     * @param start
+     * @param end
+     * @return drivers` ids
+     * @throws DBException
+     */
+    List<Integer> getAvailableDriversOnRange(LocalDate start, LocalDate end, int cityId) throws DBException;
+
+    boolean setDriverCity(int driverId, int cityId) throws DBException;
 }

@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -76,7 +77,7 @@ public class ClientInvoiceController extends HttpServlet {
 
             clientService.cancelInvoice(invoiceId, client);
 
-            sendSuccess(gson.toJson(InvoiceStatuses.CANCELED), resp);
+            sendSuccess(gson.toJson(Map.of("status", InvoiceStatuses.CANCELED, "newBalance", client.getBalance())), resp);
         }catch (Exception e){
             AtomicReference<String> exceptionToClient = new AtomicReference<>();
 

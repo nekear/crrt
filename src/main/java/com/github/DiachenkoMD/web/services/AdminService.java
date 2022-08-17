@@ -15,6 +15,7 @@ import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
+import com.github.DiachenkoMD.web.utils.Utils;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -137,7 +138,7 @@ public class AdminService {
                         logger.debug("File: {} <-> {} <-> {}", filePart.getName(), filePart.getSubmittedFileName(), filePart.getContentType());
 
                         // Generating unique file name
-                        String fileName = String.format("%s%s",System.currentTimeMillis(), random.nextInt(100000) + filePart.getSubmittedFileName());
+                        String fileName = String.format("%s%s",System.currentTimeMillis(), random.nextInt(100000) + Utils.generateRandomString(6) + Utils.getFileExtension(filePart.getSubmittedFileName()));
 
                         logger.debug("Generated file name: " + fileName);
 
@@ -212,7 +213,9 @@ public class AdminService {
 
         String realPath = ctx.getRealPath(IMAGES_UPLOAD_DIR);
 
-        String fileName = String.format("%s%s",System.currentTimeMillis(), random.nextInt(100000) + image.getSubmittedFileName());
+        logger.debug("File: {} <-> {} <-> {}", image.getName(), jsonPart.getSubmittedFileName(), jsonPart.getContentType());
+
+        String fileName = String.format("%s%s",System.currentTimeMillis(), random.nextInt(100000) + Utils.generateRandomString(6) + Utils.getFileExtension(image.getSubmittedFileName()));
 
         image.write(realPath + "/" + fileName);
 

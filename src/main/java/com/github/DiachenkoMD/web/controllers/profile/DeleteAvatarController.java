@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
+import static com.github.DiachenkoMD.web.utils.Utils.sendException;
 
 
 @WebServlet("/profile/deleteAvatar")
@@ -42,6 +43,7 @@ public class DeleteAvatarController extends HttpServlet {
             resp.setContentType("application/json");
             resp.getWriter().write(new Gson().toJson(Map.of("avatar", generatedAvatarUrl)));
             resp.getWriter().flush();
+
         }catch (Exception e){
             AtomicReference<String> exceptionToClient = new AtomicReference<>("");
 
@@ -49,13 +51,7 @@ public class DeleteAvatarController extends HttpServlet {
 
             exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
-            try {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().flush();
-                resp.getWriter().write(exceptionToClient.get());
-            } catch (IOException ioExc) {
-                logger.error(ioExc);
-            }
+            sendException(exceptionToClient.get(), resp);
         }
     }
 }

@@ -7,7 +7,7 @@ public class LimitedDriver {
     private String avatar;
     private String email;
 
-
+    public LimitedDriver(){};
     protected LimitedDriver(ResultSet rs) throws SQLException {
         this.avatar = rs.getString("driver_avatar");
         this.email = rs.getString("driver_email");

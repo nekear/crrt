@@ -1,0 +1,94 @@
+.form-control, .form-select {
+  background-color: var(--systemGray6_default);
+  color: var(--systemGray_default);
+  border-color: var(--borderColor_accessible);
+}
+.form-control:focus, .form-select:focus {
+  background-color: var(--systemGray6_default);
+}
+.form-control[disabled], .form-select[disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+  background-color: var(--systemGray6_default);
+  border-color: var(--borderColor_accessible);
+}
+
+.table {
+  color: var(--systemGray_accessible);
+  border-radius: 6px;
+  margin-top: 20px;
+}
+.table tbody, .table thead, .table th, .table td, .table tr {
+  border-color: var(--borderColor_accessible3) !important;
+}
+.table tr {
+  background-color: var(--systemGray6_accessible);
+  border-left: 1px solid var(--borderColor_accessible3);
+  border-right: 1px solid var(--borderColor_accessible3);
+  -webkit-transition: all 0.15s cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  transition: all 0.15s cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+.table tr.blocked .column-email {
+  color: var(--systemRed_default);
+}
+.table tr:last-child {
+  border-bottom: 1px solid var(--borderColor_accessible3);
+}
+.table tbody.hoverful tr:hover {
+  background-color: var(--borderColor_accessible);
+}
+.table thead {
+  background-color: var(--systemGray6_default);
+  color: var(--systemGray_default);
+}
+.table thead th {
+  vertical-align: middle;
+  font-weight: 500;
+  position: relative;
+}
+.table thead th .sort-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  font-size: 14px;
+  cursor: pointer;
+}
+.table thead th .sort-marker[data-sort-type=desc] .sort-asc-arrow {
+  display: none;
+}
+.table thead th .sort-marker[data-sort-type=asc] .sort-desc-arrow {
+  display: none;
+}
+.table thead th .sort-marker[data-sort-type=null] {
+  opacity: 0;
+}
+.table thead th .sort-marker .sort-wrap {
+  position: relative;
+  padding-left: 5px;
+  height: 25px;
+}
+.table thead th .sort-marker .sort-asc-arrow {
+  position: absolute;
+  top: 40%;
+  right: -5px;
+  width: 25px;
+  height: 25px;
+  background: var(--systemGreen_default);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='25' height='25' viewBox='0 0 25 25' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18.1338 15.2627L12.1338 9.2627L6.13379 15.2627' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg width='25' height='25' viewBox='0 0 25 25' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18.1338 15.2627L12.1338 9.2627L6.13379 15.2627' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  -webkit-transform: scale(0.8) translateY(-50%);
+          transform: scale(0.8) translateY(-50%);
+}
+.table thead th .sort-marker .sort-desc-arrow {
+  position: absolute;
+  bottom: 40%;
+  right: -4px;
+  width: 25px;
+  height: 25px;
+  background: var(--systemRed_default);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='25' height='25' viewBox='0 0 25 25' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18.1338 15.2627L12.1338 9.2627L6.13379 15.2627' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg width='25' height='25' viewBox='0 0 25 25' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18.1338 15.2627L12.1338 9.2627L6.13379 15.2627' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  -webkit-transform: rotate(180deg) scale(0.8) translateY(-50%);
+          transform: rotate(180deg) scale(0.8) translateY(-50%);
+}

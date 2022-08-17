@@ -637,6 +637,9 @@
 .mdx-md-button.button-w-icon svg [fill="#000000"] {
   fill: rgba(255, 255, 255, 0.8);
 }
+.mdx-md-button.button-w-icon svg [stroke=black] {
+  stroke: rgba(255, 255, 255, 0.8);
+}
 .mdx-md-button.button-w-icon:hover {
   padding-right: 13px;
   padding-left: 39px;
