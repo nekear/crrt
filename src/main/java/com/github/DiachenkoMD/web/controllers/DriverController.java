@@ -5,6 +5,10 @@ import com.github.DiachenkoMD.entities.dto.drivers.ExtendedDriver;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.enums.Cities;
 import com.github.DiachenkoMD.web.services.DriverService;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.PageGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.DriverRGuard;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,9 +18,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static com.github.DiachenkoMD.web.utils.Utils.getLang;
 
-
+@UseGuards({PageGuard.class, AuthGuard.class, DriverRGuard.class})
 @WebServlet("/driver")
 public class DriverController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(DriverController.class);

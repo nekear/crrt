@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="${assets}css/main.css">
 
     <link rel="stylesheet" href="${assets}css/media.css">
-    <title>Managers | CRRT.</title>
+    <title>CRRT.</title>
 
     <!--  Jquery  -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
@@ -35,6 +35,7 @@
 
     <!--  Custom  -->
     <script src="${assets}js/mdx.js"></script>
+    <script src="${assets}js/global.js"></script>
     <script src="${assets}js/main.js" defer></script>
 
     <script>
@@ -43,6 +44,7 @@
             "cities": <%=JSJS.CitiesList((String) pageContext.getAttribute("lang"))%>,
             "segments": <%=JSJS.SegmentsList((String) pageContext.getAttribute("lang"))%>,
         };
+        const isLoggedIn = ${not empty user};
     </script>
 </head>
 <body>
@@ -149,26 +151,31 @@
         <h5 class="found-propositions-banner">Знайдено <strong>25</strong> пропозицій</h5>
         <div class="search-content row">
             <div class="search-results col-lg-9">
-                <table class="table" style="margin-bottom: 0 !important;">
+                <table class="table table-bordered" :class="{'table-hover': isLoggedIn}" style="margin-bottom: 0 !important;">
                     <thead>
-                    <tr>
-                        <th>Brand</th>
-                        <th>Model</th>
-                        <th>Segment</th>
-                        <th>Price (per day)</th>
-                        <th>City</th>
-                        <th></th>
-                    </tr>
+                        <tr>
+                            <th style="position: relative">
+                                Vehicle name
+                                <Sorter name="carName" :order-by="offers.search.filters.orderBy"></Sorter>
+                            </th>
+                            <th style="position: relative">
+                                Segment
+                                <Sorter name="segment" :order-by="offers.search.filters.orderBy"></Sorter>
+                            </th>
+                            <th style="position: relative">
+                                Price (per day)
+                                <Sorter name="price" :order-by="offers.search.filters.orderBy"></Sorter>
+                            </th>
+                            <th>City</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="offer in offers_list_paginated">
-                        <td>{{offer.brand}}</td>
-                        <td>{{offer.model}}</td>
-                        <td><span class="flat-chip status-chip" :data-status-code="offer.segment % 5">{{segments[offer.segment].name}}</span></td>
-                        <td><span class="flat-chip price-chip" :data-price-code="getPriceLevel(offer.price)">{{offer.price}} $</span></td>
-                        <td>{{cities[offer.city].name}}</td>
-                        <td style="text-align: right"><a :href="'rent?'+getRentRefUrl(offer.id)" style="text-decoration: none" class="mdx-md-button button-blue button-bordered">Details</a></td>
-                    </tr>
+                        <tr v-for="offer in offers_list_paginated" @click="redirectToRent(offer.id)" :style="{cursor: isLoggedIn ? 'pointer' : 'auto'}">
+                            <td>{{offer.brand}} {{offer.model}}</td>
+                            <td><span class="flat-chip status-chip" :data-status-code="offer.segment % 5">{{segments[offer.segment].name}}</span></td>
+                            <td><span class="flat-chip price-chip" :data-price-code="getPriceLevel(offer.price)">{{offer.price}} $</span></td>
+                            <td>{{cities[offer.city].name}}</td>
+                        </tr>
                     </tbody>
                 </table>
                 <div class='banner-alert danger' v-if="!offers_list_paginated.length">
@@ -189,6 +196,12 @@
                     <ul class="pagination">
                         <li class="page-item" v-for="n in offers_pages"><a class="page-link" href="#" :class="{active: n === offers.search.pagination.currentPage}" @click.prevent="goToOffersPage(n)">{{n}}</a></li>
                     </ul>
+                </div>
+                <div class="alert alert-primary" role="alert" v-if="!isLoggedIn">
+                    <svg width="24" height="21" viewBox="0 0 24 21" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 1rem; margin-top: -4px">
+                        <path d="M9.90306 2.02134L1.43306 16.1613C1.25843 16.4638 1.16602 16.8066 1.16505 17.1559C1.16407 17.5051 1.25455 17.8485 1.42748 18.1519C1.60042 18.4553 1.84978 18.7081 2.15077 18.8852C2.45175 19.0623 2.79386 19.1575 3.14306 19.1613H20.0831C20.4323 19.1575 20.7744 19.0623 21.0753 18.8852C21.3763 18.7081 21.6257 18.4553 21.7986 18.1519C21.9716 17.8485 22.062 17.5051 22.0611 17.1559C22.0601 16.8066 21.9677 16.4638 21.7931 16.1613L13.3231 2.02134C13.1448 1.72744 12.8938 1.48446 12.5943 1.31582C12.2947 1.14719 11.9568 1.05859 11.6131 1.05859C11.2693 1.05859 10.9314 1.14719 10.6319 1.31582C10.3323 1.48446 10.0813 1.72744 9.90306 2.02134V2.02134Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    In order to rent cars and view detailed information about them, please <a href="login" style="text-decoration: none" class="mdx-hover-underline-animation">log in</a> to your account.
                 </div>
             </div>
             <div class="search-filters col-lg-3">
@@ -226,7 +239,7 @@
                                         hide-input-icon
                                         input-class-name="form-control"
                                         auto-apply
-<%--                                        :min-date="new Date()"--%>
+                                        :min-date="new Date()"
                                         placeholder="Dates range"/>
                         </div>
                     </div>
@@ -292,6 +305,7 @@
                     <img src="${assets}imgs/icons/bi_clipboard.svg" alt="clipboard crrt icon carrent">
                 </div>
             </div>
+            <div class="micro-caution" style="opacity: 0; transition: .25s">Copied to clipboard!</div>
         </div>
         <div class="copy-item">
             <div class="title">
@@ -305,6 +319,7 @@
                     <img src="${assets}imgs/icons/bi_clipboard.svg" alt="clipboard crrt icon carrent">
                 </div>
             </div>
+            <div class="micro-caution" style="opacity: 0; transition: .25s">Copied to clipboard!</div>
         </div>
     </div>
 </footer>

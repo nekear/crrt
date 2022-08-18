@@ -1,5 +1,6 @@
 package com.github.DiachenkoMD.web.filters;
 
+import com.github.DiachenkoMD.web.utils.guardian.Guardian;
 import jakarta.servlet.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,15 @@ import static com.github.DiachenkoMD.web.utils.Utils.getCookieFromArray;
 
 public class GeneralFilter implements Filter {
     private static final Logger logger = LogManager.getLogger(GeneralFilter.class);
+
+    private Guardian guardian;
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        Filter.super.init(filterConfig);
+        this.guardian = (Guardian) filterConfig.getServletContext().getAttribute("guardian");
+    }
+
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         System.out.println("---->  NEW REQUEST  <----   ");
@@ -24,6 +34,9 @@ public class GeneralFilter implements Filter {
         httpResponse.addHeader("Access-Control-Allow-Origin", "*");
         httpResponse.addHeader("Access-Control-Allow-Headers", "*");
         req.setCharacterEncoding("UTF-8");
+
+        if(!guardian.guard(httpRequest.getServletPath(), httpRequest, httpResponse))
+            return;
 
         resolveDefaultLang(httpRequest, httpResponse);
 

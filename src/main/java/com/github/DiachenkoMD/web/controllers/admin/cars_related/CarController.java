@@ -8,6 +8,10 @@ import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.AdminService;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
+
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.AdminRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -24,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+@UseGuards({AuthGuard.class, AdminRGuard.class})
 @WebServlet("/admin/car")
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024, // 1 MB

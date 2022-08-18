@@ -6,6 +6,8 @@ import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
 import static com.github.DiachenkoMD.web.utils.Utils.sendException;
-
+@UseGuards({AuthGuard.class})
 @WebServlet("/profile/updateData")
 public class UpdateUserDataController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(UpdateUserDataController.class);

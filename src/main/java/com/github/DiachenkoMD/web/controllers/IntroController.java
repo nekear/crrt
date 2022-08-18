@@ -1,6 +1,5 @@
 package com.github.DiachenkoMD.web.controllers;
 
-import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

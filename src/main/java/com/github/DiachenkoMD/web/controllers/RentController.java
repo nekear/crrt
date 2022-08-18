@@ -6,7 +6,9 @@ import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.IntroService;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
-import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.PageGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -24,8 +26,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
-import static com.github.DiachenkoMD.web.utils.Utils.sendException;
 
+@UseGuards({PageGuard.class, AuthGuard.class})
 @WebServlet("/rent")
 public class RentController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(RentController.class);

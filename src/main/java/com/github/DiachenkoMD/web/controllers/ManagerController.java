@@ -8,6 +8,10 @@ import com.github.DiachenkoMD.entities.dto.invoices.InvoicePanelFilters;
 import com.github.DiachenkoMD.entities.dto.invoices.PanelInvoice;
 import com.github.DiachenkoMD.entities.enums.InvoiceStatuses;
 import com.github.DiachenkoMD.web.services.ManagerService;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.PageGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ManagerRGuard;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import jakarta.servlet.ServletConfig;
@@ -21,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
+@UseGuards({PageGuard.class, AuthGuard.class, ManagerRGuard.class})
 @WebServlet("/manager")
 public class ManagerController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(ManagerController.class);

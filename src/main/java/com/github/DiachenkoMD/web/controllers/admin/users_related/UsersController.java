@@ -4,6 +4,9 @@ import com.github.DiachenkoMD.entities.dto.Car;
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.web.services.AdminService;
 import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.AdminRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -19,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.sendSuccess;
-
+@UseGuards({AuthGuard.class, AdminRGuard.class})
 @WebServlet("/admin/users")
 public class UsersController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(UsersController.class);

@@ -314,7 +314,7 @@ public class AdminService {
      * @param req should contain encrypted car id.
      * @throws IOException
      * @throws DescriptiveException with reasons {@link ExceptionReason#CAR_IN_USE CAR_IN_USE} (if car has connected invoices)
-     * @throws DBException comes from {@link InvoicesDAO#getOnCar(int)} (for getting connected Invoices and clients) and {@link CarsDAO#delete(int)}.
+     * @throws DBException comes from {@link InvoicesDAO#getInvoicesOnCar(int)} (for getting connected Invoices and clients) and {@link CarsDAO#delete(int)}.
      */
     public void deleteCar(HttpServletRequest req) throws IOException, DescriptiveException, DBException {
         // Acquiring car id
@@ -324,7 +324,7 @@ public class AdminService {
 
         int carId = Integer.parseInt(CryptoStore.decrypt(carIdEncrypted));
 
-        HashMap<Integer, String> invoicesToClients = invoicesDAO.getOnCar(carId);
+        HashMap<Integer, String> invoicesToClients = invoicesDAO.getInvoicesOnCar(carId);
 
         if(invoicesToClients.size() > 0)
             throw new DescriptiveException("Unable to delete, because some clients have invoice on this car", ExceptionReason.CAR_IN_USE);

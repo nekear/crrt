@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
 
+
 @WebServlet("/login")
 public class SignInController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(SignInController.class);

@@ -4,6 +4,9 @@ import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.web.services.ClientService;
 import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ClientRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -17,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 import static com.github.DiachenkoMD.web.utils.Utils.sendException;
 import static com.github.DiachenkoMD.web.utils.Utils.sendSuccess;
 
-
+@UseGuards({AuthGuard.class, ClientRGuard.class})
 @WebServlet("/client/invoices")
 public class ClientInvoicesController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(ClientInvoicesController.class);

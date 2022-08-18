@@ -7,6 +7,10 @@ import com.github.DiachenkoMD.web.services.ClientService;
 import com.github.DiachenkoMD.web.services.DriverService;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ClientRGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.DriverRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -24,7 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 
-
+@UseGuards({AuthGuard.class, DriverRGuard.class})
 @WebServlet("/driver/invoices")
 public class DriverInvoicesController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(DriverInvoicesController.class);

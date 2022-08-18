@@ -35,30 +35,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
     }
 
     @Override
-    public HashMap<LimitedInvoice, String> getBasicConnectedWithCar(int carId) throws DBException{
-        try(
-                Connection con = ds.getConnection();
-                PreparedStatement stmt = con.prepareStatement("CALL GetBasicInvoiceByCarID(?)");
-        ){
-            stmt.setInt(1, carId);
-
-            HashMap<LimitedInvoice, String> foundInvoices = new HashMap<>();
-
-            try(ResultSet rs = stmt.executeQuery()){
-                while(rs.next()){
-                    foundInvoices.put(LimitedInvoice.of(rs), rs.getString("email"));
-                }
-            }
-
-            return foundInvoices;
-        }catch (SQLException e){
-            logger.error(e);
-            throw new DBException(e);
-        }
-    }
-
-    @Override
-    public HashMap<Integer, String> getOnCar(int carId) throws DBException {
+    public HashMap<Integer, String> getInvoicesOnCar(int carId) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT tbl_invoices.id, tbl_users.email FROM tbl_invoices\n" +

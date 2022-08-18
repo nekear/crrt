@@ -1,22 +1,9 @@
-
-// var input = document.getElementById('rent-range-datepicker');
-// var datepicker = new HotelDatepicker(input, {
-//    format: "DD.MM.YYYY",
-//    startOfWeek: "monday",
-//    endDate: new Date().setMonth(new Date().getMonth() + 2),
-//    disabledDates: ['2022-07-30', '2022-07-31'],
-//    clearButton: true,
-//    topbarPosition: 'bottom'
-// });
-
-
-
-
 const { createApp } = Vue;
 
 const app = createApp({
    data() {
       return {
+         isLoggedIn: false,
          offers:{
             search: {
                collector:{
@@ -28,7 +15,7 @@ const app = createApp({
                      min: null,
                      max: null
                   },
-                  itemsPerPage: 15
+                  itemsPerPage: 15,
                },
                filters:{
                   segment: 0,
@@ -38,6 +25,7 @@ const app = createApp({
                      max: null
                   },
                   tags: [],
+                  orderBy: []
                },
                pagination: {
                   currentPage: 1,
@@ -61,6 +49,7 @@ const app = createApp({
       }
    },
    created(){
+      this.isLoggedIn = isLoggedIn;
       Object.assign(this.segments, loaded.segments);
       Object.assign(this.cities, loaded.cities);
    },
@@ -89,7 +78,7 @@ const app = createApp({
          const filterMinPrice = parseInt(filtersRef.pricesRange.min);
          const filterMaxPrice = parseInt(filtersRef.pricesRange.max);
 
-         return this.offers.list.filter(
+         let result = this.offers.list.filter(
              offer => {
 
                 let isInIndexedConstraint = true;
@@ -107,24 +96,43 @@ const app = createApp({
                    doesIncludesSomeTag = vehicleName.includes(tags[tagIndex]);
                 }
 
-
                 const cityFilterPassed = filterCity ? offer.city ===  filterCity : true;
                 const segmentFilterPassed = filterSegment ? offer.segment === filterSegment : true;
                 const minFilterPassed = filterMinPrice ? offer.price >= filterMinPrice : true;
                 const maxFilterPassed = filterMaxPrice ? offer.price <= filterMaxPrice : true;
 
-                // console.log({
-                //    "doesIncludesSomeTag" : doesIncludesSomeTag,
-                //    "isInIndexedConstraint": isInIndexedConstraint,
-                //    "cityFilterPassed" : cityFilterPassed,
-                //    "segmentFilterPassed" : segmentFilterPassed,
-                //    "minFilterPassed" : minFilterPassed,
-                //    "maxFilterPassed" : maxFilterPassed
-                //   });
-
                 return doesIncludesSomeTag && isInIndexedConstraint && cityFilterPassed && segmentFilterPassed && minFilterPassed && maxFilterPassed;
              }
          );
+
+         // Dynamic sorting by multiple fields
+         if(filtersRef.orderBy.length > 0){
+            result.sort((a, b) => {
+               const name1 = a.brand + " " + a.model;
+               const name2 = b.brand + " " + b.model;
+
+               const segment1 = this.segments[a.segment].name;
+               const segment2 = this.segments[b.segment].name;
+
+               let result = 0;
+
+               for(let index = 0; index < filtersRef.orderBy.length && result === 0; index++){
+                  const order = filtersRef.orderBy[index].type;
+
+                  if(filtersRef.orderBy[index].name === "carName"){
+                     result = name1.localeCompare(name2) * (order === "asc" ? 1 : -1);
+                  }else if(filtersRef.orderBy[index].name === "segment"){
+                     result = segment1.localeCompare(segment2) * (order === "asc" ? 1 : -1);
+                  }else if(filtersRef.orderBy[index].name === "price"){
+                     result = (a.price - b.price) * (order === "asc" ? 1 : -1);
+                  }
+               }
+
+               return result;
+            });
+         }
+
+         return result;
       },
       offers_list_paginated: function(){
          let resultWithPagination = [];
@@ -220,28 +228,42 @@ const app = createApp({
          url.set("ref", rentId);
 
          return url.toString();
+      },
+
+      redirectToRent(rentId){
+         if(this.isLoggedIn)
+            window.location.href= "rent?"+this.getRentRefUrl(rentId);
       }
    }
 });
 
 app.component("Datepicker", VueDatePicker);
+app.component("Sorter", sorterComponent);
 app.mount('#app');
 
 
 
+$(".find_car-button").on("click", (e) => {
+   e.preventDefault();
+
+   $('html, body').animate({
+      scrollTop: $("#app").offset().top
+   }, 0, 'swing');
+});
 
 
 
-
-// TODO:: ADD POPUP INFORMING ABOUT COPYING TO CLIPBOARD
 $(document).on("click", ".copy-item", function(){
+   const tooltipContainer = $(this).find(".micro-caution");
    let textToCopy = $(this).find(".content .text").text().trim();
    navigator.clipboard.writeText(textToCopy).then(function() {
-      console.log(`${textToCopy} was copied to clipboard!`);
+      tooltipContainer.css("opacity", 1);
+      setTimeout(function (){
+         tooltipContainer.css("opacity", 0);
+      }, 3000);
    }, function(err) {
       console.error('Async: Could not copy text: ', err);
    });
 });
-
 
 

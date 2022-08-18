@@ -8,6 +8,9 @@ import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.controllers.RentController;
 import com.github.DiachenkoMD.web.services.IntroService;
 import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ClientRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -26,7 +29,7 @@ import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
-
+@UseGuards({AuthGuard.class, ClientRGuard.class})
 @WebServlet("/rent/data")
 public class RentDataController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(RentDataController.class);

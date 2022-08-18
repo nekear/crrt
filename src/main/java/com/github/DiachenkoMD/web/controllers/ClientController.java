@@ -1,5 +1,9 @@
 package com.github.DiachenkoMD.web.controllers;
 
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.PageGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ClientRGuard;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
+@UseGuards({PageGuard.class, AuthGuard.class, ClientRGuard.class})
 @WebServlet("/client")
 public class ClientController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(ClientController.class);
