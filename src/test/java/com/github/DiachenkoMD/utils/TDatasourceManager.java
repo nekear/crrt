@@ -16,9 +16,9 @@ public class TDatasourceManager {
         if(ds == null){
             ResourceBundle appPropsBundle = ResourceBundle.getBundle("app");
 
-            String url = appPropsBundle.getString("test.db.url");
-            String username = appPropsBundle.getString("test.db.username");
-            String password = appPropsBundle.getString("test.db.password");
+            String url = appPropsBundle.getString("test.db.h2.url");
+            String username = appPropsBundle.getString("test.db.h2.username");
+            String password = appPropsBundle.getString("test.db.h2.password");
 
             JdbcDataSource dataSource = new JdbcDataSource();
             dataSource.setUrl(url);

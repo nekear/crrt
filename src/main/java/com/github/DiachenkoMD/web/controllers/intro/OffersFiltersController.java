@@ -20,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-@UseGuards({AuthGuard.class, DriverRGuard.class})
 @WebServlet("/filtered_offers")
 public class OffersFiltersController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(OffersFiltersController.class);

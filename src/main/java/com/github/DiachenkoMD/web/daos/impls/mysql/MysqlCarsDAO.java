@@ -49,8 +49,10 @@ public class MysqlCarsDAO implements CarsDAO {
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT *, glueCarPhotos(?) AS photos FROM tbl_cars WHERE id=? LIMIT 0,1");
         ){
+
             stmt.setInt(1, car_id);
             stmt.setInt(2, car_id);
+
 
             Optional<Car> car = Optional.empty();
 

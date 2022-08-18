@@ -18,7 +18,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-@UseGuards({AuthGuard.class, DriverRGuard.class})
 @WebServlet("/offers")
 public class OffersController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(OffersController.class);

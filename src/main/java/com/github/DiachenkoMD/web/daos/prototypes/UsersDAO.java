@@ -60,7 +60,16 @@ public interface UsersDAO {
     boolean setAvatar(int id, String avatarName) throws DBException;
 
     /**
-     * Returns users which satisfied requested filters. Used with limit offset and limit count.
+     * Returns users which satisfied requested filters. Used with limit offset and limit count. <br/>
+     * Field that are searched by (state on 2022.08.18):
+     * <ul>
+     *     <li>Email</li>
+     *     <li>Firstname</li>
+     *     <li>Surname</li>
+     *     <li>Patronymic</li>
+     *     <li>Role id</li>
+     *     <li>Blocked status (blocked / unblocked)</li>
+     * </ul>
      * @param filters HashMap, where key - name of a column in db and value - corresponding value to filter by.
      * @param limitOffset from where to start selecting users (starts with 0)
      * @param limitCount how many users should be selected
@@ -106,4 +115,22 @@ public interface UsersDAO {
     List<Integer> getAvailableDriversOnRange(LocalDate start, LocalDate end, int cityId) throws DBException;
 
     boolean setDriverCity(int driverId, int cityId) throws DBException;
+
+
+    // Methods for testing purposes
+
+    /**
+     * @param userId
+     * @param cityId
+     * @return id of newly created driver
+     * @throws DBException
+     */
+    int insertDriver(int userId, int cityId) throws DBException;
+
+    /**
+     * @param user
+     * @return id of newly created user
+     * @throws DBException
+     */
+    int insertUser(LimitedUser user) throws DBException;
 }

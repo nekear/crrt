@@ -632,4 +632,60 @@ public class MysqlUsersDAO implements UsersDAO {
             throw new DBException(e);
         }
     }
+
+    // Methods for testing purposes
+
+    @Override
+    public int insertDriver(int userId, int cityId) throws DBException {
+        try(
+            Connection con = ds.getConnection();
+            PreparedStatement stmt = con.prepareStatement("INSERT INTO tbl_drivers (user_id, city_id) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS)
+        ){
+            stmt.setInt(1, userId);
+            stmt.setInt(2, cityId);
+
+            int newlyInsertedDriverId;
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                rs.next();
+                newlyInsertedDriverId = rs.getInt(1);
+            }
+
+            return newlyInsertedDriverId;
+        }catch(SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public int insertUser(LimitedUser user) throws DBException {
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement stmt = con.prepareStatement("INSERT INTO tbl_users (email, password, firstname, surname, patronymic, role_id, is_blocked) VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+        ){
+
+            int index = 0;
+            stmt.setString(++index, user.getEmail());
+            stmt.setString(++index, "createdForTest");
+            stmt.setString(++index, user.getFirstname());
+            stmt.setString(++index, user.getSurname());
+            stmt.setString(++index, user.getPatronymic());
+            stmt.setInt(++index, user.getRole().id());
+            stmt.setInt(++index, user.getState().id());
+
+            int affectedRows = stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
 }

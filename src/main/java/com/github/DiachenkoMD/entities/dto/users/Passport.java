@@ -25,9 +25,9 @@ public class Passport {
     private LocalDate dateOfIssue;
 
     @SerializedName("doc_number")
-    private BigInteger docNumber;
+    private long docNumber;
 
-    private BigInteger rntrc;
+    private long rntrc;
 
     private Integer authority;
 
@@ -39,8 +39,8 @@ public class Passport {
         passport.setPatronymic(rs.getString("pp_patronymic"));
         passport.setDateOfBirth(rs.getDate("pp_date_of_birth").toLocalDate());
         passport.setDateOfIssue(rs.getDate("pp_date_of_issue").toLocalDate());
-        passport.setDocNumber(rs.getObject("pp_doc_number", BigInteger.class));
-        passport.setRntrc(rs.getObject("pp_rntrc", BigInteger.class));
+        passport.setDocNumber(rs.getLong("pp_doc_number"));
+        passport.setRntrc(rs.getLong("pp_rntrc"));
         passport.setAuthority(rs.getInt("pp_authority"));
 
         return passport;
@@ -100,19 +100,19 @@ public class Passport {
         this.dateOfIssue = dateOfIssue;
     }
 
-    public BigInteger getDocNumber() {
+    public long getDocNumber() {
         return docNumber;
     }
 
-    public void setDocNumber(BigInteger docNumber) {
+    public void setDocNumber(long docNumber) {
         this.docNumber = docNumber;
     }
 
-    public BigInteger getRntrc() {
+    public long getRntrc() {
         return rntrc;
     }
 
-    public void setRntrc(BigInteger rntrc) {
+    public void setRntrc(long rntrc) {
         this.rntrc = rntrc;
     }
 

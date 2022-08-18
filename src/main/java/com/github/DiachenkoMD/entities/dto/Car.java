@@ -153,6 +153,17 @@ public class Car {
 
     @Override
     public String toString() {
-        return String.format("{%s, %s, %s, %s, %4.3f, %s}", this.id, this.model, this.brand, this.segment, this.price, this.city);
+        return String.format("{%s, %s, %s, %s, %s, %4.3f, %s}", this.id, this.model, this.brand, this.segment, this.images, this.price, this.city);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null)
+            return false;
+
+        if(!(obj instanceof Car))
+            return false;
+
+        return id == ((Car) obj).getId();
     }
 }

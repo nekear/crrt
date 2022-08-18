@@ -55,4 +55,12 @@ public class Image {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+
+    @Override
+    public String toString() {
+        return "Image{" +
+                "id=" + id +
+                ", fileName='" + fileName + '\'' +
+                '}';
+    }
 }

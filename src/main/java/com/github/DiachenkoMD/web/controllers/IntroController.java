@@ -15,7 +15,6 @@ public class IntroController extends HttpServlet {
 
     private final static Logger logger = LogManager.getLogger(IntroController.class);
 
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{
