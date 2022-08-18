@@ -1,4 +1,5 @@
 <%@ page import="com.github.DiachenkoMD.web.utils.Utils" %>
+<%@ page import="com.github.DiachenkoMD.entities.enums.Roles" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
     pageContext.setAttribute("roleTranslation", Utils.getRoleTranslation(currentUser.getRole()));
@@ -43,15 +44,63 @@
                         Balance: <span id="balance-amount">${user.balance}</span>
                     </li>
                     <li class="link-to-page">
-                        <a class="dropdown-item" href="admin">
+                        <a class="dropdown-item" href="profile">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M21 15.9999V7.9999C20.9996 7.64918 20.9071 7.30471 20.7315 7.00106C20.556 6.69742 20.3037 6.44526 20 6.2699L13 2.2699C12.696 2.09437 12.3511 2.00195 12 2.00195C11.6489 2.00195 11.304 2.09437 11 2.2699L4 6.2699C3.69626 6.44526 3.44398 6.69742 3.26846 7.00106C3.09294 7.30471 3.00036 7.64918 3 7.9999V15.9999C3.00036 16.3506 3.09294 16.6951 3.26846 16.9987C3.44398 17.3024 3.69626 17.5545 4 17.7299L11 21.7299C11.304 21.9054 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9054 13 21.7299L20 17.7299C20.3037 17.5545 20.556 17.3024 20.7315 16.9987C20.9071 16.6951 20.9996 16.3506 21 15.9999Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M3.26953 6.95996L11.9995 12.01L20.7295 6.95996" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12 22.08V12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M23 20.9999V18.9999C22.9993 18.1136 22.7044 17.2527 22.1614 16.5522C21.6184 15.8517 20.8581 15.3515 20 15.1299" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 3.12988C16.8604 3.35018 17.623 3.85058 18.1676 4.55219C18.7122 5.2538 19.0078 6.11671 19.0078 7.00488C19.0078 7.89305 18.7122 8.75596 18.1676 9.45757C17.623 10.1592 16.8604 10.6596 16 10.8799" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <span>Admin-panel</span>
+                            <span>Profile</span>
                         </a>
                     </li>
+                    <c:if test="${user.role eq Roles.ADMIN}">
+                        <li class="link-to-page">
+                            <a class="dropdown-item" href="admin">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 15.9999V7.9999C20.9996 7.64918 20.9071 7.30471 20.7315 7.00106C20.556 6.69742 20.3037 6.44526 20 6.2699L13 2.2699C12.696 2.09437 12.3511 2.00195 12 2.00195C11.6489 2.00195 11.304 2.09437 11 2.2699L4 6.2699C3.69626 6.44526 3.44398 6.69742 3.26846 7.00106C3.09294 7.30471 3.00036 7.64918 3 7.9999V15.9999C3.00036 16.3506 3.09294 16.6951 3.26846 16.9987C3.44398 17.3024 3.69626 17.5545 4 17.7299L11 21.7299C11.304 21.9054 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9054 13 21.7299L20 17.7299C20.3037 17.5545 20.556 17.3024 20.7315 16.9987C20.9071 16.6951 20.9996 16.3506 21 15.9999Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M3.26953 6.95996L11.9995 12.01L20.7295 6.95996" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 22.08V12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Admin-panel</span>
+                            </a>
+                        </li>
+                    </c:if>
+                    <c:if test="${user.role eq Roles.MANAGER}">
+                        <li class="link-to-page">
+                            <a class="dropdown-item" href="manager">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14 2V8H20" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 13H8" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 17H8" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10 9H9H8" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Manager-panel</span>
+                            </a>
+                        </li>
+                    </c:if>
+                    <c:if test="${user.role eq Roles.DRIVER}">
+                        <li class="link-to-page">
+                            <a class="dropdown-item" href="driver">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 11L22 2L13 21L11 13L3 11Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Driver-panel</span>
+                            </a>
+                        </li>
+                    </c:if>
+                    <c:if test="${user.role eq Roles.CLIENT}">
+                        <li class="link-to-page">
+                            <a class="dropdown-item" href="client">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55228 8.44772 6 9 6H15C15.5523 6 16 5.55228 16 5V3C16 2.44772 15.5523 2 15 2Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>My invoices</span>
+                            </a>
+                        </li>
+                    </c:if>
                     <li class="link-to-page">
                         <a class="dropdown-item" href="exit">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

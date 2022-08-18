@@ -5,6 +5,10 @@ import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.ManagerService;
 import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.DriverRGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ManagerRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -22,7 +26,7 @@ import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
-
+@UseGuards({AuthGuard.class, ManagerRGuard.class})
 @WebServlet("/manage/invoice")
 public class InvoiceController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(InvoiceController.class);

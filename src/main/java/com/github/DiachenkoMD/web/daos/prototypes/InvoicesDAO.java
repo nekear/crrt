@@ -13,15 +13,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InvoicesDAO {
-    HashMap<LimitedInvoice, String> getBasicConnectedWithCar(int carId) throws DBException;
-
     /**
      * Method to get invoice coupled with specific car
      * @param carId id of the car with which invoices coupled
      * @return {@link HashMap} of invoice id to client email.
      * @throws DBException
      */
-    HashMap<Integer, String> getOnCar(int carId) throws DBException;
+    HashMap<Integer, String> getInvoicesOnCar(int carId) throws DBException;
 
     List<PanelInvoice> getPanelInvoicesWithFilters(HashMap<String, String> filters, List<String> orderBy, int limitOffset, int limitCount) throws DBException;
     int getPanelInvoicesNumberWithFilters(HashMap<String, String> filters) throws DBException;
