@@ -198,7 +198,7 @@
 .intro-wrapper .car_preview {
   position: absolute;
   left: 50%;
-  bottom: 0;
+  bottom: -25%;
   -webkit-transform: translateX(-50%);
           transform: translateX(-50%);
 }

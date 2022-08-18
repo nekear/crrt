@@ -5,6 +5,8 @@ import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -20,7 +22,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
-
+import static com.github.DiachenkoMD.web.utils.Utils.sendException;
+@UseGuards({AuthGuard.class})
 @WebServlet("/profile/replenish")
 public class ReplenishBalanceController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(UpdatePasswordController.class);

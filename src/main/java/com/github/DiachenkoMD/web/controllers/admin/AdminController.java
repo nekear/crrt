@@ -1,7 +1,10 @@
 package com.github.DiachenkoMD.web.controllers.admin;
 
 import com.github.DiachenkoMD.web.services.AdminService;
-import com.github.DiachenkoMD.web.services.UsersService;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.AdminRGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.PageGuard;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
+@UseGuards({PageGuard.class, AuthGuard.class, AdminRGuard.class})
 @WebServlet("/admin")
 public class AdminController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(AdminController.class);

@@ -1,0 +1,48 @@
+.form-control, .form-select {
+  background-color: var(--systemGray6_default);
+  color: var(--systemGray_default);
+  border-color: var(--borderColor_accessible);
+}
+.form-control:focus, .form-select:focus {
+  background-color: var(--systemGray6_default);
+}
+.form-control[disabled], .form-select[disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+  background-color: var(--systemGray6_default);
+  border-color: var(--borderColor_accessible);
+}
+
+.table {
+  color: var(--systemGray_accessible);
+  border-radius: 6px;
+  margin-top: 20px;
+}
+.table tbody, .table thead, .table th, .table td, .table tr {
+  border-color: var(--borderColor_accessible3) !important;
+}
+.table tr {
+  background-color: var(--systemGray6_accessible);
+  border-left: 1px solid var(--borderColor_accessible3);
+  border-right: 1px solid var(--borderColor_accessible3);
+  -webkit-transition: all 0.15s cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  transition: all 0.15s cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+.table tr.blocked .column-email {
+  color: var(--systemRed_default);
+}
+.table tr:last-child {
+  border-bottom: 1px solid var(--borderColor_accessible3);
+}
+.table tbody.hoverful tr:hover {
+  background-color: var(--borderColor_accessible);
+}
+.table thead {
+  background-color: var(--systemGray6_default);
+  color: var(--systemGray_default);
+}
+.table thead th {
+  vertical-align: middle;
+  font-weight: 500;
+  position: relative;
+}

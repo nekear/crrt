@@ -5,6 +5,8 @@ import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
+import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,7 +20,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
-
+@UseGuards({AuthGuard.class})
 @WebServlet("/profile/updatePassword")
 public class UpdatePasswordController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(UpdatePasswordController.class);
