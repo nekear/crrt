@@ -1,6 +1,7 @@
 package com.github.DiachenkoMD.utils;
 
 import com.github.DiachenkoMD.entities.dto.Car;
+import com.github.DiachenkoMD.entities.dto.DatesRange;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.dto.users.Passport;
 import com.github.DiachenkoMD.entities.enums.CarSegments;
@@ -64,5 +65,16 @@ public class TGenerators {
         user.setEmail(generateRandomString(4).concat("@").concat("mail.ua"));
 
         return user;
+    }
+
+    public static DatesRange genDatesRange(){
+        int year = 2022;
+        int month = random.nextInt(10) + 1;
+        int day = random.nextInt(10)+1; // random day is before 11 (inclusive) to later add random days number in range of 1-11.
+
+        LocalDate start = LocalDate.of(year, month, day);
+        LocalDate end = LocalDate.of(year, month+random.nextInt(1), day+random.nextInt(10)+1);
+
+        return new DatesRange(start, end);
     }
 }

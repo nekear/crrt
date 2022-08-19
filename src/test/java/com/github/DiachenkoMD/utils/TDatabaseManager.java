@@ -23,10 +23,14 @@ public class TDatabaseManager {
         initInvoicesTable();
         initRepairInvoicesTable();
         initGlueCarPhotosFunction();
+        initGetActiveRepairsByInvoiceIdFunction();
+        initGetExpiredRepairsByInvoiceIdFunction();
     }
 
     public static void destroy(){
         dropGlueCarPhotosFunction();
+        dropGetActiveRepairsByInvoiceIdFunction();
+        dropGetExpiredRepairsByInvoiceIdFunction();
         dropRepairInvoicesTable();
         dropInvoicesTable();
         dropDriversTable();
@@ -181,6 +185,20 @@ public class TDatabaseManager {
         );
     }
 
+    private static void initGetActiveRepairsByInvoiceIdFunction(){
+        exec(
+                "CREATE ALIAS getActiveRepairsByInvoiceId FOR \"com.github.DiachenkoMD.utils.TH2Functions.getActiveRepairsByInvoiceId\";",
+                "initGetActiveRepairsByInvoiceIdFunction"
+        );
+    }
+
+    private static void initGetExpiredRepairsByInvoiceIdFunction(){
+        exec(
+                "CREATE ALIAS getExpiredRepairsByInvoiceId FOR \"com.github.DiachenkoMD.utils.TH2Functions.getExpiredRepairsByInvoiceId\";",
+                "initGetExpiredRepairsByInvoiceIdFunction"
+        );
+    }
+
     private static void dropUsersTable(){
         exec(
                 "DROP TABLE IF EXISTS tbl_users;",
@@ -234,6 +252,19 @@ public class TDatabaseManager {
         exec(
                 "DROP ALIAS IF EXISTS glueCarPhotos;",
                 "dropGlueCarPhotosFunction"
+        );
+    }
+
+    private static void dropGetActiveRepairsByInvoiceIdFunction(){
+        exec(
+                "DROP ALIAS IF EXISTS getActiveRepairsByInvoiceId;",
+                "dropGetActiveRepairsByInvoiceIdFunction"
+        );
+    }
+    private static void dropGetExpiredRepairsByInvoiceIdFunction(){
+        exec(
+                "DROP ALIAS IF EXISTS getExpiredRepairsByInvoiceId;",
+                "dropGetExpiredRepairsByInvoiceIdFunction"
         );
     }
 

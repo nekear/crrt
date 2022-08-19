@@ -5,7 +5,6 @@ import com.github.DiachenkoMD.utils.TDatasourceManager;
 import org.junit.jupiter.api.extension.*;
 
 public class DatabaseOperationsExtension implements BeforeAllCallback, BeforeEachCallback {
-
     @Override
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
         TDatabaseManager.init(TDatasourceManager.getDataSource());

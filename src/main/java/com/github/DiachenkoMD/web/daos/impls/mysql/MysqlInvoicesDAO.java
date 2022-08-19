@@ -4,7 +4,6 @@ import static com.github.DiachenkoMD.entities.DB_Constants.*;
 
 import com.github.DiachenkoMD.entities.dto.DatesRange;
 import com.github.DiachenkoMD.entities.dto.invoices.*;
-import com.github.DiachenkoMD.entities.dto.users.PanelUser;
 import com.github.DiachenkoMD.entities.dto.users.Passport;
 import com.github.DiachenkoMD.entities.enums.InvoiceStatuses;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
@@ -13,17 +12,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.sql.DataSource;
-import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.generateRandomString;
-import static com.github.DiachenkoMD.web.utils.Utils.multieq;
 
 public class MysqlInvoicesDAO implements InvoicesDAO {
 
@@ -35,7 +31,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
     }
 
     @Override
-    public HashMap<Integer, String> getInvoicesOnCar(int carId) throws DBException {
+    public HashMap<Integer, String> getInvoicesToClientsOnCar(int carId) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT tbl_invoices.id, tbl_users.email FROM tbl_invoices\n" +
@@ -304,10 +300,10 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
     }
 
     @Override
-    public void createRepairInvoice(int invoiceId, BigDecimal price, LocalDate expirationDate, String comment) throws DBException {
+    public int createRepairInvoice(int invoiceId, BigDecimal price, LocalDate expirationDate, String comment) throws DBException {
         try(
               Connection con = ds.getConnection();
-              PreparedStatement stmt = con.prepareStatement("INSERT INTO tbl_repair_invoices (invoice_id, price, expiration_date, comment, is_paid) VALUES (?, ?, ?, ?, ?)");
+              PreparedStatement stmt = con.prepareStatement("INSERT INTO tbl_repair_invoices (invoice_id, price, expiration_date, comment, is_paid) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
         ){
             int index = 0;
             stmt.setInt(++index, invoiceId);
@@ -317,21 +313,26 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             stmt.setInt(++index, 0);
 
             stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                rs.next();
+                return rs.getInt(1);
+            }
         }catch (SQLException e){
             logger.error(e);
-
+            throw new DBException(e);
         }
     }
 
     @Override
-    public void deleteRepairInvoice(int repairId) throws DBException {
+    public boolean deleteRepairInvoice(int repairId) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("DELETE FROM tbl_repair_invoices WHERE id = ?")
         ){
             stmt.setInt(1, repairId);
 
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
         }catch (SQLException e){
             logger.error(e);
             throw new DBException(e);
@@ -367,7 +368,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
     }
 
     @Override
-    public void rejectInvoice(int invoiceId, String reason) throws DBException {
+    public boolean rejectInvoice(int invoiceId, String reason) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("UPDATE tbl_invoices SET is_rejected = 1, reject_reason = ? WHERE id = ?")
@@ -375,7 +376,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             stmt.setString(1, reason);
             stmt.setInt(2, invoiceId);
 
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
         }catch (SQLException e){
             logger.error(e);
             throw new DBException(e);
@@ -387,16 +388,16 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
     public List<Double> getStats() throws DBException {
         try(
                 Connection con = ds.getConnection();
-                PreparedStatement stmt = con.prepareStatement("SELECT (SELECT COUNT(id) FROM tbl_invoices WHERE date_start >= ? AND date_start <= ?) AS rentsInProgress,  \n" +
+                PreparedStatement stmt = con.prepareStatement("SELECT (SELECT COUNT(id) FROM tbl_invoices WHERE date_start <= ? AND date_end >= ?) AS rentsInProgress,  \n" +
                         "COUNT(id) AS newInvoices,  \n" +
-                        "((SELECT SUM(price) FROM tbl_repair_invoices WHERE ts_edited >= ? AND is_paid = 1)/100 * 35)+SUM(exp_price) AS earningsThisMonth\n" +
+                        "(COALESCE((SELECT SUM(price) FROM tbl_repair_invoices WHERE ts_edited >= ? AND is_paid = 1), 0)/100 * 35)+SUM(exp_price) AS earningsThisMonth\n" +
                         "FROM tbl_invoices WHERE ts_created >= ? AND is_canceled = 0 AND is_rejected = 0")
         ){
             LocalDate firstDayOfMonth = YearMonth.now().atDay(1);
 
             int index = 0;
-            stmt.setObject(++index, firstDayOfMonth);
-            stmt.setObject(++index, LocalDate.now().plusDays(1));
+            stmt.setObject(++index, LocalDate.now());
+            stmt.setObject(++index, LocalDate.now());
             stmt.setObject(++index, firstDayOfMonth);
             stmt.setObject(++index, firstDayOfMonth);
 
@@ -475,14 +476,14 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
     }
 
     @Override
-    public void payRepairInvoice(int repairInvoiceId) throws DBException {
+    public boolean payRepairInvoice(int repairInvoiceId) throws DBException {
         try(
             Connection con = ds.getConnection();
             PreparedStatement stmt = con.prepareStatement("UPDATE tbl_repair_invoices SET is_paid = 1 WHERE id = ? AND is_paid = 0");
         ){
             stmt.setInt(1, repairInvoiceId);
 
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
         }catch (SQLException e){
             logger.error(e);
             throw new DBException(e);
@@ -490,14 +491,14 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
     }
 
     @Override
-    public void cancelInvoice(int invoiceId) throws DBException {
+    public boolean cancelInvoice(int invoiceId) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("UPDATE tbl_invoices SET is_canceled = 1 WHERE id = ?");
         ){
             stmt.setInt(1, invoiceId);
 
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
         }catch (SQLException e){
             logger.error(e);
             throw new DBException(e);
@@ -614,7 +615,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
     }
 
     @Override
-    public void setInvoiceDriver(int invoiceId, Integer driverId) throws DBException {
+    public boolean setInvoiceDriver(int invoiceId, Integer driverId) throws DBException {
         try(
                Connection con = ds.getConnection();
                PreparedStatement stmt = con.prepareStatement("UPDATE tbl_invoices SET driver_id = ? WHERE id = ?");
@@ -622,7 +623,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             stmt.setObject(1, driverId);
             stmt.setInt(2, invoiceId);
 
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
 
         }catch (SQLException e){
             logger.error(e);

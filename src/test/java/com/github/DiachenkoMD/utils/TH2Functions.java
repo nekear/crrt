@@ -25,4 +25,34 @@ public class TH2Functions {
             return null;
         }
     }
+
+    public static int getActiveRepairsByInvoiceId(Connection con, int invoiceId) throws SQLException{
+        try(
+                PreparedStatement stmt = con.prepareStatement("SELECT COUNT(id) AS counted \n" +
+                        "\tFROM tbl_repair_invoices WHERE expiration_date >= CURDATE() AND is_paid = 0 AND invoice_id = ?;");
+        ){
+            stmt.setInt(1, invoiceId);
+
+            try(ResultSet rs = stmt.executeQuery()){
+                rs.next();
+
+                return rs.getInt("counted");
+            }
+        }
+    }
+
+    public static int getExpiredRepairsByInvoiceId(Connection con, int invoiceId) throws SQLException{
+        try(
+                PreparedStatement stmt = con.prepareStatement("SELECT COUNT(id) AS counted \n" +
+                        "\tFROM tbl_repair_invoices WHERE expiration_date < CURDATE() AND is_paid = 0 AND invoice_id = ?;");
+        ){
+            stmt.setInt(1, invoiceId);
+
+            try(ResultSet rs = stmt.executeQuery()){
+                rs.next();
+
+                return rs.getInt("counted");
+            }
+        }
+    }
 }

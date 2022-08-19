@@ -6,9 +6,6 @@ import com.github.DiachenkoMD.entities.dto.users.Passport;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -16,25 +13,74 @@ import java.util.Optional;
 
 public interface InvoicesDAO {
     /**
-     * Method to get invoice coupled with specific car
-     * @param carId id of the car with which invoices coupled
+     * Method to get invoice coupled with specific car.
+     * @param carId id of the car with which invoices coupled.
      * @return {@link HashMap} of invoice id to client email.
      * @throws DBException
      */
-    HashMap<Integer, String> getInvoicesOnCar(int carId) throws DBException;
+    HashMap<Integer, String> getInvoicesToClientsOnCar(int carId) throws DBException;
 
+    /**
+     * Method to get invoices with filters and paginated. (used in pair with {@link #getPanelInvoicesNumberWithFilters(HashMap) this} method.
+     * @param filters HashMap that consists of [column name] - [searching value] pairs. To have proper form, should be acquired from {@link InvoicePanelFilters#getDBPresentation()}.
+     * @param orderBy contains depending on which results will be sorted. To have proper form, should be acquired from {@link InvoicePanelFilters#getOrderPresentation()}.
+     * @param limitOffset
+     * @param limitCount
+     * @return
+     * @throws DBException
+     */
     List<PanelInvoice> getPanelInvoicesWithFilters(HashMap<String, String> filters, List<String> orderBy, int limitOffset, int limitCount) throws DBException;
+
+    /**
+     * Method to get total amount of found invoices with filtering. Used in pair with {@link #getPanelInvoicesWithFilters(HashMap, List, int, int) this} method.
+     * @param filters HashMap that consists of [column name] - [searching value] pairs. To have proper form, should be acquired from {@link InvoicePanelFilters#getDBPresentation()}.
+     * @return amount of found invoices that satisfy filters.
+     * @throws DBException
+     */
     int getPanelInvoicesNumberWithFilters(HashMap<String, String> filters) throws DBException;
 
+    /**
+     * Method for getting detailed invoice info. Used at admin-panel and manager-panel.
+     * @param invoiceId
+     * @return
+     * @throws DBException
+     */
     InformativeInvoice getInvoiceDetails(int invoiceId) throws DBException;
 
-    void createRepairInvoice(int invoiceId, BigDecimal price, LocalDate expirationDate, String comment) throws DBException;
+    /**
+     * Method for creating repairment invoices.
+     * @param invoiceId
+     * @param price
+     * @param expirationDate
+     * @param comment
+     * @return id of newly generated repairment invoice
+     * @throws DBException
+     */
+    int createRepairInvoice(int invoiceId, BigDecimal price, LocalDate expirationDate, String comment) throws DBException;
 
-    void deleteRepairInvoice(int repairId) throws DBException;
+    /**
+     * Method for deleting repairment invoices.
+     * @param repairId
+     * @return boolean value depending on whether entry was deleted or not.
+     * @throws DBException
+     */
+    boolean deleteRepairInvoice(int repairId) throws DBException;
 
+    /**
+     * Method for getting detailed info about repairment invoice.
+     * @param repairId
+     * @return
+     * @throws DBException
+     */
     Optional<RepairInvoice> getRepairInvoiceInfo(int repairId) throws DBException;
 
-    void rejectInvoice(int invoiceId, String reason) throws DBException;
+    /**
+     * Method for rejecting invoices. Accepts invoices id and reason (might be null, if not specified on UI).
+     * @param invoiceId
+     * @param reason rejection reason. Can be null, if needed.
+     * @throws DBException
+     */
+    boolean rejectInvoice(int invoiceId, String reason) throws DBException;
 
     /**
      * Method for getting calculated stats. As the result of the execution, you will get: <br/>
@@ -63,9 +109,21 @@ public interface InvoicesDAO {
      */
     List<DriverInvoice> getInvoicesForDriver(int userId) throws DBException;
 
-    void payRepairInvoice(int repairInvoiceId) throws DBException;
+    /**
+     * Method for paying for repairment invoices. Just sets status "is_paid" in db to true. Money charge should be maid in another method, if needed.
+     *
+     * @param repairInvoiceId
+     * @return
+     * @throws DBException
+     */
+    boolean payRepairInvoice(int repairInvoiceId) throws DBException;
 
-    void cancelInvoice(int invoiceId) throws DBException;
+    /**
+     * Method for cancelling invoices. Doesn`t contain any checks for whether it is possible to cancel this invoice or not. Those checks should be maid in another method, if needed.
+     * @param invoiceId
+     * @throws DBException
+     */
+    boolean cancelInvoice(int invoiceId) throws DBException;
 
     /**
      * Method for creating new invoice. Used when user creates new rent invoice. <br/>
@@ -90,5 +148,12 @@ public interface InvoicesDAO {
      */
     int createInvoice(int carId, int clientId, DatesRange range, Passport passport, BigDecimal exp_price, Integer driverId) throws DBException;
 
-    void setInvoiceDriver(int invoiceId, Integer driverId) throws DBException;
+    /**
+     * Method for coupling (or decoupling) driver with specified invoice.
+     * @param invoiceId
+     * @param driverId represented as Integer ot allow passing <i>"null"</i> value, if needed to decouple driver.
+     * @return boolean value depending on whether entity was found and updated or not.
+     * @throws DBException
+     */
+    boolean setInvoiceDriver(int invoiceId, Integer driverId) throws DBException;
 }

@@ -108,4 +108,18 @@ public class RepairInvoice {
     public void setOriginInvoiceId(int originInvoiceId) {
         this.originInvoiceId = originInvoiceId;
     }
+
+    @Override
+    public String toString() {
+        return "RepairInvoice{" +
+                "id=" + id +
+                ", price=" + price +
+                ", expirationDate=" + expirationDate +
+                ", comment='" + comment + '\'' +
+                ", isPaid=" + isPaid +
+                ", tsCreated=" + tsCreated +
+                ", clientEmail='" + clientEmail + '\'' +
+                ", originInvoiceId=" + originInvoiceId +
+                '}';
+    }
 }
