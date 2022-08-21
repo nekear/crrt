@@ -55,4 +55,23 @@ public class TH2Functions {
             }
         }
     }
+
+    public static Integer getLastInvoiceCity(Connection con, int clientId) throws SQLException{
+        try(
+                PreparedStatement stmt = con.prepareStatement("SELECT tbl_cars.city_id AS city FROM tbl_invoices\n" +
+                        "\tJOIN tbl_cars ON tbl_invoices.car_id = tbl_cars.id\n" +
+                        "\tWHERE tbl_invoices.client_id = ?\n" +
+                        "\tORDER BY tbl_invoices.ts_created\n" +
+                        "\tLIMIT 1;");
+        ){
+            stmt.setInt(1, clientId);
+
+            try(ResultSet rs = stmt.executeQuery()){
+                if(rs.next())
+                    return rs.getInt("city");
+
+                return null;
+            }
+        }
+    }
 }

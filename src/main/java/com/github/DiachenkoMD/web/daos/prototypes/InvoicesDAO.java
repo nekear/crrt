@@ -130,13 +130,13 @@ public interface InvoicesDAO {
      * Talking about process under the hood, here are the steps in general:
      * <ol>
      *     <li>Generating unique invoice code (consists of 7 characters), uses {@link com.github.DiachenkoMD.web.utils.Utils#generateRandomString(int) this} method.</li>
-     *     <li>New row is created in the db with entered passport data. Better approach, imho, is to allow user selecte previously entered passport presets, but developing this feature may take a lot of time, which I don`t have.</li>
+     *     <li>New row is created in the db with entered passport data. Better approach, imho, is to allow user select previously entered passport presets, but developing this feature may take a lot of time, which I don`t have.</li>
      *     <li>New invoice is being created in the db. Fields like is_cancelled and is_rejected are ommited. Driver is set "as is" and if incoming driver is null, then it will be null, if not, then it will equals to some driver`s id.</li>
      *     <li>Getting current client`s balance.</li>
      *     <li>Calculating new balance and updating client`s entry with new balance.</li>
      *     <li>Returning newly generated invoice id. (from step 3)</li>
      * </ol>
-     * <pre>Note: there is no check whether client have enough money or not.</pre>
+     * <pre>Note: there is no check whether client have enough money or not, but money are withdrawn inside</pre>
      * @param carId id of the car, invoice will be linked to
      * @param clientId id of the client, renting the car
      * @param range range of dates, rent is applied on

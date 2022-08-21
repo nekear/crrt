@@ -57,7 +57,11 @@ public class AuthUser extends LimitedUser implements Serializable {
 
     @Override
     public String toString() {
-        return this.id + " -> " + this.email;
+        return "AuthUser{" +
+                "avatar='" + avatar + '\'' +
+                ", balance=" + balance +
+                ", confirmationCode='" + confirmationCode + '\'' +
+                "} " + super.toString();
     }
 
     // TODO:: add comparing encoded id (String) to decoded id (Integer)
@@ -115,4 +119,6 @@ public class AuthUser extends LimitedUser implements Serializable {
         user.setConfirmationCode(confirmationCode);
         return user;
     }
+
+
 }

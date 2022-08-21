@@ -77,8 +77,10 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
                 .map(key -> {
                     switch (key) {
                         // Special "name" fields, which contains Brand + Model combination should be searched by MATCH AGAINST
+                        case "code":
+                            return "MATCH(tbl_invoices.code) AGAINST (? IN BOOLEAN MODE)";
                         case "carName":
-                            return "MATCH(tbl_cars.brand, tbl_cars.model) AGAINST (? IN BOOLEAN MODE)";
+                            return "CONCAT_WS(' ', tbl_cars.brand, tbl_cars.model) LIKE ?";
                         // Concatenation for Date format
                         case TBL_INVOICES_DATE_START:
                             return TBL_INVOICES_DATE_START + " >= ?";
@@ -165,8 +167,10 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
                 .map(key -> {
                     switch (key) {
                         // Special "name" fields, which contains Brand + Model combination should be searched by MATCH AGAINST
+                        case "code":
+                            return "MATCH(tbl_invoices.code) AGAINST (? IN BOOLEAN MODE)";
                         case "carName":
-                            return "MATCH(tbl_cars.brand, tbl_cars.model) AGAINST (? IN BOOLEAN MODE)";
+                            return "CONCAT_WS(' ', tbl_cars.brand, tbl_cars.model) LIKE ?";
                         // Concatenation for Date format
                         case TBL_INVOICES_DATE_START:
                             return TBL_INVOICES_DATE_START + " >= ?";

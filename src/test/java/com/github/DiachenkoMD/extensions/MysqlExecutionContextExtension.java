@@ -4,13 +4,11 @@ import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import java.io.IOException;
-
-public class ExecutionContextExtension implements ExecutionCondition {
+public class MysqlExecutionContextExtension implements ExecutionCondition {
     @Override
     public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext extensionContext) {
-        if(StateStore.tdr != null)
-            return ConditionEvaluationResult.disabled(StateStore.tdr.getReason());
+        if(StateStore.mysqlTestsBlocked != null)
+            return ConditionEvaluationResult.disabled(StateStore.mysqlTestsBlocked.getReason());
 
         return ConditionEvaluationResult.enabled("Test enabled.");
     }

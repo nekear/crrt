@@ -63,8 +63,6 @@ public class ManagerService {
 
         List<String> orderBy = paginationRequest.getInvoicesFilters().getOrderPresentation();
 
-        logger.info(orderBy);
-
         PaginationResponse<PanelInvoice> paginationResponse = new PaginationResponse<>();
         paginationResponse.setResponseData(invoicesDAO.getPanelInvoicesWithFilters(searchCriteria, orderBy, limitOffset, limitCount));
         paginationResponse.setTotalElements(invoicesDAO.getPanelInvoicesNumberWithFilters(searchCriteria));
@@ -102,8 +100,8 @@ public class ManagerService {
         LocalDate expirationDate = parsedBody.getExpirationDate();
         String comment = parsedBody.getComment();
 
-        if(price == null || expirationDate == null)
-            throw new DescriptiveException("Price or expiration date are null!", ExceptionReason.VALIDATION_ERROR);
+        if(price == null || price.compareTo(BigDecimal.valueOf(0)) <= 0 || expirationDate == null)
+            throw new DescriptiveException("Price or expiration can`t pass validation!", ExceptionReason.VALIDATION_ERROR);
 
         if(expirationDate.isBefore(LocalDate.now()))
             throw new DescriptiveException("Repairment invoice expiration date should be greater than previuos date", ExceptionReason.REP_INVOICE_EXPIRATION_SHOULD_BE_LATER);
@@ -115,12 +113,10 @@ public class ManagerService {
 
     /**
      * Method for deleting repairment invoices. Used only at admin-panel and manager-panel. It will refund money if repairment invoice has been paid and client hasn`t been blocked. Although, notification about refund will be sent to client`s email.
-     * @param originInvoiceIdEncrypted encrypted id of invoice with which this repairment invoice coupled. Needed to reload invoice data on client`s side.
      * @param repairInvoiceIdEncrypted encrypted repairment invoice id.
      * @return {@link InformativeInvoice} with updated invoice data.
      */
-    public InformativeInvoice deleteRepairmentInvoice(String originInvoiceIdEncrypted, String repairInvoiceIdEncrypted) throws DescriptiveException, DBException {
-        int originInvoiceId = Integer.parseInt(CryptoStore.decrypt(originInvoiceIdEncrypted));
+    public InformativeInvoice deleteRepairmentInvoice(String repairInvoiceIdEncrypted) throws DescriptiveException, DBException {
         int repairInvoiceId = Integer.parseInt(CryptoStore.decrypt(repairInvoiceIdEncrypted));
 
         // Getting repairment invoice data to inform client about it`s deletion if needed (in that case money will be returned)
@@ -133,15 +129,16 @@ public class ManagerService {
         if(repairInvoice.isPaid()){
             AuthUser client = usersDAO.get(repairInvoice.getClientEmail());
 
-            // If we blocked user than there is no sense to send him notification or refund money :)
+            // If we blocked user, there is no sense to send him notification or refund money :)
             if(!client.isBlocked()){
-                usersDAO.setBalance((Integer) client.getId(),client.getBalance() + repairInvoice.getPrice().doubleValue()); // should better use BigDecimal for balance from the start but now its too late to change it
+                BigDecimal newBalance = BigDecimal.valueOf(client.getBalance()).add(repairInvoice.getPrice()); // should better use BigDecimal for balance from the start but now it`s too late to change it
+                usersDAO.setBalance((Integer) client.getId(), newBalance);
                 emailNotify(client, "Refund for cancelled repairment invoice", "We apologize for the inconvenience. Apparently, this repairment invoice was billed by mistake, but since you paid for it, we gave you your money back.");
                 logger.trace("Money refunded from repairment invoice [#{}] to {} at amount of {}$.", repairInvoice.getId(), repairInvoice.getClientEmail(), repairInvoice.getPrice());
             }
         }
 
-        return invoicesDAO.getInvoiceDetails(originInvoiceId);
+        return invoicesDAO.getInvoiceDetails(repairInvoice.getOriginInvoiceId());
     }
 
     public InformativeInvoice rejectInvoice(String invoiceIdEncrypted, String rejectionReason) throws DescriptiveException, DBException {
@@ -158,7 +155,7 @@ public class ManagerService {
         if(informativeInvoice.getStatusList().contains(InvoiceStatuses.REJECTED))
             throw new DescriptiveException("Unable to reject invoice, because it has been already rejected!", ExceptionReason.INVOICE_ALREADY_REJECTED);
 
-        // if invoice is active (it is already started) or his dates range is in past, then there is no any sense to reject it
+        // if invoice is active (it is already started) or his dates range has past, then there is no any sense to reject it
         if(informativeInvoice.getDatesRange().getEnd().isBefore(LocalDate.now()))
             throw new DescriptiveException("Unable to reject invoice because, it has already expired!", ExceptionReason.INVOICE_ALREADY_EXPIRED);
 
@@ -202,7 +199,7 @@ public class ManagerService {
     /**
      * JSON Parsing Class (JPC) for GSON. Created for parsing incoming json data for repairment invoice creation at {@link #createRepairmentInvoice(String)}. <br/>
      */
-    private static class CreateRepairmentInvoiceJPC{
+    public static class CreateRepairmentInvoiceJPC{
         @JsonAdapter(CryptoAdapter.class)
         private Object originId; // id of invoice which will be "parent" to repairment invoice
 

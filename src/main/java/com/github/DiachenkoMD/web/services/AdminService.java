@@ -53,7 +53,6 @@ public class AdminService {
     }
 
     /** Method for getting global stats. Just calls for {@link InvoicesDAO#getStats()}, so read about it {@link InvoicesDAO#getStats() here}.
-     *
      * @return
      * @throws DBException
      */
@@ -129,7 +128,7 @@ public class AdminService {
         Collection<Part> images = req.getParts();
         LinkedList<String> savedImages = new LinkedList<>();
         if(images.size() > 1){
-            String realPath = req.getServletContext().getRealPath(IMAGES_UPLOAD_DIR);
+            String realPath = ctx.getRealPath(IMAGES_UPLOAD_DIR);
 
             // Looping through all acquired from client
             try{
@@ -284,7 +283,7 @@ public class AdminService {
      * @throws DescriptiveException with reasons {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR}.
      * @throws DBException from {@link CarsDAO#update(Car)}.
      */
-    public void updateCar(HttpServletRequest req) throws ServletException, IOException, DescriptiveException, DBException {
+    public void updateCar(HttpServletRequest req) throws IOException, DescriptiveException, DBException {
 
         // Acquiring gson
         Gson gson = (Gson) ctx.getAttribute("gson");
@@ -330,7 +329,7 @@ public class AdminService {
             throw new DescriptiveException("Unable to delete, because some clients have invoice on this car", ExceptionReason.CAR_IN_USE);
 
         // Getting connected images (from the Car object to let us send pretty message that <brand> <model> was successfully deleted or something like that)
-        Car car = carsDAO.get(carId).get(); // TODO:: return brand and model to pretty show success
+        Car car = carsDAO.get(carId).get();
 
         if(car.getImages().size() > 0){
             String realPath = ctx.getRealPath(IMAGES_UPLOAD_DIR);
@@ -352,7 +351,7 @@ public class AdminService {
      * Returns list of {@link PanelUser PanelUser} depending on incoming criteria. Simply put, criteria contains pagination data + filters, collected from page. <br>
      * @see PaginationRequest PaginationWrapper
      * @see com.github.DiachenkoMD.entities.dto.Filters
-     * @param paginationRequestJSON json string, that should have view like {"askedPage":1,"elementsPerPage":15,"filters":{"email":"","firstname":"","surname":"","patronymic":"","role":0,"state":0}}
+     * @param paginationRequestJSON json string, that should have view like {@link PaginationRequest} with {@link com.github.DiachenkoMD.entities.dto.users.UsersPanelFilters UsersPanelFilters}.
      */
     public PaginationResponse<PanelUser> getUsers(String paginationRequestJSON) throws DBException {
         Gson gson = (Gson) ctx.getAttribute("gson");
@@ -411,7 +410,7 @@ public class AdminService {
         if (!validate(password, ValidationParameters.PASSWORD))
             throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
 
-        if (role == null)
+        if (role == null || role == Roles.ANY)
             throw new DescriptiveException("Role validation failed", ExceptionReason.VALIDATION_ERROR);
 
         // Checking user for existence
@@ -428,7 +427,7 @@ public class AdminService {
      * JSON Parsing Class (JPC) for GSON. Created for parsing incoming json data for user creation at {@link #createUser(String) createUser(String)}. <br/>
      * Extends LimitedUser only providing new field for password.
      */
-    private static class CreationUpdatingUserJPC extends LimitedUser {
+    public static class CreationUpdatingUserJPC extends LimitedUser {
         private String password;
 
         public String getPassword() {
@@ -513,8 +512,11 @@ public class AdminService {
             resultFieldsToUpdate.put(DB_Constants.TBL_USERS_PASSWORD, encryptPassword(password));
         }
 
-        if (role != null)
+        if (role != null) {
+            if (role == Roles.ANY)
+                throw new DescriptiveException("Role validation failed", ExceptionReason.VALIDATION_ERROR);
             resultFieldsToUpdate.put(DB_Constants.TBL_USERS_ROLE_ID, String.valueOf(role.id()));
+        }
 
 
         if(resultFieldsToUpdate.size() > 0)
@@ -564,7 +566,7 @@ public class AdminService {
         }
     }
 
-    private static class DeleteUsersJPC{
+    public static class DeleteUsersJPC{
 
         private List<String> ids;
 

@@ -9,7 +9,7 @@ import java.util.ResourceBundle;
  * Provides single method to return H2 Datasource instance. Uses Singleton pattern. <br />
  * To get Datasource from that class use {@link #getDataSource() getDataSource()} method.
  */
-public class TDatasourceManager {
+public class H2_TDatasourceManager {
     private static DataSource ds;
     public static synchronized DataSource getDataSource(){
 

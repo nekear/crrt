@@ -34,9 +34,11 @@ public class InvoicePanelFilters extends Filters {
 
         // Automatically select non-empty strings
         // (from js comes an object where non-empty fields have an empty string, not null, so this cleanup is necessary)
-        representation.put("tbl_invoices."+TBL_INVOICES_CODE, code);
+        representation.put("carName", carName);
         representation.put("client_u."+TBL_USERS_EMAIL, clientEmail);
 
+        // the use of the Stream API may look unreasonable here,
+        // but it is done so that new simple filters can easily be added in the future
         HashMap<String, String> res = representation.entrySet()
                 .parallelStream()
                 .filter(x -> x.getValue() != null && !x.getValue().isBlank())
@@ -74,15 +76,12 @@ public class InvoicePanelFilters extends Filters {
         }
 
 
-        // Car naming, which consists of Brand and Model, is filtered in db with use of MATCH AGAINST so it should have special characters included like asterisks
-        String cleanName = cleanGetString(this.carName);
-        if(cleanName != null){
-            res.put("carName",
-                    Arrays.stream(cleanName.split("[ ,]"))
-                            .parallel()
-                            .filter(x -> !x.isBlank())
-                            .map(x -> "*"+x+"*")
-                            .collect(Collectors.joining(" ")));
+        // Code is filtered in db with use of MATCH AGAINST
+        // Logically, this operation should be popular in real life, so it is important to provide a fast search speed in the database on a large number of entities,
+        // that is why I decided to use MATCH AGAINST and FULLTEXT
+        String code = cleanGetString(this.code);
+        if(code != null){
+            res.put("code", code + "*");
         }
 
 

@@ -3,7 +3,6 @@ package com.github.DiachenkoMD.tests.database;
 import com.github.DiachenkoMD.entities.dto.Car;
 import com.github.DiachenkoMD.entities.dto.DatesRange;
 import com.github.DiachenkoMD.entities.dto.drivers.ExtendedDriver;
-import com.github.DiachenkoMD.entities.dto.drivers.LimitedDriver;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.dto.users.PanelUser;
 import com.github.DiachenkoMD.entities.dto.users.Passport;
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.HashMap;
@@ -304,10 +302,11 @@ class UsersDAOTest {
     }
 
     @Test
-    @DisplayName("getUsersWithFilters")
-    void getUsersWithFiltersTest() throws Exception{
+    @DisplayName("getUsersWithFilters / getUsersNumberWithFilters")
+    void getUsersWithFiltersWPaginationTest() throws Exception{
         List<LimitedUser> usersList = getRandomUsersList();
 
+        // Registering users
         usersList.stream().forEach(x -> {
             try {
                 x.setId(usersDAO.insertUser(x));
@@ -316,18 +315,20 @@ class UsersDAOTest {
             }
         });
 
+        // Setting some filter pattern by email
         HashMap<String, String> filters = new HashMap<>(
                 Map.of(
                         "email", "%test%"
                 )
         );
 
-        List<PanelUser> foundUsers = usersDAO.getUsersWithFilters(filters, 0, 15);
+        // Getting users with filters limited to only 1 max entity per request (for pagination)
+        List<PanelUser> foundUsers = usersDAO.getUsersWithFilters(filters, 0, 1);
 
-        assertEquals(2, foundUsers.size());
+        assertEquals(1, foundUsers.size());
 
 
-        // Checking whether we found exactly the same users as we inserted
+        // Checking whether we found exactly the same user as we inserted
         int foundCounter = 0;
 
         for(PanelUser foundUser : foundUsers){
@@ -335,28 +336,9 @@ class UsersDAOTest {
                 foundCounter++;
         }
 
-        assertEquals(2, foundCounter);
-    }
+        assertEquals(1, foundCounter);
 
-    @Test
-    @DisplayName("getUsersNumberWithFilters")
-    void getUsersNumberWithFiltersTest() throws Exception{
-        List<LimitedUser> usersList = getRandomUsersList();
-
-        usersList.stream().forEach(x -> {
-            try {
-                x.setId(usersDAO.insertUser(x));
-            } catch (DBException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        HashMap<String, String> filters = new HashMap<>(
-                Map.of(
-                        "email", "%test%"
-                )
-        );
-
+        // This email pattern should have satisfied 2 entries, so general amount should be 2
         int amount = usersDAO.getUsersNumberWithFilters(filters);
 
         assertEquals(2, amount);

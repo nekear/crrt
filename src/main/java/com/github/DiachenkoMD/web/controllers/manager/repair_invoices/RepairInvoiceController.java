@@ -67,10 +67,9 @@ public class RepairInvoiceController extends HttpServlet {
         try{
             JSONObject jsonBody = new JSONObject(req.getReader().lines().collect(Collectors.joining()));
 
-            String originInvoiceIdEncrypted = jsonBody.getString("originId");
             String repairInvoiceIdEncrypted = jsonBody.getString("repairId");
 
-            sendSuccess(gson.toJson(managerService.deleteRepairmentInvoice(originInvoiceIdEncrypted, repairInvoiceIdEncrypted)), resp);
+            sendSuccess(gson.toJson(managerService.deleteRepairmentInvoice(repairInvoiceIdEncrypted)), resp);
         }catch (Exception e){
             logger.error(e);
 

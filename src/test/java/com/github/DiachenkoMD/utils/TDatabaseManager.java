@@ -7,37 +7,69 @@ import java.sql.Statement;
 
 /**
  * Provides methods to set up database before tests. <br />
- * For outside use available only {@link #init(DataSource) init(DataSource)} and {@link #setup() setup()} + {@link #destroy() destroy()} methods.
+ * For outside use available only {@link #init(DataSource, TDBType)} and {@link #setup()} + {@link #destroy()} methods.
  */
 public class TDatabaseManager {
     private static DataSource ds;
-    public static void init(DataSource ds){
+    private static TDBType dbType;
+    public static void init(DataSource ds, TDBType dbType){
         TDatabaseManager.ds = ds;
+        TDatabaseManager.dbType = dbType;
     }
+
     public static void setup(){
-        initUsersTable();
-        initCarsTable();
-        initCarsPhotosTable();
-        initDriversTable();
-        initPassportTable();
-        initInvoicesTable();
-        initRepairInvoicesTable();
-        initGlueCarPhotosFunction();
-        initGetActiveRepairsByInvoiceIdFunction();
-        initGetExpiredRepairsByInvoiceIdFunction();
+        if(dbType == TDBType.H2){
+            initUsersTable();
+            initCarsTable();
+            initCarsPhotosTable();
+            initDriversTable();
+            initPassportTable();
+            H2.initInvoicesTable();
+            initRepairInvoicesTable();
+            H2.initGlueCarPhotosFunction();
+            H2.initGetActiveRepairsByInvoiceIdFunction();
+            H2.initGetExpiredRepairsByInvoiceIdFunction();
+            H2.initGetLastInvoiceCityFunction();
+        }else{
+            initUsersTable();
+            initCarsTable();
+            initCarsPhotosTable();
+            initDriversTable();
+            initPassportTable();
+            MYSQL.initInvoicesTable();
+            initRepairInvoicesTable();
+            MYSQL.initGlueCarPhotosFunction();
+            MYSQL.initGetActiveRepairsByInvoiceIdFunction();
+            MYSQL.initGetExpiredRepairsByInvoiceIdFunction();
+        }
+
     }
 
     public static void destroy(){
-        dropGlueCarPhotosFunction();
-        dropGetActiveRepairsByInvoiceIdFunction();
-        dropGetExpiredRepairsByInvoiceIdFunction();
-        dropRepairInvoicesTable();
-        dropInvoicesTable();
-        dropDriversTable();
-        dropPassportTable();
-        dropUsersTable();
-        dropCarsPhotosTable();
-        dropCarsTable();
+        if(dbType == TDBType.H2) {
+            H2.dropGlueCarPhotosFunction();
+            H2.dropGetActiveRepairsByInvoiceIdFunction();
+            H2.dropGetExpiredRepairsByInvoiceIdFunction();
+            H2.dropGetLastInvoiceCityFunction();
+            dropRepairInvoicesTable();
+            H2.dropInvoicesTable();
+            dropDriversTable();
+            dropPassportTable();
+            dropUsersTable();
+            dropCarsPhotosTable();
+            dropCarsTable();
+        }else{
+            MYSQL.dropGlueCarPhotosFunction();
+            MYSQL.dropGetActiveRepairsByInvoiceIdFunction();
+            MYSQL.dropGetExpiredRepairsByInvoiceIdFunction();
+            dropRepairInvoicesTable();
+            MYSQL.dropInvoicesTable();
+            dropDriversTable();
+            dropPassportTable();
+            dropUsersTable();
+            dropCarsPhotosTable();
+            dropCarsTable();
+        }
     }
 
     private static void initUsersTable(){
@@ -61,22 +93,6 @@ public class TDatabaseManager {
                         "        unique (email)\n" +
                         ");\n",
                 "initUsersTable"
-        );
-    }
-
-    private static void initCarsTable(){
-        exec(
-                "CREATE TABLE `tbl_cars` (\n" +
-                        "\t`id` INT(11) NOT NULL AUTO_INCREMENT,\n" +
-                        "\t`brand` VARCHAR(100) NOT NULL,\n" +
-                        "\t`model` VARCHAR(100) NOT NULL,\n" +
-                        "\t`segment_id` TINYINT(4) NOT NULL,\n" +
-                        "\t`price` DOUBLE NOT NULL,\n" +
-                        "\t`city_id` TINYINT(4) NOT NULL,\n" +
-                        "\t`ts_edited` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" +
-                        "\tPRIMARY KEY (`id`)\n"+
-                        ");",
-                "initCarsTable"
         );
     }
 
@@ -128,36 +144,6 @@ public class TDatabaseManager {
         );
     }
 
-    private static void initInvoicesTable(){
-        exec(
-                "CREATE TABLE `tbl_invoices` (\n" +
-                        "\t`id` INT(11) NOT NULL AUTO_INCREMENT,\n" +
-                        "\t`code` CHAR(12) NOT NULL,\n" +
-                        "\t`car_id` INT(11) NOT NULL,\n" +
-                        "\t`driver_id` INT(11) NULL DEFAULT NULL,\n" +
-                        "\t`client_id` INT(11) NOT NULL,\n" +
-                        "\t`exp_price` INT(11) NOT NULL,\n" +
-                        "\t`date_start` DATE NOT NULL,\n" +
-                        "\t`date_end` DATE NOT NULL,\n" +
-                        "\t`is_canceled` TINYINT(4) NOT NULL DEFAULT '0',\n" +
-                        "\t`is_rejected` TINYINT(4) NOT NULL DEFAULT '0',\n" +
-                        "\t`reject_reason` VARCHAR(50) NULL DEFAULT NULL,\n" +
-                        "\t`passport_id` INT(11) NOT NULL,\n" +
-                        "\t`ts_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-                        "\tPRIMARY KEY (`id`),\n" +
-                        "\tUNIQUE INDEX `code` (`code`),\n" +
-                        "\tINDEX `FK_tbl_invoices_tbl_users` (`client_id`),\n" +
-                        "\tINDEX `FK_tbl_invoices_tbl_cars` (`car_id`),\n" +
-                        "\tINDEX `FK_tbl_invoices_tbl_drivers` (`driver_id`),\n" +
-                        "\tINDEX `FK_tbl_invoices_tbl_passport` (`passport_id`),\n" +
-                        "\tCONSTRAINT `FK_tbl_invoices_tbl_cars` FOREIGN KEY (`car_id`) REFERENCES `tbl_cars` (`id`) ON UPDATE CASCADE,\n" +
-                        "\tCONSTRAINT `FK_tbl_invoices_tbl_drivers` FOREIGN KEY (`driver_id`) REFERENCES `tbl_drivers` (`id`) ON UPDATE CASCADE ON DELETE SET NULL,\n" +
-                        "\tCONSTRAINT `FK_tbl_invoices_tbl_passport` FOREIGN KEY (`passport_id`) REFERENCES `tbl_passport` (`id`),\n" +
-                        "\tCONSTRAINT `FK_tbl_invoices_tbl_users` FOREIGN KEY (`client_id`) REFERENCES `tbl_users` (`id`) ON UPDATE CASCADE\n" +
-                        ");",
-                "initInvoicesTable"
-        );
-    }
 
     private static void initRepairInvoicesTable(){
         exec(
@@ -178,24 +164,26 @@ public class TDatabaseManager {
         );
     }
 
-    private static void initGlueCarPhotosFunction(){
+    private static void initCarsTable(){
         exec(
-                "CREATE ALIAS glueCarPhotos FOR \"com.github.DiachenkoMD.utils.TH2Functions.glueCarPhotos\";",
-                "initGlueCarPhotosFunction"
+                "CREATE TABLE `tbl_cars` (\n" +
+                        "\t`id` INT(11) NOT NULL AUTO_INCREMENT,\n" +
+                        "\t`brand` VARCHAR(100) NOT NULL,\n" +
+                        "\t`model` VARCHAR(100) NOT NULL,\n" +
+                        "\t`segment_id` TINYINT(4) NOT NULL,\n" +
+                        "\t`price` DOUBLE NOT NULL,\n" +
+                        "\t`city_id` TINYINT(4) NOT NULL,\n" +
+                        "\t`ts_edited` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" +
+                        "\tPRIMARY KEY (`id`)\n"+
+                        ");",
+                "initCarsTable"
         );
     }
 
-    private static void initGetActiveRepairsByInvoiceIdFunction(){
+    private static void dropCarsTable(){
         exec(
-                "CREATE ALIAS getActiveRepairsByInvoiceId FOR \"com.github.DiachenkoMD.utils.TH2Functions.getActiveRepairsByInvoiceId\";",
-                "initGetActiveRepairsByInvoiceIdFunction"
-        );
-    }
-
-    private static void initGetExpiredRepairsByInvoiceIdFunction(){
-        exec(
-                "CREATE ALIAS getExpiredRepairsByInvoiceId FOR \"com.github.DiachenkoMD.utils.TH2Functions.getExpiredRepairsByInvoiceId\";",
-                "initGetExpiredRepairsByInvoiceIdFunction"
+                "DROP TABLE IF EXISTS tbl_cars;",
+                "dropCarsTable"
         );
     }
 
@@ -213,12 +201,6 @@ public class TDatabaseManager {
         );
     }
 
-    private static void dropCarsTable(){
-        exec(
-                "DROP TABLE IF EXISTS tbl_cars;",
-                "dropCarsTable"
-        );
-    }
 
     private static void dropDriversTable(){
         exec(
@@ -234,13 +216,6 @@ public class TDatabaseManager {
         );
     }
 
-    private static void dropInvoicesTable(){
-        exec(
-                "DROP TABLE IF EXISTS tbl_invoices;",
-                "dropPassportTable"
-        );
-    }
-
     private static void dropRepairInvoicesTable(){
         exec(
                 "DROP TABLE IF EXISTS tbl_repair_invoices;",
@@ -248,25 +223,6 @@ public class TDatabaseManager {
         );
     }
 
-    private static void dropGlueCarPhotosFunction(){
-        exec(
-                "DROP ALIAS IF EXISTS glueCarPhotos;",
-                "dropGlueCarPhotosFunction"
-        );
-    }
-
-    private static void dropGetActiveRepairsByInvoiceIdFunction(){
-        exec(
-                "DROP ALIAS IF EXISTS getActiveRepairsByInvoiceId;",
-                "dropGetActiveRepairsByInvoiceIdFunction"
-        );
-    }
-    private static void dropGetExpiredRepairsByInvoiceIdFunction(){
-        exec(
-                "DROP ALIAS IF EXISTS getExpiredRepairsByInvoiceId;",
-                "dropGetExpiredRepairsByInvoiceIdFunction"
-        );
-    }
 
 
 
@@ -277,6 +233,211 @@ public class TDatabaseManager {
             stmt.executeUpdate(query);
         }catch(SQLException e){
             throw new IllegalArgumentException(String.format("Exception when executing query from %s...", callerName), e);
+        }
+    }
+
+    private static class MYSQL{
+
+        private static void initInvoicesTable(){
+            exec(
+                    "CREATE TABLE `tbl_invoices` (\n" +
+                            "\t`id` INT(11) NOT NULL AUTO_INCREMENT,\n" +
+                            "\t`code` CHAR(12) NOT NULL,\n" +
+                            "\t`car_id` INT(11) NOT NULL,\n" +
+                            "\t`driver_id` INT(11) NULL DEFAULT NULL,\n" +
+                            "\t`client_id` INT(11) NOT NULL,\n" +
+                            "\t`exp_price` INT(11) NOT NULL,\n" +
+                            "\t`date_start` DATE NOT NULL,\n" +
+                            "\t`date_end` DATE NOT NULL,\n" +
+                            "\t`is_canceled` TINYINT(4) NOT NULL DEFAULT '0',\n" +
+                            "\t`is_rejected` TINYINT(4) NOT NULL DEFAULT '0',\n" +
+                            "\t`reject_reason` VARCHAR(50) NULL DEFAULT NULL,\n" +
+                            "\t`passport_id` INT(11) NOT NULL,\n" +
+                            "\t`ts_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
+                            "\tPRIMARY KEY (`id`),\n" +
+                            "\tUNIQUE INDEX `code` (`code`),\n" +
+                            "\tINDEX `FK_tbl_invoices_tbl_users` (`client_id`),\n" +
+                            "\tINDEX `FK_tbl_invoices_tbl_cars` (`car_id`),\n" +
+                            "\tINDEX `FK_tbl_invoices_tbl_drivers` (`driver_id`),\n" +
+                            "\tINDEX `FK_tbl_invoices_tbl_passport` (`passport_id`),\n" +
+                            "\tFULLTEXT INDEX `CODE_FT` (`code`),\n" +
+                            "\tCONSTRAINT `FK_tbl_invoices_tbl_cars` FOREIGN KEY (`car_id`) REFERENCES `tbl_cars` (`id`) ON UPDATE CASCADE,\n" +
+                            "\tCONSTRAINT `FK_tbl_invoices_tbl_drivers` FOREIGN KEY (`driver_id`) REFERENCES `tbl_drivers` (`id`) ON UPDATE CASCADE ON DELETE SET NULL,\n" +
+                            "\tCONSTRAINT `FK_tbl_invoices_tbl_passport` FOREIGN KEY (`passport_id`) REFERENCES `tbl_passport` (`id`),\n" +
+                            "\tCONSTRAINT `FK_tbl_invoices_tbl_users` FOREIGN KEY (`client_id`) REFERENCES `tbl_users` (`id`) ON UPDATE CASCADE\n" +
+                            ");",
+                    "initInvoicesTable"
+            );
+        }
+
+
+        private static void initGlueCarPhotosFunction(){
+            exec(
+                            "CREATE FUNCTION glueCarPhotos(c_id INT)\n" +
+                            "    RETURNS TEXT\n" +
+                            "BEGIN\n" +
+                            "    DECLARE gluedData TEXT;\n" +
+                            "    SELECT GROUP_CONCAT(CONCAT(id, '#', photo) SEPARATOR '?') INTO gluedData\n" +
+                            "    FROM tbl_cars_photos\n" +
+                            "    WHERE car_id = c_id;\n" +
+                            "    RETURN gluedData;\n" +
+                            "END;",
+                    "initGlueCarPhotosFunction"
+            );
+        }
+
+        private static void initGetActiveRepairsByInvoiceIdFunction(){
+            exec(
+                    "CREATE FUNCTION getActiveRepairsByInvoiceId(inv_id INT)\n" +
+                            "    RETURNS INT\n" +
+                            "BEGIN\n" +
+                            "\tDECLARE res INT;\n" +
+                            "\tSELECT COUNT(id) INTO res \n" +
+                            "\tFROM tbl_repair_invoices WHERE expiration_date >= CURDATE() AND is_paid = 0 AND invoice_id = inv_id;\n" +
+                            "\tRETURN res;\n" +
+                            "END;",
+                    "initGetActiveRepairsByInvoiceIdFunction"
+            );
+        }
+
+        private static void initGetExpiredRepairsByInvoiceIdFunction(){
+            exec(
+                    "CREATE FUNCTION getExpiredRepairsByInvoiceId(inv_id INT)\n" +
+                            "    RETURNS INT\n" +
+                            "BEGIN\n" +
+                            "\tDECLARE res INT;\n" +
+                            "\tSELECT COUNT(id) INTO res \n" +
+                            "\tFROM tbl_repair_invoices WHERE expiration_date < CURDATE() AND is_paid = 0 AND invoice_id = inv_id;\n" +
+                            "\tRETURN res;\n" +
+                            "END;",
+                    "initGetExpiredRepairsByInvoiceIdFunction"
+            );
+        }
+
+        private static void dropInvoicesTable(){
+            exec(
+                    "DROP TABLE IF EXISTS tbl_invoices;",
+                    "dropPassportTable"
+            );
+        }
+
+        private static void dropGlueCarPhotosFunction(){
+            exec(
+                    "DROP FUNCTION IF EXISTS glueCarPhotos;",
+                    "dropGlueCarPhotosFunction"
+            );
+        }
+
+        private static void dropGetActiveRepairsByInvoiceIdFunction(){
+            exec(
+                    "DROP FUNCTION IF EXISTS getActiveRepairsByInvoiceId;",
+                    "dropGetActiveRepairsByInvoiceIdFunction"
+            );
+        }
+
+        private static void dropGetExpiredRepairsByInvoiceIdFunction(){
+            exec(
+                    "DROP FUNCTION IF EXISTS getExpiredRepairsByInvoiceId;",
+                    "dropGetExpiredRepairsByInvoiceIdFunction"
+            );
+        }
+
+    }
+    private static class H2{
+
+        private static void initInvoicesTable(){
+            exec(
+                    "CREATE TABLE `tbl_invoices` (\n" +
+                            "\t`id` INT(11) NOT NULL AUTO_INCREMENT,\n" +
+                            "\t`code` CHAR(12) NOT NULL,\n" +
+                            "\t`car_id` INT(11) NOT NULL,\n" +
+                            "\t`driver_id` INT(11) NULL DEFAULT NULL,\n" +
+                            "\t`client_id` INT(11) NOT NULL,\n" +
+                            "\t`exp_price` INT(11) NOT NULL,\n" +
+                            "\t`date_start` DATE NOT NULL,\n" +
+                            "\t`date_end` DATE NOT NULL,\n" +
+                            "\t`is_canceled` TINYINT(4) NOT NULL DEFAULT '0',\n" +
+                            "\t`is_rejected` TINYINT(4) NOT NULL DEFAULT '0',\n" +
+                            "\t`reject_reason` VARCHAR(50) NULL DEFAULT NULL,\n" +
+                            "\t`passport_id` INT(11) NOT NULL,\n" +
+                            "\t`ts_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
+                            "\tPRIMARY KEY (`id`),\n" +
+                            "\tUNIQUE INDEX `code` (`code`),\n" +
+                            "\tINDEX `FK_tbl_invoices_tbl_users` (`client_id`),\n" +
+                            "\tINDEX `FK_tbl_invoices_tbl_cars` (`car_id`),\n" +
+                            "\tINDEX `FK_tbl_invoices_tbl_drivers` (`driver_id`),\n" +
+                            "\tINDEX `FK_tbl_invoices_tbl_passport` (`passport_id`),\n" +
+                            "\tCONSTRAINT `FK_tbl_invoices_tbl_cars` FOREIGN KEY (`car_id`) REFERENCES `tbl_cars` (`id`) ON UPDATE CASCADE,\n" +
+                            "\tCONSTRAINT `FK_tbl_invoices_tbl_drivers` FOREIGN KEY (`driver_id`) REFERENCES `tbl_drivers` (`id`) ON UPDATE CASCADE ON DELETE SET NULL,\n" +
+                            "\tCONSTRAINT `FK_tbl_invoices_tbl_passport` FOREIGN KEY (`passport_id`) REFERENCES `tbl_passport` (`id`),\n" +
+                            "\tCONSTRAINT `FK_tbl_invoices_tbl_users` FOREIGN KEY (`client_id`) REFERENCES `tbl_users` (`id`) ON UPDATE CASCADE\n" +
+                            ");",
+                    "initInvoicesTable"
+            );
+        }
+
+        private static void initGlueCarPhotosFunction(){
+            exec(
+                    "CREATE ALIAS glueCarPhotos FOR \"com.github.DiachenkoMD.utils.TH2Functions.glueCarPhotos\";",
+                    "initGlueCarPhotosFunction"
+            );
+        }
+
+        private static void initGetActiveRepairsByInvoiceIdFunction(){
+            exec(
+                    "CREATE ALIAS getActiveRepairsByInvoiceId FOR \"com.github.DiachenkoMD.utils.TH2Functions.getActiveRepairsByInvoiceId\";",
+                    "initGetActiveRepairsByInvoiceIdFunction"
+            );
+        }
+
+        private static void initGetExpiredRepairsByInvoiceIdFunction(){
+            exec(
+                    "CREATE ALIAS getExpiredRepairsByInvoiceId FOR \"com.github.DiachenkoMD.utils.TH2Functions.getExpiredRepairsByInvoiceId\";",
+                    "initGetExpiredRepairsByInvoiceIdFunction"
+            );
+        }
+
+        private static void initGetLastInvoiceCityFunction(){
+            exec(
+                    "CREATE ALIAS getLastInvoiceCity FOR \"com.github.DiachenkoMD.utils.TH2Functions.getLastInvoiceCity\";",
+                    "initGetExpiredRepairsByInvoiceIdFunction"
+            );
+        }
+
+
+        private static void dropInvoicesTable(){
+            exec(
+                    "DROP TABLE IF EXISTS tbl_invoices;",
+                    "dropInvoicesTable"
+            );
+        }
+
+
+        private static void dropGlueCarPhotosFunction(){
+            exec(
+                    "DROP ALIAS IF EXISTS glueCarPhotos;",
+                    "dropGlueCarPhotosFunction"
+            );
+        }
+
+        private static void dropGetActiveRepairsByInvoiceIdFunction(){
+            exec(
+                    "DROP ALIAS IF EXISTS getActiveRepairsByInvoiceId;",
+                    "dropGetActiveRepairsByInvoiceIdFunction"
+            );
+        }
+        private static void dropGetExpiredRepairsByInvoiceIdFunction(){
+            exec(
+                    "DROP ALIAS IF EXISTS getExpiredRepairsByInvoiceId;",
+                    "dropGetExpiredRepairsByInvoiceIdFunction"
+            );
+        }
+
+        private static void dropGetLastInvoiceCityFunction(){
+            exec(
+                    "DROP ALIAS IF EXISTS getLastInvoiceCity;",
+                    "dropGetLastInvoiceCityFunction"
+            );
         }
     }
 }

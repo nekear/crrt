@@ -732,7 +732,6 @@ const app = createApp({
         deleteRepairInvoice(repairInvoiceId){
             axios.delete('http://localhost:8080/crrt_war/manage/repairInvoice', {
                 data: {
-                    originId: this.invoices.details.id,
                     repairId: repairInvoiceId
                 }
             })

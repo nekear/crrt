@@ -37,7 +37,6 @@ public class Car {
     @SerializedName("city")
     private Cities city;
 
-
     public static Car of(ResultSet rs) throws SQLException {
           int id = rs.getInt(DB_Constants.TBL_CARS_ID);
           String brand = rs.getString(DB_Constants.TBL_CARS_BRAND);
