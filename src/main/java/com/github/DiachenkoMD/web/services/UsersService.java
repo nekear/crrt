@@ -5,6 +5,7 @@ import static com.github.DiachenkoMD.entities.Constants.*;
 import com.github.DiachenkoMD.entities.DB_Constants;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.enums.ValidationParameters;
+import com.github.DiachenkoMD.entities.enums.VisualThemes;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
@@ -12,7 +13,11 @@ import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
+import com.github.DiachenkoMD.web.utils.RightsManager;
+import com.github.DiachenkoMD.web.utils.Utils;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
@@ -156,6 +161,9 @@ public class UsersService {
 
         if(!encryptedPasswordsCompare(password, current_password))
             throw new DescriptiveException("Password or email are invalid", ExceptionReason.LOGIN_WRONG_PASSWORD);
+
+        // Removing user from rights manager queue, because there is no any sense to make another data update right after login (in fact, login already contains data reloading)
+        ((RightsManager) req.getServletContext().getAttribute("rights_manager")).remove((Integer) user.getId());
 
         return user;
     }
@@ -322,5 +330,21 @@ public class UsersService {
         }
 
         return currentUser.idenAvatar(realPath);
+    }
+
+    public void changeTheme(HttpServletRequest req, HttpServletResponse resp){
+        Cookie themeCookie = Utils.getCookieFromArray("theme", req.getCookies()).orElse(null);
+
+        String path = req.getContextPath();
+
+        if(themeCookie != null){
+            if(VisualThemes.valueOf(themeCookie.getValue()) == VisualThemes.DARK){
+                resp.addCookie(createCookie("theme", VisualThemes.LIGHT.toString(), path));
+            }else{
+                resp.addCookie(createCookie("theme", VisualThemes.DARK.toString(), path));
+            }
+        }else{
+            resp.addCookie(createCookie("theme", VisualThemes.DARK.toString(), path));
+        }
     }
 }

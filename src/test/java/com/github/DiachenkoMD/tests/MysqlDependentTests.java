@@ -94,7 +94,7 @@ public class MysqlDependentTests {
     public static void beforeAllSetup(){
         TDatabaseManager.init(MYSQL_TDatasourceManager.getDataSource(), TDBType.MYSQL);
     }
-    
+
     @BeforeEach
     public void beforeEachSetup(){
         TDatabaseManager.setup();

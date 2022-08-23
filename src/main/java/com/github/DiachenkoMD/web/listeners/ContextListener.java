@@ -9,6 +9,7 @@ import com.github.DiachenkoMD.web.services.*;
 import com.github.DiachenkoMD.web.daos.DBTypes;
 import com.github.DiachenkoMD.web.daos.factories.DAOFactory;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
+import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.github.DiachenkoMD.web.utils.guardian.Guardian;
 import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
 import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
@@ -66,7 +67,7 @@ public class ContextListener implements ServletContextListener {
         try{
             initGuardian(ctx);
         }catch (Exception e){
-            logger.error(e);
+            e.printStackTrace();
         }
     }
 
@@ -76,6 +77,13 @@ public class ContextListener implements ServletContextListener {
         UsersDAO usersDAO = daoFactory.getUsersDAO();
         CarsDAO carsDAO = daoFactory.getCarsDAO();
         InvoicesDAO invoicesDAO = daoFactory.getInvoicesDAO();
+
+        // Not service, but it is better to init it here just not to create another UsersDAO instance
+        ctx.setAttribute("rights_manager", new RightsManager(usersDAO));
+        logger.info("[✓] RightsManager -> initialized");
+
+
+        // Services initialization
 
         UsersService usersService = new UsersService(usersDAO);
         ctx.setAttribute("users_service", usersService);
@@ -100,7 +108,6 @@ public class ContextListener implements ServletContextListener {
         DriverService driverService = new DriverService(usersDAO, invoicesDAO, ctx);
         ctx.setAttribute("driver_service", driverService);
         logger.info("[✓] DriverService -> initialized");
-
     }
 
     private static void initPinger(ServletContext ctx){

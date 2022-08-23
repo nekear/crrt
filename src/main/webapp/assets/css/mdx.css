@@ -858,6 +858,7 @@
   position: relative;
   color: #0087ca;
   padding: 5px 0;
+  text-decoration: none;
 }
 .mdx-hover-underline-animation::after {
   content: "";

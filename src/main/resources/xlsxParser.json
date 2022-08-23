@@ -1,0 +1,133 @@
+{
+  "invoices": {
+    "placeholder": "Invoices list",
+    "columns": [
+      {
+        "name": "Id",
+        "ref": "id"
+      },
+      {
+        "name": "Code",
+        "ref": "Code"
+      },
+      {
+        "name": "Brand",
+        "ref": "brand"
+      },
+      {
+        "name": "Model",
+        "ref": "model"
+      },
+      {
+        "name": "Date start",
+        "ref": "datesRange=>start"
+      },
+      {
+        "name": "Date end",
+        "ref": "datesRange=>end"
+      },
+      {
+        "name": "Invoice cost",
+        "ref": "price"
+      },
+      {
+        "name": "Driver email",
+        "ref": "driver=>email"
+      },
+      {
+        "name": "Client email",
+        "ref": "clientEmail"
+      },
+      {
+        "name": "Creation date",
+        "ref": "tsCreated"
+      },
+      {
+        "name": "Document number",
+        "ref": "passport=>docNumber"
+      },
+      {
+        "name": "Is rejected",
+        "ref": "call:isRejected"
+      },
+      {
+        "name": "Rejection reason",
+        "ref": "rejectionReason"
+      },
+      {
+        "name": "Is cancelled",
+        "ref": "call:isCancelled"
+      }
+    ]
+  },
+  "passports": {
+    "placeholder": "Passports list",
+    "columns": [
+      {
+        "name": "Document number",
+        "ref": "docNumber"
+      },
+      {
+        "name": "Firstname",
+        "ref": "firstname"
+      },
+      {
+        "name": "Surname",
+        "ref": "surname"
+      },
+      {
+        "name": "Patronymic",
+        "ref": "patronymic"
+      },
+      {
+        "name": "Date of birth",
+        "ref": "dateOfBirth"
+      },
+      {
+        "name": "Date of issue",
+        "ref": "dateOfIssue"
+      },
+      {
+        "name": "RNTRC",
+        "ref": "rntrc"
+      },
+      {
+        "name": "Authority",
+        "ref": "authority"
+      }
+    ]
+  },
+  "repairs": {
+    "placeholder": "Repairs list",
+    "columns": [
+      {
+        "name": "Origin invoice id",
+        "ref": "originInvoiceId"
+      },
+      {
+        "name": "Penalty price",
+        "ref": "price"
+      },
+      {
+        "name": "Expiration date",
+        "ref": "expirationDate"
+      },
+      {
+        "name": "Comment",
+        "ref": "comment"
+      },
+      {
+        "name": "Is paid",
+        "ref": "call:isPaid"
+      },
+      {
+        "name": "Assigning date",
+        "ref": "tsCreated"
+      },
+      {
+        "name": "Payment date (if paid)",
+        "ref": "call:getPaymentDate"
+      }
+    ]
+  }
+}

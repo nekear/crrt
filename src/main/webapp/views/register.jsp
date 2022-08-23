@@ -52,7 +52,7 @@
   <div class="pos-wrapper row">
     <div class="sign-phrase-container col-lg-3">
       <div class="logo">
-        <a href="index.html"><img src="${assets}imgs/CRRT.svg" alt="carrent crrt logo"></a>
+        <a href="${pageContext.request.contextPath}/"><img src="${assets}imgs/CRRT.svg" alt="carrent crrt logo"></a>
       </div>
       <div class="phrase">
         <h1>98%</h1>
@@ -89,7 +89,7 @@
                     <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
                 </svg>
               </span>
-            <span><fmt:message key="page.register.agree_with_terms.0" /> <a href="#"><fmt:message key="page.register.agree_with_terms.1" /></a>.</span>
+            <span><fmt:message key="page.register.agree_with_terms.0" /> <a href="#" class="mdx-hover-underline-animation"><fmt:message key="page.register.agree_with_terms.1" /></a>.</span>
           </label>
         </div>
         <div class="input-item">

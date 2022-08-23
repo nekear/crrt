@@ -5,6 +5,6 @@ import com.github.DiachenkoMD.web.utils.guardian.guards.RoleGuard;
 
 public class DriverRGuard extends RoleGuard {
     public DriverRGuard(){
-        this.setRole(Roles.DRIVER);
+        this.setRoles(Roles.DRIVER);
     }
 }

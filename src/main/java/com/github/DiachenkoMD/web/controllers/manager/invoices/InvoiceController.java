@@ -8,6 +8,7 @@ import com.github.DiachenkoMD.web.utils.Utils;
 import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
 import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
 import com.github.DiachenkoMD.web.utils.guardian.guards.roles.DriverRGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.HTierRGuard;
 import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ManagerRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
-@UseGuards({AuthGuard.class, ManagerRGuard.class})
+@UseGuards({AuthGuard.class, HTierRGuard.class})
 @WebServlet("/manage/invoice")
 public class InvoiceController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(InvoiceController.class);

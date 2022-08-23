@@ -10,6 +10,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * RoleGuard class for allow guarding by roles. Should go after AuthGuard, because inside uses session "auth" attribute.
@@ -17,13 +19,13 @@ import java.io.IOException;
 public class RoleGuard extends Guard{
     private final static Logger logger = LogManager.getLogger(RoleGuard.class);
 
-    private Roles role;
+    private final List<Roles> roles = new LinkedList<>();
 
     @Override
     public boolean check(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         AuthUser user = (AuthUser) req.getSession().getAttribute("auth");
 
-        if(user.getRole() != role){
+        if(!roles.contains(user.getRole())){
             GuardingTypes type = getGuardianType(req);
 
             if(type == GuardingTypes.PAGE) {
@@ -37,7 +39,7 @@ public class RoleGuard extends Guard{
         return devolve(req, resp);
     }
 
-    protected void setRole(Roles role){
-        this.role = role;
+    protected void setRoles(Roles... roles){
+        this.roles.addAll(List.of(roles));
     }
 }

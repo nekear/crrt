@@ -6,8 +6,9 @@
 <%@ taglib prefix="l" tagdir="/WEB-INF/tags" %>
 
 <%@ include file="components/generals.jspf"%>
+
 <!doctype html>
-<html lang="en">
+<html lang="${lang}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -21,7 +22,7 @@
     <link rel="stylesheet" href="${assets}modules/loaders/loaders.css">
     <link rel="stylesheet" href="https://unpkg.com/@vuepic/vue-datepicker@latest/dist/main.css">
     <!--  Custom  -->
-    <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
+    <link rel="stylesheet" href="${assets}css/themes/${requestScope.get("endTheme")}.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
     <link rel="stylesheet" href="${assets}css/inside.css">
     <link rel="stylesheet" href="${assets}css/mdx.css">
@@ -309,6 +310,12 @@
                             <div>
                                 <button class="mdx-md-button button-blue button-bordered" @click="performInvoicesSearch(1)">
                                     Search
+                                </button>
+                                <button class="mdx-md-button button-green button-bordered button-w-icon ml-3" @click="generateInvoicesReport()">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2.85902 2.87697L15.429 1.08197C15.5 1.07179 15.5723 1.07699 15.641 1.0972C15.7098 1.11741 15.7734 1.15216 15.8275 1.1991C15.8817 1.24605 15.9251 1.30408 15.9549 1.36928C15.9846 1.43447 16 1.5053 16 1.57697V22.423C16 22.4945 15.9846 22.5653 15.9549 22.6304C15.9252 22.6955 15.8819 22.7535 15.8279 22.8004C15.7738 22.8473 15.7103 22.8821 15.6417 22.9024C15.5731 22.9227 15.5009 22.928 15.43 22.918L2.85802 21.123C2.61964 21.089 2.40152 20.9702 2.24371 20.7883C2.08591 20.6065 1.99903 20.3738 1.99902 20.133V3.86697C1.99903 3.62618 2.08591 3.39348 2.24371 3.21161C2.40152 3.02975 2.61964 2.91092 2.85802 2.87697H2.85902ZM4.00002 4.73497V19.265L14 20.694V3.30597L4.00002 4.73497ZM17 19H20V4.99997H17V2.99997H21C21.2652 2.99997 21.5196 3.10533 21.7071 3.29286C21.8947 3.4804 22 3.73475 22 3.99997V20C22 20.2652 21.8947 20.5195 21.7071 20.7071C21.5196 20.8946 21.2652 21 21 21H17V19ZM10.2 12L13 16H10.6L9.00002 13.714L7.40002 16H5.00002L7.80002 12L5.00002 7.99997H7.40002L9.00002 10.286L10.6 7.99997H13L10.2 12Z" fill="var(--systemGreen_default)"/>
+                                    </svg>
+                                    <span>Convert to xlsx</span>
                                 </button>
                             </div>
                         </div>

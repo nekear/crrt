@@ -1,4 +1,3 @@
-<%@ page import="com.github.DiachenkoMD.entities.enums.StatusStates" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -25,7 +24,7 @@
     <link rel="stylesheet" href="${assets}css/status_rel.css">
 
     <link rel="stylesheet" href="${assets}css/media.css">
-    <title>Sign status | CRRT.</title>
+    <title>Account blocked | CRRT.</title>
 
     <!--  Jquery  -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
@@ -40,18 +39,17 @@
         <div class="logo">
             <a href="${pageContext.request.contextPath}/"><img src="${assets}imgs/CRRT.svg" alt="carrent crrt logo"></a>
         </div>
-        <c:set var="status_type" value="${sessionScope.get('login_prg_message').getState(0)}" scope="page" />
-        <div class="status-data" data-status="${status_type.toString().toLowerCase()}">
+        <div class="status-data" data-status="error">
             <div class="status-icon">
-                <crrt:Icon type="STATUS_${status_type}"/>
+                <crrt:Icon type="STATUS_BLOCKED"/>
             </div>
             <div class="status-title">
-                <fmt:message key="sign_up.status_${status_type.toString().toLowerCase()}"/>
+                <fmt:message key="account_blocked.title"/>
             </div>
             <div class="status-description">
-                <c:out value="${sessionScope.get('login_prg_message').get(0, lang)}" escapeXml="false"/>
+                <fmt:message key="account_blocked.desc"/>
             </div>
-            <div><a href="login" class="mdx-hover-underline-animation"><fmt:message key="sign.return_to_login"/> </a></div>
+            <div><a href="${pageContext.request.contextPath}/" class="mdx-hover-underline-animation"><fmt:message key="account_blocked.return"/> </a></div>
         </div>
     </div>
 </div>

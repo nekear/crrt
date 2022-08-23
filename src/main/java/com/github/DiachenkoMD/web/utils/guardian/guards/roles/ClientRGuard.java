@@ -8,6 +8,6 @@ import com.github.DiachenkoMD.web.utils.guardian.guards.RoleGuard;
  */
 public class ClientRGuard extends RoleGuard{
     public ClientRGuard(){
-        this.setRole(Roles.CLIENT);
+        this.setRoles(Roles.CLIENT);
     }
 }

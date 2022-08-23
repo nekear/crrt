@@ -144,7 +144,7 @@ public class IntroService {
         LocalDate start = rentData.getDatesRange().getStart();
         LocalDate end = rentData.getDatesRange().getEnd();
 
-        if(!(start.isAfter(LocalDate.now()) && end.isBefore(LocalDate.now().plusMonths(2))))
+        if(!(start.isAfter(LocalDate.now().minusDays(1)) && end.isBefore(LocalDate.now().plusMonths(2).plusDays(1))))
             throw new DescriptiveException("Dates are not in allowed range", ExceptionReason.VALIDATION_ERROR);
 
         // Getting car to count its invoice`s final price and to obtain connected drivers

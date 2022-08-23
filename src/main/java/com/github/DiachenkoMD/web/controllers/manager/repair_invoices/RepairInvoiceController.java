@@ -7,7 +7,7 @@ import com.github.DiachenkoMD.web.services.ManagerService;
 import com.github.DiachenkoMD.web.utils.Utils;
 import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
 import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ManagerRGuard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.roles.HTierRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -20,13 +20,12 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
-@UseGuards({AuthGuard.class, ManagerRGuard.class})
+@UseGuards({AuthGuard.class, HTierRGuard.class})
 @WebServlet("/manage/repairInvoice")
 public class RepairInvoiceController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(RepairInvoiceController.class);

@@ -1,6 +1,8 @@
 package com.github.DiachenkoMD.web.utils.guardian;
 
+import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
 import com.github.DiachenkoMD.web.utils.guardian.guards.Guard;
+import com.github.DiachenkoMD.web.utils.guardian.guards.StateGuard;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +38,10 @@ public class Guardian {
             LinkedList<Guard> guardsList = new LinkedList<>();
             for(Class<? extends Guard> guardClass : connectedGuards){
                 guardsList.add(guardClass.getConstructor().newInstance());
+
+                // Default block protection on every route with AuthGuard
+                if(guardClass == AuthGuard.class)
+                    guardsList.add(new StateGuard());
             }
 
             WebServlet webServletAnno = guarded.getAnnotation(WebServlet.class);

@@ -25,6 +25,7 @@ import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.web.services.AdminService;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
+import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
@@ -106,6 +107,7 @@ class AdminServiceTest {
                 .create();
 
         lenient().when(this._ctx.getAttribute("gson")).thenReturn(gson);
+        lenient().when(this._ctx.getAttribute("rights_manager")).thenReturn(mock(RightsManager.class));
 
         this.adminService = new AdminService(usersDAO, carsDAO, invoicesDAO, _ctx);
     }

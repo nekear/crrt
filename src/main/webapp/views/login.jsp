@@ -54,7 +54,7 @@
   <div class="pos-wrapper row">
     <div class="sign-phrase-container col-lg-3">
       <div class="logo">
-        <a href="index.html"><img src="${assets}imgs/CRRT.svg" alt="carrent crrt logo"></a>
+        <a href="${pageContext.request.contextPath}/"><img src="${assets}imgs/CRRT.svg" alt="carrent crrt logo"></a>
       </div>
       <div class="phrase">
         <h1>98%</h1>

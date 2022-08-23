@@ -5,6 +5,6 @@ import com.github.DiachenkoMD.web.utils.guardian.guards.RoleGuard;
 
 public class ManagerRGuard extends RoleGuard {
     public ManagerRGuard(){
-        this.setRole(Roles.MANAGER);
+        this.setRoles(Roles.MANAGER);
     }
 }

@@ -15,6 +15,7 @@ import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
+import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.github.DiachenkoMD.web.utils.Utils;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletContext;
@@ -45,11 +46,14 @@ public class AdminService {
 
     private final ServletContext ctx;
 
+    private final RightsManager rightsManager;
+
     public AdminService(UsersDAO usersDAO, CarsDAO carsDAO, InvoicesDAO invoicesDAO, ServletContext ctx){
         this.usersDAO = usersDAO;
         this.carsDAO = carsDAO;
         this.invoicesDAO = invoicesDAO;
         this.ctx = ctx;
+        this.rightsManager = (RightsManager) ctx.getAttribute("rights_manager");
     }
 
     /** Method for getting global stats. Just calls for {@link InvoicesDAO#getStats()}, so read about it {@link InvoicesDAO#getStats() here}.
@@ -522,6 +526,9 @@ public class AdminService {
         if(resultFieldsToUpdate.size() > 0)
             if(!usersDAO.updateUsersData(userId, resultFieldsToUpdate))
                 throw new DescriptiveException("Zero rows were updated by calling updateUserData", ExceptionReason.DB_ACTION_ERROR);
+
+        // Adding user id to updating queue (to update his rights on any next action)
+        rightsManager.add(userId);
     }
 
     /**
@@ -539,6 +546,9 @@ public class AdminService {
 
         if(!usersDAO.setUserState(userId, newState.id()))
             throw new DescriptiveException("Zero rows were updated by calling setUserState()", ExceptionReason.DB_ACTION_ERROR);
+
+        // Adding user id to updating queue (to update his rights on any next action)
+        rightsManager.add(userId);
     }
 
     /**
@@ -563,6 +573,11 @@ public class AdminService {
         if(usersIds.size() > 0){
             if(!usersDAO.deleteUsers(usersIds))
                 throw new DescriptiveException("Some or all users were not deleted!", ExceptionReason.DB_ACTION_ERROR);
+
+            for(Integer deletedUser : usersIds){
+                // Adding user ids to updating queue to log them out
+                rightsManager.add(deletedUser);
+            }
         }
     }
 

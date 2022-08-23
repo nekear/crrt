@@ -85,4 +85,12 @@ public class LimitedInvoice {
     public void setStatusList(List<InvoiceStatuses> statusList) {
         this.statusList = statusList;
     }
+
+    public boolean isRejected(){
+        return this.statusList.contains(InvoiceStatuses.REJECTED);
+    }
+
+    public boolean isCancelled(){
+        return this.statusList.contains(InvoiceStatuses.CANCELED);
+    }
 }

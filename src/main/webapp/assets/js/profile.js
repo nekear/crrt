@@ -16,6 +16,8 @@ const app = createApp({
     created(){
         Object.assign(this.userDataCurrent, incomingUserData);
         Object.assign(this.userDataPrevious, incomingUserData);
+        // Object.assign(this.current, currentTheme);
+        // Object.assign(this.selected, currentTheme);
         this.avatarUrl = avatar;
     },
     computed:{
@@ -105,8 +107,13 @@ const app = createApp({
                 console.log(error);
                 Notiflix.Notify.failure(error.response.data);
             });
-        }
+        },
+
+        exitAccount(){
+            window.location.href='http://localhost:8080/crrt_war/exit';
+        },
     }
+
 }).mount('#app');
 
 // Uploading avatar

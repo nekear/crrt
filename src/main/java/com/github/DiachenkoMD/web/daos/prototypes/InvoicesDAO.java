@@ -156,4 +156,11 @@ public interface InvoicesDAO {
      * @throws DBException
      */
     boolean setInvoiceDriver(int invoiceId, Integer driverId) throws DBException;
+
+    /**
+     * Method for getting invoices for generating reports.
+     * @return list of {@link InformativeInvoice}.
+     * @throws DBException
+     */
+    List<InformativeInvoice> getInvoicesForReport() throws DBException;
 }

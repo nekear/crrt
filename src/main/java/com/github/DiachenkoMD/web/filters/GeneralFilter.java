@@ -1,5 +1,9 @@
 package com.github.DiachenkoMD.web.filters;
 
+import com.github.DiachenkoMD.entities.dto.users.AuthUser;
+import com.github.DiachenkoMD.entities.enums.VisualThemes;
+import com.github.DiachenkoMD.web.utils.RightsManager;
+import com.github.DiachenkoMD.web.utils.Utils;
 import com.github.DiachenkoMD.web.utils.guardian.Guardian;
 import jakarta.servlet.*;
 import jakarta.servlet.http.Cookie;
@@ -9,20 +13,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.github.DiachenkoMD.web.utils.Utils.createCookie;
 import static com.github.DiachenkoMD.web.utils.Utils.getCookieFromArray;
 
 public class GeneralFilter implements Filter {
     private static final Logger logger = LogManager.getLogger(GeneralFilter.class);
 
+
     private Guardian guardian;
+    private RightsManager rightsManager;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         Filter.super.init(filterConfig);
         this.guardian = (Guardian) filterConfig.getServletContext().getAttribute("guardian");
+        this.rightsManager = (RightsManager) filterConfig.getServletContext().getAttribute("rights_manager");
     }
 
     @Override
@@ -35,10 +44,14 @@ public class GeneralFilter implements Filter {
         httpResponse.addHeader("Access-Control-Allow-Headers", "*");
         req.setCharacterEncoding("UTF-8");
 
+        rightsManager.manage(httpRequest);
+
         if(!guardian.guard(httpRequest.getServletPath(), httpRequest, httpResponse))
             return;
 
-        resolveDefaultLang(httpRequest, httpResponse);
+        resolveDefaultLang(httpRequest);
+
+        resolveDefaultTheme(httpRequest, httpResponse);
 
         Optional<String> locale = Optional.ofNullable(req.getParameter("lang"));
 
@@ -54,9 +67,8 @@ public class GeneralFilter implements Filter {
     /**
      * Sets default language (depending on client`s country) if no language selected manually.
      * @param req
-     * @param resp
      */
-    private void resolveDefaultLang(HttpServletRequest req, HttpServletResponse resp){
+    private void resolveDefaultLang(HttpServletRequest req){
         if(req.getSession().getAttribute("lang") == null){
             String country = req.getLocale().getCountry();
 
@@ -68,6 +80,20 @@ public class GeneralFilter implements Filter {
             }
 
             req.getSession().setAttribute("lang", defaultLangForCountry);
+        }
+    }
+
+    private void resolveDefaultTheme(HttpServletRequest req, HttpServletResponse resp){
+        Cookie themeCookie = Utils.getCookieFromArray("theme", req.getCookies()).orElse(null);
+
+        try {
+            if(themeCookie == null)
+                throw new IllegalArgumentException();
+
+            VisualThemes.valueOf(themeCookie.getValue());
+        }catch (IllegalArgumentException e){
+            String path = req.getContextPath();
+            resp.addCookie(createCookie("theme", VisualThemes.valueOf(req.getServletContext().getInitParameter("default_theme")).toString(), path));
         }
     }
 

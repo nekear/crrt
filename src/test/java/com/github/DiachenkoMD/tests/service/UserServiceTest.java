@@ -8,6 +8,7 @@ import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.entities.dto.Status;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.web.services.UsersService;
+import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.github.DiachenkoMD.web.utils.Utils;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletContext;
@@ -270,10 +271,14 @@ public class UserServiceTest {
             String password = "pass1234";
 
             when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password)));
+            ServletContext tmpCtxMock = mock(ServletContext.class);
+            when(_req.getServletContext()).thenReturn(tmpCtxMock);
+            when(tmpCtxMock.getAttribute("rights_manager")).thenReturn(mock(RightsManager.class));
 
             AuthUser _user = mock(AuthUser.class);
 
             when(_user.getCleanId()).thenReturn(Optional.of(1));
+            when(_user.getId()).thenReturn(1);
             when(_usersDao.get(email)).thenReturn(_user); // to bypass checks
 
             when(_usersDao.getPassword(anyInt())).thenReturn(Utils.encryptPassword(password)); // to bypass checks

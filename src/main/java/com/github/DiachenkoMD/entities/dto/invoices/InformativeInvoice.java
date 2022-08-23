@@ -1,5 +1,6 @@
 package com.github.DiachenkoMD.entities.dto.invoices;
 
+import com.github.DiachenkoMD.entities.adapters.Skip;
 import com.github.DiachenkoMD.entities.dto.DatesRange;
 import com.github.DiachenkoMD.entities.dto.drivers.LimitedDriver;
 import com.github.DiachenkoMD.entities.dto.users.Passport;
@@ -9,6 +10,7 @@ import com.github.DiachenkoMD.entities.enums.InvoiceStatuses;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,8 @@ public class InformativeInvoice extends PanelInvoice {
     private String rejectionReason;
 
     private List<RepairInvoice> repairInvoices; // should be set externally
+
+    private LocalDateTime tsCreated;
 
     public static InformativeInvoice of(ResultSet rs) throws SQLException{
         InformativeInvoice invoice = new InformativeInvoice();
@@ -54,6 +58,8 @@ public class InformativeInvoice extends PanelInvoice {
         invoice.setClientEmail(rs.getString("client_email"));
         invoice.setBrand(rs.getString("brand"));
         invoice.setModel(rs.getString("model"));
+
+        invoice.setTsCreated(rs.getObject("ts_created", LocalDateTime.class));
 
         Passport passport = Passport.of(rs);
 
@@ -93,5 +99,13 @@ public class InformativeInvoice extends PanelInvoice {
 
     public void setRejectionReason(String rejectionReason) {
         this.rejectionReason = rejectionReason;
+    }
+
+    public LocalDateTime getTsCreated() {
+        return tsCreated;
+    }
+
+    public void setTsCreated(LocalDateTime tsCreated) {
+        this.tsCreated = tsCreated;
     }
 }

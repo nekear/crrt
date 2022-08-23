@@ -26,6 +26,9 @@ public class RepairInvoice {
     private LocalDateTime tsCreated;
 
     @Skip
+    private LocalDateTime tsEdited;
+
+    @Skip
     private String clientEmail; // for informing client about delete his repairment invoice (should not be exposed to client side)
 
     @Skip
@@ -39,6 +42,7 @@ public class RepairInvoice {
         invoice.setComment(rs.getString("comment"));
         invoice.setPaid(rs.getInt("is_paid") == 1);
         invoice.setTsCreated(rs.getTimestamp("ts_created").toLocalDateTime());
+        invoice.setTsEdited(rs.getTimestamp("ts_edited").toLocalDateTime());
         invoice.setOriginInvoiceId(rs.getInt("invoice_id"));
         return invoice;
     }
@@ -107,6 +111,21 @@ public class RepairInvoice {
 
     public void setOriginInvoiceId(int originInvoiceId) {
         this.originInvoiceId = originInvoiceId;
+    }
+
+    public LocalDateTime getTsEdited() {
+        return tsEdited;
+    }
+
+    public LocalDateTime getPaymentDate(){
+        if(!isPaid)
+            return null;
+
+        return getTsEdited();
+    }
+
+    public void setTsEdited(LocalDateTime tsEdited) {
+        this.tsEdited = tsEdited;
     }
 
     @Override

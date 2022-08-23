@@ -101,6 +101,42 @@ Notiflix.Confirm.init({
 });
 
 
+$(document).on("change", "#theme-checkbox", function (e) {
+    const currentElIsChecked = $(this).is(':checked');
+
+    let theme_name = currentElIsChecked ? "white_theme" : "dark_theme";
+
+    $("body").addClass("effect_transitions");
+
+    $("link[href*='/css/themes/']").each(function(i, el){
+        const currentHref = el.href;
+        const splitHref = currentHref.split("/");
+
+        splitHref.splice(splitHref.length-1, 1); // deleting theme name
+        splitHref.push(theme_name+".css");
+
+
+        el.href = splitHref.join("/");
+    });
+
+    setTimeout(() => {
+        $("body").removeClass("effect_transitions");
+    }, 250);
+
+
+    axios({
+            method: "put",
+            url: 'http://localhost:8080/crrt_war/profile/theme',
+            silent: true
+        })
+        .then(response => {
+            console.log(response);
+        })
+        .catch(error => {
+            console.log(error);
+        });
+});
+
 // Loader settings
 function loader(action) {
     if(action == true){

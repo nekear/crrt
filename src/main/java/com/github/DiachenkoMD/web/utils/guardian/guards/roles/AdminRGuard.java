@@ -8,6 +8,6 @@ import com.github.DiachenkoMD.web.utils.guardian.guards.RoleGuard;
  */
 public class AdminRGuard extends RoleGuard{
     public AdminRGuard(){
-        this.setRole(Roles.ADMIN);
+        this.setRoles(Roles.ADMIN);
     }
 }

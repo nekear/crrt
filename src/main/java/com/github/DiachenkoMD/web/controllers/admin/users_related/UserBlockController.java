@@ -39,7 +39,7 @@ public class UserBlockController extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         try{
             String updateStateDataJSON = new BufferedReader(req.getReader()).lines().collect(Collectors.joining());
 

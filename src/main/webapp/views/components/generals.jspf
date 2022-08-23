@@ -6,7 +6,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="l" tagdir="/WEB-INF/tags" %>
 
-<l:resolveLocale />
+<l:resolveDefaults />
 
 <c:set var="lang" value="${requestScope.get('endLocale')}" scope="page" />
 

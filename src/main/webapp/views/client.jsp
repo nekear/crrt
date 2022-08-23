@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="${assets}modules/notiflix/notiflix-3.2.5.min.css">
     <link rel="stylesheet" href="${assets}modules/loaders/loaders.css">
     <!--  Custom  -->
-    <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
+    <link rel="stylesheet" href="${assets}css/themes/${requestScope.get("endTheme")}.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
     <link rel="stylesheet" href="${assets}css/inside.css">
     <link rel="stylesheet" href="${assets}css/mdx.css">

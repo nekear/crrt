@@ -10,9 +10,7 @@ import com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.dto.users.Passport;
-import com.github.DiachenkoMD.entities.enums.DBCoupled;
-import com.github.DiachenkoMD.entities.enums.InvoiceStatuses;
-import com.github.DiachenkoMD.entities.enums.Roles;
+import com.github.DiachenkoMD.entities.enums.*;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
@@ -29,11 +27,14 @@ import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.web.services.AdminService;
 import com.github.DiachenkoMD.web.services.ManagerService;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
+import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.servlet.ServletContext;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,6 +43,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -49,6 +53,7 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -101,6 +106,7 @@ class ManagerServiceTest {
                 .create();
 
         lenient().when(this._ctx.getAttribute("gson")).thenReturn(gson);
+        lenient().when(this._ctx.getAttribute("rights_manager")).thenReturn(mock(RightsManager.class));
 
         this.managerService = new ManagerService(usersDAO, invoicesDAO, _ctx);
     }
@@ -129,11 +135,6 @@ class ManagerServiceTest {
 
         // Note: inside createInvoice() method, money are withdrawn from client`s balance. Should be taken into consideration while reviewing tests.
         this.invoiceId = invoicesDAO.createInvoice(carId, clientId, datesRange, passport, BigDecimal.valueOf(1000), null);
-    }
-
-    @Test
-    void getInvoices() {
-
     }
 
     @Test
@@ -311,5 +312,94 @@ class ManagerServiceTest {
             assertThat(invoice.getStatusList()).contains(InvoiceStatuses.REJECTED);
             assertThat(invoice.getRejectionReason()).isEqualTo("Some comment");
         }
+    }
+
+    @Test
+    void generateInvoicesReport() throws IOException, DBException {
+        // Generating some test invoices
+        {
+            // Generating first car: Ferrari Roma in Kyiv (S-segment)
+            Car car1 = new Car();
+            car1.setBrand("Ferrari");
+            car1.setModel("Roma");
+            car1.setCity(Cities.KYIV);
+            car1.setSegment(CarSegments.S_SEGMENT);
+            car1.setPrice(100d);
+            int car1Id = carsDAO.create(car1);
+            car1.setId(car1Id);
+
+            // Generating first car: Ford Mustang in Lviv (S-segment)
+            Car car2 = new Car();
+            car2.setBrand("Ford");
+            car2.setModel("Mustang");
+            car2.setCity(Cities.LVIV);
+            car2.setSegment(CarSegments.S_SEGMENT);
+            car2.setPrice(200d);
+            int car2Id = carsDAO.create(car2);
+            car2.setId(car2Id);
+
+            // Generating user, who will be our client
+            LimitedUser client = TGenerators.genUser();
+            int clientId = usersDAO.insertUser(client);
+            client.setId(clientId);
+
+            // Generating user, who will be our driver
+            LimitedUser userDriver = TGenerators.genUser();
+            userDriver.setEmail("test@gmail.com");
+            int userDriverId = usersDAO.insertUser(userDriver);
+            userDriver.setId(userDriverId);
+            int driverId = usersDAO.insertDriver(userDriverId, Cities.LVIV.id());
+
+            // Generating random passport and specific datesRange (because we will do further search based on dates)
+            Passport passport = TGenerators.genPassport();
+
+            DatesRange datesRange = new DatesRange(
+                    LocalDate.of(2022, 10, 10),
+                    LocalDate.of(2022, 10, 13)
+            );
+            DatesRange datesRange2 = new DatesRange(
+                    LocalDate.of(2022, 10, 16),
+                    LocalDate.of(2022, 10, 20)
+            );
+
+            int invoice1Id = invoicesDAO.createInvoice(car1Id, clientId, datesRange, passport, BigDecimal.valueOf(1000), null);
+            int invoice2Id = invoicesDAO.createInvoice(car2Id, clientId, datesRange2, passport, BigDecimal.valueOf(1000), driverId);
+
+            // Rejecting first invoice
+            invoicesDAO.rejectInvoice(invoice1Id, "Car sent for repair");
+
+            // Adding repair invoices and setting is_paid of the second to "true"
+            int repairId1 = invoicesDAO.createRepairInvoice(invoice1Id, BigDecimal.valueOf(200), datesRange.getEnd().plusDays(10), "Repairment invoice comment 1");
+            int repairId2 = invoicesDAO.createRepairInvoice(invoice1Id, BigDecimal.valueOf(400), datesRange.getEnd().plusDays(5), "Repairment invoice comment 2 (should be paid)");
+
+            invoicesDAO.payRepairInvoice(repairId2);
+        }
+
+        // Generating report
+
+        // Generating report
+        Workbook workbook = managerService.generateInvoicesReport();
+
+        // Checking for needed amount of sheets and last row index
+        assertEquals(3, workbook.getNumberOfSheets());
+
+        Sheet invoicesSheet = workbook.getSheetAt(0);
+        assertEquals(3, invoicesSheet.getLastRowNum());
+
+        Sheet passportSheet = workbook.getSheetAt(1);
+        assertEquals(3, passportSheet.getLastRowNum());
+
+        Sheet repairInvoicesSheet = workbook.getSheetAt(2);
+        assertEquals(2, repairInvoicesSheet.getLastRowNum());
+
+//        UNCOMMENT THIS IF YOU WANT TO CHECK HOW FINAL REPORT WOULD LOOK LIKE
+//        File currDir = new File(".");
+//        String path = currDir.getAbsolutePath();
+//        String fileLocation = path.substring(0, path.length() - 1) + "reportTmp.xlsx";
+//
+//        FileOutputStream outputStream = new FileOutputStream(fileLocation);
+//        workbook.write(outputStream);
+
+        workbook.close();
     }
 }

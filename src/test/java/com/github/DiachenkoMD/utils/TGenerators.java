@@ -68,11 +68,7 @@ public class TGenerators {
     }
 
     public static DatesRange genDatesRange(){
-        int year = LocalDate.now().getYear();
-        int month = LocalDate.now().plusMonths(random.nextInt(10)).getMonthValue();
-        int day = LocalDate.of(year, month, LocalDate.now().getDayOfMonth()).plusDays(random.nextInt(10) + 1).getDayOfMonth(); // random day is before 11 (inclusive) to later add random days number in range of 1-11.
-
-        LocalDate start = LocalDate.of(year, month, day);
+        LocalDate start = LocalDate.now().plusMonths(1);
         LocalDate end = start.plusDays(random.nextInt(22)+1);
 
         return new DatesRange(start, end);

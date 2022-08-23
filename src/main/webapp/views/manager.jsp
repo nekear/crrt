@@ -41,7 +41,7 @@
     <link rel="stylesheet" href="${assets}modules/loaders/loaders.css">
     <link rel="stylesheet" href="https://unpkg.com/@vuepic/vue-datepicker@latest/dist/main.css">
     <!--  Custom  -->
-    <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
+    <link rel="stylesheet" href="${assets}css/themes/${requestScope.get("endTheme")}.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
     <link rel="stylesheet" href="${assets}css/inside.css">
     <link rel="stylesheet" href="${assets}css/mdx.css">

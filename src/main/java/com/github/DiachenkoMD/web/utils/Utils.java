@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -31,6 +32,8 @@ import java.util.stream.Collectors;
 public class Utils {
     private static final Logger logger = LogManager.getLogger(Utils.class);
     public static final  Random random = new Random();
+    public static final DateTimeFormatter localDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter localDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private Utils(){}
     /**
@@ -275,6 +278,12 @@ public class Utils {
         Optional<Cookie[]> cookiesArray = Optional.ofNullable(cookies).filter(item -> item.length > 0);
 
         return cookiesArray.flatMap(value -> Arrays.stream(value).filter(cookie -> cookie.getName().equalsIgnoreCase(name)).findFirst());
+    }
+
+    public static Cookie createCookie(String name, String value, String path){
+        Cookie cookie = new Cookie(name, value);
+        cookie.setPath(path);
+        return cookie;
     }
 
     public static String getRoleTranslation(Roles role){

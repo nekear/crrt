@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
 
     <!--  Custom  -->
+    <link rel="stylesheet" href="${assets}css/themes/dark_theme.css">
     <link rel="stylesheet" href="${assets}css/globals.css">
     <link rel="stylesheet" href="${assets}css/inside.css">
     <link rel="stylesheet" href="${assets}css/mdx.css">
@@ -37,7 +38,7 @@
 <div class="content">
     <div class="pos-wrapper">
         <div class="logo">
-            <a href="index.html"><img src="${assets}imgs/CRRT.svg" alt="carrent crrt logo"></a>
+            <a href="${pageContext.request.contextPath}/"><img src="${assets}imgs/CRRT.svg" alt="carrent crrt logo"></a>
         </div>
         <c:set var="status_type" value="${requestScope.get('conf_res').getState(0)}" scope="page" />
         <div class="status-data" data-status="${status_type.toString().toLowerCase()}">

@@ -124,8 +124,6 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             query += " LIMIT " + limitOffset + ", " + limitCount;
         }
 
-        logger.info(query);
-
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement(query);
@@ -234,7 +232,7 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
                 "       tbl_cars.brand, tbl_cars.model,\n" +
                 "       tbl_passport.firstname AS pp_firstname, tbl_passport.surname AS pp_surname, tbl_passport.patronymic AS pp_patronymic,\n" +
                 "       tbl_passport.date_of_birth AS pp_date_of_birth, tbl_passport.date_of_issue AS pp_date_of_issue,\n" +
-                "       tbl_passport.doc_number AS pp_doc_number, tbl_passport.rntrc AS pp_rntrc, tbl_passport.authority AS pp_authority, tbl_cars.city_id, tbl_invoices.reject_reason\n" +
+                "       tbl_passport.doc_number AS pp_doc_number, tbl_passport.rntrc AS pp_rntrc, tbl_passport.authority AS pp_authority, tbl_cars.city_id, tbl_invoices.reject_reason, tbl_invoices.ts_created\n" +
                 "FROM tbl_invoices\n" +
                 "         LEFT JOIN tbl_drivers ON tbl_invoices.driver_id = tbl_drivers.id\n" +
                 "         LEFT JOIN tbl_users AS driver_u ON tbl_drivers.user_id = driver_u.id\n" +
@@ -628,6 +626,103 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
             stmt.setInt(2, invoiceId);
 
             return stmt.executeUpdate() > 0;
+
+        }catch (SQLException e){
+            logger.error(e);
+            throw new DBException(e);
+        }
+    }
+
+    @Override
+    public List<InformativeInvoice> getInvoicesForReport() throws DBException {
+        String query = "SELECT tbl_invoices.id AS invoice_id, tbl_invoices.code AS invoice_code,\n" +
+                "       tbl_invoices.date_start, tbl_invoices.date_end,\n" +
+                "       tbl_invoices.exp_price, tbl_invoices.is_canceled, tbl_invoices.is_rejected,\n" +
+                "       tbl_invoices.driver_id, driver_u.avatar AS driver_avatar,driver_u.email AS driver_email,\n" +
+                "       client_u.email AS client_email,\n" +
+                "       tbl_cars.brand, tbl_cars.model,\n" +
+                "       tbl_passport.firstname AS pp_firstname, tbl_passport.surname AS pp_surname, tbl_passport.patronymic AS pp_patronymic,\n" +
+                "       tbl_passport.date_of_birth AS pp_date_of_birth, tbl_passport.date_of_issue AS pp_date_of_issue,\n" +
+                "       tbl_passport.doc_number AS pp_doc_number, tbl_passport.rntrc AS pp_rntrc, tbl_passport.authority AS pp_authority, tbl_cars.city_id, tbl_invoices.reject_reason, tbl_invoices.ts_created\n" +
+                "FROM tbl_invoices\n" +
+                "         LEFT JOIN tbl_drivers ON tbl_invoices.driver_id = tbl_drivers.id\n" +
+                "         LEFT JOIN tbl_users AS driver_u ON tbl_drivers.user_id = driver_u.id\n" +
+                "         JOIN tbl_users AS client_u ON tbl_invoices.client_id = client_u.id\n" +
+                "         JOIN tbl_cars ON tbl_invoices.car_id = tbl_cars.id\n" +
+                "         JOIN tbl_passport ON tbl_passport.id = tbl_invoices.passport_id ORDER BY tbl_invoices.ts_created DESC";
+
+        try(
+                Connection con = ds.getConnection();
+                PreparedStatement globalStmt = con.prepareStatement(query);
+        ){
+            // Getting all invoices info except repairs invoices (because we can have many of them, so we are going to get them in another queries later)
+            List<InformativeInvoice> informativeInvoices = new LinkedList<>();
+
+            try(ResultSet rs = globalStmt.executeQuery()){
+                while(rs.next())
+                    informativeInvoices.add(InformativeInvoice.of(rs));
+            }
+
+            // Getting repair invoices
+            if(informativeInvoices.size() > 0){
+                List<RepairInvoice> repairInvoices = new LinkedList<>();
+
+                try(PreparedStatement obtainRepairsStmt = con.prepareStatement("SELECT * FROM tbl_repair_invoices")){
+                    // Obtaining found
+                    try(ResultSet rs = obtainRepairsStmt.executeQuery()){
+                        while(rs.next())
+                            repairInvoices.add(RepairInvoice.of(rs));
+                    }
+                }
+
+                // Collecting all repair invoices under same origin invoice id (to easily acquired connected repair invoices later)
+                Map<Integer, List<RepairInvoice>> collectedRepairs =
+                        repairInvoices
+                                .parallelStream()
+                                .collect(
+                                        Collectors.groupingBy(
+                                                RepairInvoice::getOriginInvoiceId
+                                        )
+                                );
+
+                // Analyzing connected repair invoices to each standard invoice and wiring them
+                informativeInvoices.parallelStream().forEach(
+                        invoice -> {
+                            List<RepairInvoice> connectedRepairs = collectedRepairs.get((Integer) invoice.getId());
+
+                            invoice.setRepairInvoices(connectedRepairs);
+
+                            if(connectedRepairs == null)
+                                return;
+
+                            // Adding statuses (if we didn`t find any repair invoices, no statuses will be added)
+                            int activeRepairs = 0;
+                            int expiredRepairs = 0;
+
+                            for(RepairInvoice repair : connectedRepairs){
+                                if(repair.isPaid())
+                                    continue;
+
+                                if(repair.getExpirationDate().isBefore(LocalDate.now())){
+                                    expiredRepairs++;
+                                }else{
+                                    activeRepairs++;
+                                }
+                            }
+
+                            List<InvoiceStatuses> statuses = invoice.getStatusList(); // getting from object, because in Informative.of() method we might set IS_CANCELLED and IS_REJECTED statuses
+
+                            if(activeRepairs > 0)
+                                statuses.add(InvoiceStatuses.ACTIVE_REPAIRS);
+                            if(expiredRepairs > 0)
+                                statuses.add(InvoiceStatuses.EXPIRED_REPAIRS);
+
+                            invoice.setStatusList(statuses);
+                        }
+                );
+            }
+
+            return informativeInvoices;
 
         }catch (SQLException e){
             logger.error(e);
