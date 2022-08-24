@@ -76,7 +76,7 @@ public class InvoiceController extends HttpServlet {
             logger.error(e);
 
             if (e instanceof DescriptiveException descExc) {
-                descExc.execute(ExceptionReason.INVOICE_ALREADY_REJECTED, () -> exceptionToClient.set(new StatusText("manager.rejection.invoice_already_cancelled").convert(getLang(req))));
+                descExc.execute(ExceptionReason.INVOICE_ALREADY_CANCELLED, () -> exceptionToClient.set(new StatusText("manager.rejection.invoice_already_cancelled").convert(getLang(req))));
                 descExc.execute(ExceptionReason.INVOICE_ALREADY_REJECTED, () -> exceptionToClient.set(new StatusText("manager.rejection.invoice_already_rejected").convert(getLang(req))));
                 descExc.execute(ExceptionReason.INVOICE_ALREADY_STARTED, () -> exceptionToClient.set(new StatusText("manager.rejection.invoice_already_started").convert(getLang(req))));
                 descExc.execute(ExceptionReason.INVOICE_ALREADY_EXPIRED, () -> exceptionToClient.set(new StatusText("manager.rejection.invoice_already_expired").convert(getLang(req))));

@@ -78,17 +78,23 @@
                 <div class="canvas-container">
                     <div class="mb-3 canvas-tools">
                         <div>
-                            <h5>Invoices list</h5>
-                            <h6>Found invoices amount: <span>{{invoices.search.pagination.totalFoundEntities}}</span></h6>
+                            <h5><fmt:message key="page.manager.categories.invoices.title"/></h5>
+                            <h6><fmt:message key="page.manager.categories.invoices.subtitle"/>: <span>{{invoices.search.pagination.totalFoundEntities}}</span></h6>
                             <div>
                                 <button class="mdx-md-button button-blue button-bordered" @click="performInvoicesSearch(1)">
-                                    Search
+                                    <fmt:message key="page.manager.categories.invoices.button.search"/>
+                                </button>
+                                <button class="mdx-md-button button-green button-bordered button-w-icon ml-3" @click="generateInvoicesReport()">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2.85902 2.87697L15.429 1.08197C15.5 1.07179 15.5723 1.07699 15.641 1.0972C15.7098 1.11741 15.7734 1.15216 15.8275 1.1991C15.8817 1.24605 15.9251 1.30408 15.9549 1.36928C15.9846 1.43447 16 1.5053 16 1.57697V22.423C16 22.4945 15.9846 22.5653 15.9549 22.6304C15.9252 22.6955 15.8819 22.7535 15.8279 22.8004C15.7738 22.8473 15.7103 22.8821 15.6417 22.9024C15.5731 22.9227 15.5009 22.928 15.43 22.918L2.85802 21.123C2.61964 21.089 2.40152 20.9702 2.24371 20.7883C2.08591 20.6065 1.99903 20.3738 1.99902 20.133V3.86697C1.99903 3.62618 2.08591 3.39348 2.24371 3.21161C2.40152 3.02975 2.61964 2.91092 2.85802 2.87697H2.85902ZM4.00002 4.73497V19.265L14 20.694V3.30597L4.00002 4.73497ZM17 19H20V4.99997H17V2.99997H21C21.2652 2.99997 21.5196 3.10533 21.7071 3.29286C21.8947 3.4804 22 3.73475 22 3.99997V20C22 20.2652 21.8947 20.5195 21.7071 20.7071C21.5196 20.8946 21.2652 21 21 21H17V19ZM10.2 12L13 16H10.6L9.00002 13.714L7.40002 16H5.00002L7.80002 12L5.00002 7.99997H7.40002L9.00002 10.286L10.6 7.99997H13L10.2 12Z" fill="var(--systemGreen_default)"/>
+                                    </svg>
+                                    <span><fmt:message key="page.manager.categories.invoices.button.convert_to_excel"/></span>
                                 </button>
                             </div>
                         </div>
                         <div>
                             <div>
-                                <label for="invoices-pag-sel">Invoices per page: </label>
+                                <label for="invoices-pag-sel"><fmt:message key="page.manager.categories.invoices.pagination.title"/>: </label>
                                 <select class="form-control form-select" id="invoices-pag-sel" v-model="invoices.search.pagination.itemsPerPage">
                                     <option value="1">1</option>
                                     <option value="15">15</option>
@@ -102,17 +108,11 @@
                         <thead class="invoices-panel-header">
                         <tr>
                             <th>
-                                <input type="text" placeholder="Code" class="form-control" v-model="invoices.search.filters.code">
+                                <input type="text" placeholder="<fmt:message key='pages.invoices.code'/>" class="form-control" v-model="invoices.search.filters.code">
                             </th>
                             <th>
-                                <input type="text" placeholder="Name" class="form-control" v-model="invoices.search.filters.carName">
-                                <div class="sort-marker" :data-sort-type="getSortOrder('carName')" @click="increaseSort('carName')">
-                                    <div class="sort-wrap">
-                                        <div class="sort-asc-arrow"></div>
-                                        <div v-if="invoices.search.orderBy.length > 1">{{getSortIndex('carName')}}</div>
-                                        <div class="sort-desc-arrow"></div>
-                                    </div>
-                                </div>
+                                <input type="text" placeholder="<fmt:message key='pages.invoices.vehicle_name'/>" class="form-control" v-model="invoices.search.filters.carName">
+                                <Sorter name="carName" :order-by="invoices.search.orderBy"></Sorter>
                             </th>
                             <th>
                                 <div>
@@ -121,34 +121,23 @@
                                                 :format="format"
                                                 :preview-format="format"
                                                 :enable-time-picker="false"
-                                                dark hide-input-icon
+                                                <c:if test="${requestScope.get('endTheme') eq VisualThemes.DARK.getFileName()}">dark</c:if>
+                                                hide-input-icon
                                                 input-class-name="form-control invoices-dates-range-input"
                                                 auto-apply
-                                                placeholder="Dates range"/>
+                                                placeholder="<fmt:message key='pages.invoices.dates_range'/>"/>
                                 </div>
-                                <div class="sort-marker" :data-sort-type="getSortOrder('datesRange')" @click="increaseSort('datesRange')">
-                                    <div class="sort-wrap">
-                                        <div class="sort-asc-arrow"></div>
-                                        <div v-if="invoices.search.orderBy.length > 1">{{getSortIndex('datesRange')}}</div>
-                                        <div class="sort-desc-arrow"></div>
-                                    </div>
-                                </div>
+                                <Sorter name="datesRange" :order-by="invoices.search.orderBy"></Sorter>
                             </th>
                             <th class="sortableTh">
-                                Price
-                                <div class="sort-marker" :data-sort-type="getSortOrder('price')" @click="increaseSort('price')">
-                                    <div class="sort-wrap">
-                                        <div class="sort-asc-arrow"></div>
-                                        <div v-if="invoices.search.orderBy.length > 1">{{getSortIndex('price')}}</div>
-                                        <div class="sort-desc-arrow"></div>
-                                    </div>
-                                </div>
+                                <fmt:message key='pages.invoices.price'/>
+                                <Sorter name="price" :order-by="invoices.search.orderBy"></Sorter>
                             </th>
                             <th>
-                                <input type="text" placeholder="Driver email or -" class="form-control" v-model="invoices.search.filters.driverEmail">
+                                <input type="text" placeholder="<fmt:message key='pages.invoices.driver_email'/>" class="form-control" v-model="invoices.search.filters.driverEmail">
                             </th>
                             <th>
-                                <input type="email" placeholder="Client email" class="form-control" v-model="invoices.search.filters.clientEmail">
+                                <input type="email" placeholder="<fmt:message key='pages.invoices.client_email'/>" class="form-control" v-model="invoices.search.filters.clientEmail">
                             </th>
                             <th>
                                 <select class="form-control form-select" v-model="invoices.search.filters.status">
@@ -198,7 +187,7 @@
         <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content" v-if="invoices.details">
                 <div class="modal-header">
-                    <h5 class="modal-title"><span class="inTitle-action">Details of invoice <span class="flat-chip status-chip" data-status-code="6">{{invoices.details.code}}</span></span></h5>
+                    <h5 class="modal-title"><span class="inTitle-action"><fmt:message key="modal.manager.categories.invoices.title"/> <span class="flat-chip status-chip" data-status-code="6">{{invoices.details.code}}</span></span></h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" @click="closeInvoiceDetailsModal()">
                         <i class="material-icons">close</i>
                     </button>
@@ -209,42 +198,42 @@
                             <span class="flat-chip invoice-status-chip" v-for="status in invoices.details.statusList" :data-status-code="status">{{invoiceStatuses[status].name}}</span>
                         </div>
                         <div class="mc-part-title">
-                            Invoice information:
+                            <fmt:message key="modal.manager.categories.invoices.invoice_info"/>:
                         </div>
                         <div class="mc-item">
-                            Code: <strong>{{invoices.details.code}}</strong>
+                            <fmt:message key="modal.manager.categories.invoices.code"/>: <strong>{{invoices.details.code}}</strong>
                         </div>
                         <div class="mc-item">
-                            Vehicle name: <strong>{{invoices.details.brand}} {{invoices.details.model}}</strong>
+                            <fmt:message key="modal.manager.categories.invoices.vehicle_name"/>: <strong>{{invoices.details.brand}} {{invoices.details.model}}</strong>
                         </div>
                         <div class="mc-item">
-                            City: <strong>{{cities[invoices.details.city].name}}</strong>
+                            <fmt:message key="modal.manager.categories.invoices.city"/>: <strong>{{cities[invoices.details.city].name}}</strong>
                         </div>
                         <div class="mc-item">
-                            Price: <strong>{{invoices.details.price}}$</strong>
+                            <fmt:message key="modal.manager.categories.invoices.price"/>: <strong>{{invoices.details.price}}$</strong>
                         </div>
                         <div class="mc-item">
-                            Client email: <strong>{{invoices.details.clientEmail}}</strong>
+                            <fmt:message key="modal.manager.categories.invoices.client_email"/>: <strong>{{invoices.details.clientEmail}}</strong>
                         </div>
                         <div class="mc-item">
-                            Dates range: <span class="flat-chip status-chip" data-status-code="1">{{invoices.details.datesRange.start}}</span>to <span class="flat-chip status-chip" data-status-code="2">{{invoices.details.datesRange.end}}</span>
+                            <fmt:message key="modal.manager.categories.invoices.dates_range"/>: <span class="flat-chip status-chip" data-status-code="1">{{invoices.details.datesRange.start}}</span>to <span class="flat-chip status-chip" data-status-code="2">{{invoices.details.datesRange.end}}</span>
                         </div>
                         <div class="mc-item mc-driver-wrapper">
-                            Driver:
+                            <fmt:message key="modal.manager.categories.invoices.driver"/>:
                             <div class="driver-chip" v-if="invoices.details.driver">
                                 <span class="driver-avatar cover-bg-type" :style="{backgroundImage: 'url(${avatarsDir}/'+invoices.details.driver.avatar+')'}"></span>
                                 <span class="driver-code">{{invoices.details.driver.email}}</span></div>
-                            <strong v-else class="ml-2"> without driver</strong>
+                            <strong v-else class="ml-2"> <fmt:message key="modal.manager.categories.invoices.without_driver"/></strong>
                         </div>
                         <div class="mdx-divider solid mt-4 mb-4"></div>
                         <div class="mc-part-title">
-                            Passport data:
+                            <fmt:message key="pages.passport.title"/>:
                         </div>
                         <div class="mc-item">
                             <div class="row">
                                 <div class="passport-block col-6">
                                     <div class="title">
-                                        Firstname / Surname / Patronymic
+                                        <fmt:message key="pages.passport.firstname"/> / <fmt:message key="pages.passport.surname"/> / <fmt:message key="pages.passport.patronymic"/>
                                     </div>
                                     <div class="description">
                                         {{invoices.details.passport.firstname}} / {{invoices.details.passport.surname}} / {{invoices.details.passport.patronymic}}
@@ -252,7 +241,7 @@
                                 </div>
                                 <div class="passport-block col-5">
                                     <div class="title">
-                                        Date of birth / Date of issue
+                                        <fmt:message key="pages.passport.date_of_birth"/> / <fmt:message key="pages.passport.date_of_issue"/>
                                     </div>
                                     <div class="description">
                                         {{invoices.details.passport.date_of_birth}} / {{invoices.details.passport.date_of_issue}}
@@ -260,7 +249,7 @@
                                 </div>
                                 <div class="passport-block col-4">
                                     <div class="title">
-                                        Document number
+                                        <fmt:message key="pages.passport.doc_number"/>
                                     </div>
                                     <div class="description">
                                         {{invoices.details.passport.doc_number}}
@@ -268,7 +257,7 @@
                                 </div>
                                 <div class="passport-block col-2">
                                     <div class="title">
-                                        RNTRC
+                                        <fmt:message key="pages.passport.rntrc"/>
                                     </div>
                                     <div class="description">
                                         {{invoices.details.passport.rntrc}}
@@ -276,7 +265,7 @@
                                 </div>
                                 <div class="passport-block col-2">
                                     <div class="title">
-                                        Authority
+                                        <fmt:message key="pages.passport.authority"/>
                                     </div>
                                     <div class="description">
                                         {{invoices.details.passport.authority}}
@@ -286,57 +275,58 @@
                         </div>
                         <div class="mdx-divider solid mt-4 mb-4"></div>
                         <div class="mc-part-title">
-                            Repairs:
-                            <div v-if="!invoices.details.repairInvoices.length" class="micro-caution">This invoice doesn`t have any coupled repairment invoices yet...</div>
+                            <fmt:message key="modal.manager.categories.invoices.repairs.title"/>:
+                            <div v-if="!invoices.details.repairInvoices.length" class="micro-caution"><fmt:message key="modal.manager.categories.invoices.repairs.caution"/></div>
                         </div>
                         <div class="mc-item">
                             <div class="accordion repairs-list accordion-flush mb-4" id="repairs-accordion" v-if="invoices.details.repairInvoices.length">
                                 <div class="accordion-item" v-for="(repairInvoice, repIndex) in invoices.details.repairInvoices">
                                     <h2 class="accordion-header" :id="'heading'+repIndex">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" :data-bs-target="'#collapse'+repIndex" aria-expanded="true" :aria-controls="'collapse'+repIndex">
-                                            Assigned on {{repairInvoice.tsCreated}}
-                                            <span class="flat-chip invoice-status-chip ml-4" data-status-code="1" v-if="repairInvoice.isPaid">Paid</span>
-                                            <span class="flat-chip invoice-status-chip ml-4" data-status-code="4" v-if="!repairInvoice.isPaid && !doesInvoiceDateExpired(repairInvoice.expirationDate)">Active</span>
-                                            <span class="flat-chip invoice-status-chip ml-4" data-status-code="5" v-if="!repairInvoice.isPaid && doesInvoiceDateExpired(repairInvoice.expirationDate)">Expired</span>
+                                            <fmt:message key="modal.manager.categories.invoices.repairs.assigned_on"/> {{repairInvoice.tsCreated}}
+                                            <span class="flat-chip invoice-status-chip ml-4" data-status-code="1" v-if="repairInvoice.isPaid"><fmt:message key="modal.manager.categories.invoices.repairs.status.paid"/></span>
+                                            <span class="flat-chip invoice-status-chip ml-4" data-status-code="4" v-if="!repairInvoice.isPaid && !doesInvoiceDateExpired(repairInvoice.expirationDate)"><fmt:message key="modal.manager.categories.invoices.repairs.status.active"/></span>
+                                            <span class="flat-chip invoice-status-chip ml-4" data-status-code="5" v-if="!repairInvoice.isPaid && doesInvoiceDateExpired(repairInvoice.expirationDate)"><fmt:message key="modal.manager.categories.invoices.repairs.status.expired"/></span>
                                         </button>
                                     </h2>
                                     <div :id="'collapse'+repIndex" class="accordion-collapse collapse" :aria-labelledby="'heading'+repIndex" data-bs-parent="#repairs-accordion">
                                         <div class="accordion-body">
-                                            <div class="mb-3">Price: <span class="flat-chip status-chip" data-status-code="1">{{repairInvoice.price}}$</span></div>
+                                            <div class="mb-3"><fmt:message key="modal.manager.categories.invoices.repairs.price"/>: <span class="flat-chip status-chip" data-status-code="1">{{repairInvoice.price}}$</span></div>
                                             <div class="mb-3">
-                                                <strong class="mb-2">Comment:</strong>
+                                                <strong class="mb-2"><fmt:message key="modal.manager.categories.invoices.repairs.comment"/>:</strong>
                                                 <div v-if="repairInvoice.comment">{{repairInvoice.comment}}</div>
-                                                <div v-else>not mentioned</div>
+                                                <div v-else><fmt:message key="modal.manager.categories.invoices.repairs.comment.not_mentioned"/></div>
                                             </div>
                                             <div class="mb-3">
-                                                <strong class="mb-2">Expiration date:</strong>
+                                                <strong class="mb-2"><fmt:message key="modal.manager.categories.invoices.repairs.exp_date"/>:</strong>
                                                 <div>{{repairInvoice.expirationDate}}</div>
                                             </div>
                                             <div>
-                                                <button class="mdx-flat-button button-pink" @click="deleteRepairInvoice(repairInvoice.id)">Delete <span v-if="repairInvoice.isPaid" class="ml-1">and refund</span></button>
+                                                <button class="mdx-flat-button button-pink" @click="deleteRepairInvoice(repairInvoice.id)"><fmt:message key="modal.manager.categories.invoices.repairs.button.delete.p1"/> <span v-if="repairInvoice.isPaid" style="margin-left: 5px"> <fmt:message key="modal.manager.categories.invoices.repairs.button.delete.p2"/></span></button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div>
-                                <button class="mdx-flat-button button-blue" @click="openCreateRepairInvoiceModal()">Create repair invoice</button>
+                                <button class="mdx-flat-button button-blue" @click="openCreateRepairInvoiceModal()"><fmt:message key="modal.manager.categories.invoices.repairs.button.create"/></button>
                             </div>
                         </div>
                         <div class="mdx-divider solid mb-4 mt-4"></div>
                         <template v-if="invoices.details.statusList.includes(2)">
                             <div class="mc-part-title">
-                                Rejection reason
+                                <fmt:message key="modal.manager.categories.invoices.rejection.title"/>
                             </div>
                             <div class="mc-item">
-                                <textarea disabled class="form-control" :value="invoices.details.rejectionReason"></textarea>
+                                <textarea v-if="invoices.details.rejectionReason" disabled class="form-control" :value="invoices.details.rejectionReason"></textarea>
+                                <div v-else class="micro-caution"><fmt:message key="modal.manager.categories.invoices.rejection.not_specified"/></div>
                             </div>
                         </template>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="mdx-md-button button-red button-bordered" data-bs-dismiss="modal" v-if="!invoices.details.statusList.includes(2)" @click="openRejectInvoiceModal()">Reject invoice</button>
-                    <button type="button" class="mdx-md-button button-reversed button-bordered" data-bs-dismiss="modal" @click="closeInvoiceDetailsModal()">Закрити</button>
+                    <button type="button" class="mdx-md-button button-red button-bordered" data-bs-dismiss="modal" v-if="!invoices.details.statusList.includes(2)" @click="openRejectInvoiceModal()"><fmt:message key="modal.manager.categories.invoices.footer.button.reject_invoice"/></button>
+                    <button type="button" class="mdx-md-button button-reversed button-bordered" data-bs-dismiss="modal" @click="closeInvoiceDetailsModal()"><fmt:message key="modal.manager.categories.invoices.footer.button.close"/></button>
                 </div>
             </div>
         </div>
@@ -346,7 +336,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><span class="inTitle-action">Creating repairment invoice for <span class="flat-chip status-chip" data-status-code="6">{{invoices.repairInvoice.originCode}}</span></span></h5>
+                    <h5 class="modal-title"><span class="inTitle-action"><fmt:message key="modal.manager.categories.repair_invoices.title"/><span class="flat-chip status-chip" data-status-code="6">{{invoices.repairInvoice.originCode}}</span></span></h5>
                     <button type="button" class="close" @click="closeCreateRepairInvoiceModal()" aria-label="Close">
                         <i class="material-icons">close</i>
                     </button>
@@ -354,32 +344,33 @@
                 <div class="modal-body">
                     <div class="ce-data-container">
                         <div class="mc-item">
-                            Target invoice code: <span class="flat-chip status-chip" data-status-code="6">{{invoices.repairInvoice.originCode}}</span>
+                            <fmt:message key="modal.manager.categories.repair_invoices.target_invoice"/>: <span class="flat-chip status-chip" data-status-code="6">{{invoices.repairInvoice.originCode}}</span>
                         </div>
                         <div class="mc-item">
-                            <input type="number" class="form-control" :data-validation-highlight="!invoices.repairInvoice.price.isValid" v-model="invoices.repairInvoice.price.value" placeholder="Penalty price" ref="">
+                            <input type="number" class="form-control" :data-validation-highlight="!invoices.repairInvoice.price.isValid" v-model="invoices.repairInvoice.price.value" placeholder="<fmt:message key='modal.manager.categories.repair_invoices.penalty_price'/>">
                         </div>
                         <div class="mc-item">
                             <Datepicker v-model="invoices.repairInvoice.expirationDate.date"
                                         :flow="['year', 'month', 'calendar']"
-                                        placeholder="Expiration date"
+                                        placeholder="<fmt:message key='modal.manager.categories.repair_invoices.exp_date'/>"
                                         :format="getFormattedDate"
-                                        dark
+                                        <c:if test="${requestScope.get('endTheme') eq VisualThemes.DARK.getFileName()}">dark</c:if>
                                         input-class-name="form-control"
                                         :min-date="new Date()"
                                         auto-apply
+                                        hide-input-icon
                                         :enable-time-picker="false"
                                         :state="invoices.repairInvoice.expirationDate.isValid"
                             />
                         </div>
                         <div class="mc-item">
-                            <textarea class="form-control" placeholder="Comment" v-model="invoices.repairInvoice.comment"></textarea>
+                            <textarea class="form-control" placeholder="<fmt:message key='modal.manager.categories.repair_invoices.comment'/>" v-model="invoices.repairInvoice.comment"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="mdx-md-button button-reversed button-bordered" @click="closeCreateRepairInvoiceModal()">Close</button>
-                    <button type="button" class="mdx-md-button button-blue button-bordered" @click="createRepairInvoice()">Create</button>
+                    <button type="button" class="mdx-md-button button-reversed button-bordered" @click="closeCreateRepairInvoiceModal()"><fmt:message key="modal.manager.categories.repair_invoices.footer.button.close"/></button>
+                    <button type="button" class="mdx-md-button button-blue button-bordered" @click="createRepairInvoice()"><fmt:message key="modal.manager.categories.repair_invoices.footer.button.create"/></button>
                 </div>
             </div>
         </div>
@@ -389,7 +380,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><span class="inTitle-action">Rejection of invoice <span class="flat-chip status-chip" data-status-code="6">{{invoices.rejection.originCode}}</span></span></h5>
+                    <h5 class="modal-title"><span class="inTitle-action"><fmt:message key="modal.manager.categories.reject_invoice.title"/> <span class="flat-chip status-chip" data-status-code="6">{{invoices.rejection.originCode}}</span></span></h5>
                     <button type="button" class="close" data-bs-dismiss="modal" @click="closeRejectInvoiceModal()" aria-label="Close">
                         <i class="material-icons">close</i>
                     </button>
@@ -397,18 +388,18 @@
                 <div class="modal-body">
                     <div class="ce-data-container">
                         <div class="mc-part-title">
-                            Target invoice code: <span class="flat-chip status-chip" data-status-code="6">{{invoices.rejection.originCode}}</span>
+                            <fmt:message key="modal.manager.categories.reject_invoice.target_invoice"/>: <span class="flat-chip status-chip" data-status-code="6">{{invoices.rejection.originCode}}</span>
                         </div>
                         <div class="mc-item">
-                            <textarea class="form-control" v-model="invoices.rejection.reason" placeholder="Reason">
+                            <textarea class="form-control" v-model="invoices.rejection.reason" placeholder="<fmt:message key="modal.manager.categories.reject_invoice.reason"/>">
 
                             </textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal" @click="closeRejectInvoiceModal()">Close</button>
-                    <button type="button" class="mdx-flat-button button-pink" @click="rejectInvoice()">Reject</button>
+                    <button type="button" class="mdx-md-button button-reversed" data-bs-dismiss="modal" @click="closeRejectInvoiceModal()"><fmt:message key="modal.manager.categories.reject_invoice.footer.button.close"/></button>
+                    <button type="button" class="mdx-flat-button button-pink" @click="rejectInvoice()"><fmt:message key="modal.manager.categories.reject_invoice.footer.button.reject"/></button>
                 </div>
             </div>
         </div>

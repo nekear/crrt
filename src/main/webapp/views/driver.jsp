@@ -51,6 +51,10 @@
         };
 
         const currentCityId = ${cityId};
+
+        const js_localization = {
+            days: [<fmt:message key="days.1"/>, <fmt:message key="days.2"/>, <fmt:message key="days.3"/>]
+        }
     </script>
 </head>
 <body>
@@ -71,8 +75,8 @@
                                 {{driver.upcomingRents}}
                             </div>
                             <div class="stat-car-description">
-                                <div>Upcoming rents</div>
-                                <div class="micro-caution">Calculated from {{getCurrentDate}}</div>
+                                <div><fmt:message key="page.driver.stats.stat1.title"/></div>
+                                <div class="micro-caution"><fmt:message key="page.driver.stats.stat1.subtitle"/> {{getCurrentDate}}</div>
                             </div>
                         </div>
                         <div class="col-lg-4 stat-card">
@@ -88,8 +92,8 @@
                                 <fmt:message key="driver.couldnt_load_city" />
                             </div>
                             <div class="stat-car-description">
-                                <div>Current dislocation</div>
-                                <div class="micro-caution">All rents targeted to cars in that city, <br> might be coupled with you</div>
+                                <div><fmt:message key="page.driver.stats.stat2.title"/></div>
+                                <div class="micro-caution"><fmt:message key="page.driver.stats.stat2.subtitle"/></div>
                             </div>
                         </div>
                         <div class="col-lg-4 stat-card">
@@ -103,40 +107,44 @@
                                 {{driver.salaryThisMonth}}$
                             </div>
                             <div class="stat-car-description">
-                                <div>Salary for that month</div>
-                                <div class="micro-caution">From {{getMonthStart}} to {{getMonthEnd}}</div>
+                                <div><fmt:message key="page.driver.stats.stat3.title"/></div>
+                                <div class="micro-caution">
+                                    <fmt:message key="page.driver.stats.stat3.subtitle.p1"/>
+                                    {{getMonthStart}}
+                                    <fmt:message key="page.driver.stats.stat3.subtitle.p2"/>
+                                    {{getMonthEnd}}</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="canvas-container">
                     <div class="mb-3">
-                        <h5>Connected rents list</h5>
-                        <h6>You are able to cancel a rent if system find another suitable driver for work.</h6>
+                        <h5><fmt:message key="page.driver.title"/></h5>
+                        <h6><fmt:message key="page.driver.subtitle"/></h6>
                     </div>
                     <div class="mdx-divider solid">
                     </div>
                     <div class="mb-3 mt-3">
-                        <h5>Search:</h5>
-                        <input type="text" class="form-control" id="client-invoices-search" placeholder="Enter here vehicle name or date..." v-model="invoices.search.filters.value">
+                        <h5><fmt:message key="page.driver.search.title"/>:</h5>
+                        <input type="text" class="form-control" id="client-invoices-search" placeholder="<fmt:message key='page.driver.search.placeholder'/>" v-model="invoices.search.filters.value">
                     </div>
                     <table class="client-invoices-table table table-bordered" style="margin-bottom: 0 !important;">
                         <thead class="cit-header">
                         <tr>
                             <th>
-                                Vehicle name
+                                <fmt:message key="page.driver.vehicle_name"/>
                             </th>
                             <th>
-                                Renting dates
+                                <fmt:message key="page.driver.renting_dates"/>
                             </th>
                             <th>
-                                Salary
+                                <fmt:message key="page.driver.salary"/>
                             </th>
                             <th>
-                                City
+                                <fmt:message key="page.driver.city"/>
                             </th>
                             <th>
-                                Statuses
+                                <fmt:message key="page.driver.statuses"/>
                             </th>
                             <th></th>
                         </tr>
@@ -148,7 +156,7 @@
                                 <span class="flat-chip status-chip" data-status-code="1">{{invoice.datesRange.start}}</span>
                                 <span style="margin-right: .5rem">[{{invoice.additions.daysBetween}}]</span>
                                 <span class="flat-chip status-chip" data-status-code="2">{{invoice.datesRange.end}}</span>
-                                <span v-if="invoice.additions.daysDiff">(in {{invoice.additions.daysDiff.days}} {{invoice.additions.daysDiff.suffix}})</span>
+                                <span v-if="invoice.additions.daysDiff">(<fmt:message key="page.driver.dates_counter.in"/> {{invoice.additions.daysDiff.days}} {{invoice.additions.daysDiff.suffix}})</span>
                                 <span v-if="invoice.additions.isActive" class="active-invoice">(active)</span>
                             </td>
                             <td>
@@ -162,7 +170,7 @@
                                     <span v-for="status in invoice.statusList" class='invoice-status-chip flat-chip' :data-status-code="status">{{invoiceStatuses[status].name}}</span>
                                 </template>
                                 <template v-else>
-                                    <span class="micro-caution" style="opacity: .3">Empty...</span>
+                                    <span class="micro-caution" style="opacity: .3"><fmt:message key="page.driver.empty_statuses"/></span>
                                 </template>
                             </td>
                             <td>
@@ -171,7 +179,7 @@
                                         <path d="M13 17L18 12L13 7" stroke="black" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                         <path d="M6 17L11 12L6 7" stroke="black" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
-                                    <span>Skip</span>
+                                    <span><fmt:message key="page.driver.button.skip"/></span>
                                 </button>
                             </td>
                         </tr>
@@ -188,7 +196,7 @@
                             </svg>
                         </div>
                         <div class='banner-text'>
-                            <div>Nothing was found...</div>
+                            <div><fmt:message key="page.driver.banner.nothing_found"/></div>
                         </div>
                     </div>
                     <div>
@@ -198,7 +206,7 @@
                     </div>
                 </div>
                 <div class="canvas-container">
-                    <h5>Changing of current dislocation:</h5>
+                    <h5><fmt:message key="page.driver.location.title"/>:</h5>
                     <div class="row">
                         <div class="col-4">
                             <select class="form-control form-select" v-model="selectedCity">
@@ -207,7 +215,7 @@
                         </div>
                     </div>
                     <button class="mdx-md-button button-blue button-bordered mt-3" :disabled="parseInt(currentCity) === parseInt(selectedCity)" @click="changeDriverCity()">
-                        Change
+                        <fmt:message key="page.driver.location.button.change"/>
                     </button>
                 </div>
             </div>

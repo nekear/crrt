@@ -315,6 +315,7 @@ const app = createApp({
             .then(response => {
                 console.log(response);
                 this.invoices.details = response.data;
+
                 $("#rejectInvoice_modal").modal("hide");
                 $("#invoiceDetails_modal").modal("show");
             })
@@ -322,11 +323,41 @@ const app = createApp({
                 console.log(error);
                 Notiflix.Notify.failure(error.response.data);
             });
-        }
+        },
+
+        generateInvoicesReport(){
+            axios({
+                method: "get",
+                url: 'http://localhost:8080/crrt_war/manage/invoices/report',
+                responseType: 'blob'
+            })
+                .then(response => {
+                    const fileName = response.headers["content-disposition"].split('filename=')[1].split(';')[0];
+                    const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+
+                    const link = document.createElement('a');
+
+                    link.href = downloadUrl;
+
+                    link.setAttribute('download', fileName.substring(1, fileName.length-1)); //any other extension
+
+                    document.body.appendChild(link);
+
+                    link.click();
+
+                    link.remove();
+                })
+                .catch(error => {
+                    console.log(error);
+                    Notiflix.Notify.failure(error.response.data);
+                });
+        },
     }
 });
 app.component("Datepicker", VueDatePicker);
+app.component("Sorter", sorterComponent);
 const vm = app.mount('#app');
+
 
 function _(str){
     if(!str)

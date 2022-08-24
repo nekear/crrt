@@ -5,9 +5,7 @@ dayjs.extend(window.dayjs_plugin_customParseFormat);
 dayjs.extend(window.dayjs_plugin_isSameOrAfter);
 dayjs.extend(window.dayjs_plugin_isSameOrBefore);
 
-js_localization = {
-    days: ["day", "days", "days"]
-}
+
 
 const app = createApp({
     data() {

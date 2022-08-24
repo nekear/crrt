@@ -8,38 +8,23 @@ const validationPatterns = {
     "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
 }
 
-const js_localization = {
-    inputs: {
-        firstname: {
-            "placeholder": "Firstname",
-            checks: [
-
-            ]
-        }
-
-    }
-}
 
 
 const app = createApp({
     data() {
         return {
             rent: {
-                id: "fdasfas=",
-                brand: "Mercedes",
-                model: "Amg g7",
-                city: 1,
-                segment: 1,
-                price: 1000,
+                id: "",
+                brand: "",
+                model: "",
+                city: 0,
+                segment: 0,
+                price: 0,
                 images: [
-                    {
-                        id: "adsf324",
-                        fileName: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80',
-                    },
-                    {
-                        id: "adsf324",
-                        fileName: 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1650&q=80'
-                    }
+                    // {
+                    //     id: "adsf324",
+                    //     fileName: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80',
+                    // }
                 ]
             },
             datepickerRef: null,
@@ -53,7 +38,7 @@ const app = createApp({
                         isNecessary: true,
 
                         shouldHighlight: false,
-                        placeholder: "Firstname",
+                        placeholder: "",
                         type: "text",
 
                         checks: [
@@ -62,7 +47,7 @@ const app = createApp({
                                     level: "high",
                                     type: "name_pattern"
                                 },
-                                message: "Firstname should have correct format",
+                                message: "",
                                 isValid: false
                             }
                         ]
@@ -73,7 +58,7 @@ const app = createApp({
                         isNecessary: true,
 
                         shouldHighlight: false,
-                        placeholder: "Surname",
+                        placeholder: "",
                         type: "text",
 
                         checks: [
@@ -82,7 +67,7 @@ const app = createApp({
                                     level: "high",
                                     type: "name_pattern"
                                 },
-                                message: "Surname should have correct format",
+                                message: "",
                                 isValid: false
                             }
                         ]
@@ -93,7 +78,7 @@ const app = createApp({
                         isNecessary: true,
 
                         shouldHighlight: false,
-                        placeholder: "Patronymic",
+                        placeholder: "",
                         type: "text",
 
                         checks: [
@@ -102,7 +87,7 @@ const app = createApp({
                                     level: "high",
                                     type: "name_pattern"
                                 },
-                                message: "Patronymic should have correct format",
+                                message: "",
                                 isValid: false
                             }
                         ]
@@ -122,7 +107,7 @@ const app = createApp({
                                     level: "high",
                                     pattern: "\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
                                 },
-                                message: "Date of birth should have correct format",
+                                message: "",
                                 isValid: false
                             },
                         ]
@@ -132,7 +117,7 @@ const app = createApp({
                         isFocused: false,
 
                         shouldHighlight: false,
-                        placeholder: "Date of issue",
+                        placeholder: "",
                         type: "date",
                         isNecessary: true,
 
@@ -142,7 +127,7 @@ const app = createApp({
                                     level: "high",
                                     pattern: "\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
                                 },
-                                message: "Date of issue should have correct format",
+                                message: "",
                                 isValid: false
                             },
                         ]
@@ -152,7 +137,7 @@ const app = createApp({
                         isFocused: false,
 
                         shouldHighlight: false,
-                        placeholder: "Document number",
+                        placeholder: "",
                         type: "number",
                         isNecessary: true,
 
@@ -162,7 +147,7 @@ const app = createApp({
                                     level: "high",
                                     pattern: "^\\d{9}$"
                                 },
-                                message: "Document number must contain 9 numbers",
+                                message: "",
                                 isValid: false
                             },
                         ]
@@ -172,7 +157,7 @@ const app = createApp({
                         isFocused: false,
 
                         shouldHighlight: false,
-                        placeholder: "RNTRC",
+                        placeholder: "",
                         type: "number",
                         isNecessary: true,
 
@@ -182,7 +167,7 @@ const app = createApp({
                                     level: "high",
                                     pattern: "^\\d{10}$"
                                 },
-                                message: "RNTRC must contain 10 numbers",
+                                message: "",
                                 isValid: false
                             },
                         ]
@@ -192,7 +177,7 @@ const app = createApp({
                         isFocused: false,
 
                         shouldHighlight: false,
-                        placeholder: "Authority",
+                        placeholder: "",
                         type: "number",
                         isNecessary: true,
 
@@ -202,7 +187,7 @@ const app = createApp({
                                     level: "high",
                                     pattern: "^\\d{4}$"
                                 },
-                                message: "Authority must contain 4 numbers",
+                                message: "",
                                 isValid: false
                             },
                         ]
@@ -243,19 +228,18 @@ const app = createApp({
     created(){
         this.user.balance = userBalance;
 
-        // Trick for inputs localization
-        // Object.keys(js_localization.inputs).forEach(key => {
-        //
-        //     // Translating checks
-        //     const checks = this.input_list[key].checks;
-        //
-        //     checks.forEach((check, index) => {
-        //         check.message = js_localization.inputs[key].checks[index];
-        //     });
-        //
-        //     // Translating placeholders
-        //     this.input_list[key].placeholder = js_localization.inputs[key].placeholder;
-        // });
+        // Setting up localization for passport inputs
+        Object.keys(js_localization.inputs).forEach(key => {
+            // Translating checks
+            const checks = this.clientData.input_list[key].checks;
+
+            checks.forEach((check, index) => {
+                check.message = js_localization.inputs[key].checks[index];
+            });
+
+            // Translating placeholders
+            this.clientData.input_list[key].placeholder = js_localization.inputs[key].placeholder;
+        });
 
         // Watcher to look after inputs` changes in user creation modal
         Object.keys(this.clientData.input_list).forEach(key => {
@@ -305,17 +289,17 @@ const app = createApp({
             showTopbar: false,
             i18n: {
                 selected: 'Your rent:',
-                night: 'Day',
-                nights: 'Days',
+                night: rentDatepickerI18n.night,
+                nights: rentDatepickerI18n.nights,
                 button: 'Close',
                 clearButton: 'Clear',
                 submitButton: 'Submit',
                 'checkin-disabled': 'Renting disabled',
                 'checkout-disabled': 'Renting disabled',
-                'day-names-short': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                'day-names': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                'month-names-short': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                'month-names': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                'day-names-short': datepickerI18n.daysShort,
+                'day-names': datepickerI18n.daysLong,
+                'month-names-short': datepickerI18n.monthShort,
+                'month-names': datepickerI18n.monthLong,
                 'error-more': 'Date range should not be more than 1 night',
                 'error-more-plural': 'Date range should not be more than %d nights',
                 'error-less': 'Date range should not be less than 1 night',

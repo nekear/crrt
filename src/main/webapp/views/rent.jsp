@@ -3,6 +3,7 @@
 <%@ page import="java.time.LocalDate" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.google.gson.Gson" %>
+<%@ page import="com.github.DiachenkoMD.web.utils.JSJS" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -62,8 +63,17 @@
     <script src="${assets}js/global.js"></script>
     <script src="${assets}js/rent.js" defer></script>
     <script>
-        userBalance = ${user.balance};
-        carData = <%=rentDataJson%>;
+        const userBalance = ${user.balance};
+        const carData = <%=rentDataJson%>;
+
+        const js_localization = <%=JSJS.transForPassport((String) pageContext.getAttribute("lang"))%>;
+
+        const datepickerI18n = <%=JSJS.transForDatepicker((String) pageContext.getAttribute("lang"))%>;
+
+        const rentDatepickerI18n = {
+            night: '<fmt:message key="days.1"/>',
+            nights: '<fmt:message key="days.3"/>'
+        }
     </script>
 </head>
 <body>
@@ -95,14 +105,14 @@
                         <div class="rent-info">
                             <div class="car-title">{{rent.brand}} {{rent.model}}</div>
                             <div class="mdx-divider mb-4 solid arrow-down"></div>
-                            <div class="mc-item">City: <span class="flat-chip status-chip" :data-status-code="rent.city % 4 + 2">{{cities[rent.city].name}}</span></div>
-                            <div class="mc-item">Segment: <span class="flat-chip status-chip" :data-status-code="rent.segment % 5">{{segments[rent.segment].name}}</span></div>
-                            <div class="mc-item">Price (per day): <span class="flat-chip price-chip" :data-price-code="getPriceLevel(rent.price)">{{rent.price}} $</span></div>
+                            <div class="mc-item"><fmt:message key="page.rent.city"/>: <span class="flat-chip status-chip" :data-status-code="rent.city % 4 + 2">{{cities[rent.city].name}}</span></div>
+                            <div class="mc-item"><fmt:message key="page.rent.segment"/>: <span class="flat-chip status-chip" :data-status-code="rent.segment % 5">{{segments[rent.segment].name}}</span></div>
+                            <div class="mc-item"><fmt:message key="page.rent.price"/>: <span class="flat-chip price-chip" :data-price-code="getPriceLevel(rent.price)">{{rent.price}} $</span></div>
                             <div class="mdx-divider mb-4"></div>
-                            <div class="mc-part-title">Rent configuration:</div>
+                            <div class="mc-part-title"><fmt:message key="page.rent.rent_config"/>:</div>
                             <div class="mc-item row">
                                 <div class="col-4">
-                                    <input class="form-control" placeholder="Select dates range" id="rent-range-datepicker" type="text" @change="setRantingDates">
+                                    <input class="form-control" placeholder="<fmt:message key='page.rent.date_picker.placeholder'/>" id="rent-range-datepicker" type="text" @change="setRantingDates">
                                 </div>
                             </div>
                             <div class="mc-item">
@@ -115,12 +125,12 @@
                                           </svg>
                                         </span>
                                     </label>
-                                    <span class="wdc-text">With driver {{clientData.isWithDriver}}</span>
+                                    <span class="wdc-text"><fmt:message key="page.rent.with_driver"/></span>
                                 </div>
-                                <div class="micro-caution-alert mt-2" v-if="!clientData.datesRange">Select renting dates first...</div>
+                                <div class="micro-caution-alert mt-2" v-if="!clientData.datesRange"><fmt:message key="page.rent.with_driver.no_dates_selected"/></div>
                             </div>
                             <div class="mdx-divider mb-4"></div>
-                            <div class="mc-part-title">Passport data:</div>
+                            <div class="mc-part-title"><fmt:message key="pages.passport.title"/>:</div>
                             <div class="mc-item">
                                 <div class="row">
                                     <div class="col-4 mb-3" v-for="(input_i, key) in clientData.input_list">
@@ -150,9 +160,9 @@
                             <div class="mc-item mr-5" v-if="finalPrice">
                                 <div class="final-price" style="text-align: right">{{finalPrice}}$</div>
                                 <div class="mt-3" style="text-align: right">
-                                    <button class="mdx-flat-button button-green" :class="{disabled: user.balance < finalPrice}" style="display: inline-flex" @click="payInvoice()">Pay</button>
+                                    <button class="mdx-flat-button button-green" :class="{disabled: user.balance < finalPrice}" style="display: inline-flex" @click="payInvoice()"><fmt:message key="page.rent.button.pay"/></button>
                                 </div>
-                                <div class="micro-caution-alert mt-2" style="text-align: right" v-if="user.balance < finalPrice">You are missing {{finalPrice - user.balance}}$</div>
+                                <div class="micro-caution-alert mt-2" style="text-align: right" v-if="user.balance < finalPrice"><fmt:message key="page.rent.with_driver.you_are_missing"/> {{finalPrice - user.balance}}$</div>
                             </div>
                         </div>
                     </c:if>

@@ -78,7 +78,7 @@
                                 <path d="M23 20.9999V18.9999C22.9993 18.1136 22.7044 17.2527 22.1614 16.5522C21.6184 15.8517 20.8581 15.3515 20 15.1299" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M16 3.12988C16.8604 3.35018 17.623 3.85058 18.1676 4.55219C18.7122 5.2538 19.0078 6.11671 19.0078 7.00488C19.0078 7.89305 18.7122 8.75596 18.1676 9.45757C17.623 10.1592 16.8604 10.6596 16 10.8799" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <span>Profile</span>
+                            <span><fmt:message key="pages.loc.profile"/></span>
                         </a>
                     </li>
                     <c:if test="${user.role eq Roles.ADMIN}">
@@ -89,7 +89,7 @@
                                     <path d="M3.26953 6.95996L11.9995 12.01L20.7295 6.95996" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M12 22.08V12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>Admin-panel</span>
+                                <span><fmt:message key="pages.loc.admin"/></span>
                             </a>
                         </li>
                     </c:if>
@@ -103,7 +103,7 @@
                                     <path d="M16 17H8" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M10 9H9H8" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>Manager-panel</span>
+                                <span><fmt:message key="pages.loc.manager"/></span>
                             </a>
                         </li>
                     </c:if>
@@ -113,7 +113,7 @@
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M3 11L22 2L13 21L11 13L3 11Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>Driver-panel</span>
+                                <span><fmt:message key="pages.loc.driver"/></span>
                             </a>
                         </li>
                     </c:if>
@@ -124,7 +124,7 @@
                                     <path d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55228 8.44772 6 9 6H15C15.5523 6 16 5.55228 16 5V3C16 2.44772 15.5523 2 15 2Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>My invoices</span>
+                                <span><fmt:message key="pages.loc.client"/></span>
                             </a>
                         </li>
                     </c:if>

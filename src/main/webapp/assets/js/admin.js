@@ -725,10 +725,6 @@ const app = createApp({
 
         },
 
-        closeInvoiceDetailsModal() {
-            this.performInvoicesSearch(this.invoices.search.pagination.currentPage);
-        },
-
         deleteRepairInvoice(repairInvoiceId){
             axios.delete('http://localhost:8080/crrt_war/manage/repairInvoice', {
                 data: {
@@ -864,6 +860,7 @@ const app = createApp({
                 Notiflix.Notify.failure(error.response.data);
             });
         },
+
 
 
         // ========= USERS RELATED ========= //
@@ -1352,6 +1349,7 @@ const app = createApp({
     }
 });
 app.component("Datepicker", VueDatePicker);
+app.component("Sorter", sorterComponent);
 const vm = app.mount('#app');
 
 // Uploading new car photo (to existing entity)
@@ -1406,3 +1404,7 @@ function _(str){
 
     return str.trim().length > 0 ? str.trim() : null;
 }
+
+$(document).on("hide.bs.modal", "#invoiceDetails_modal", function (e){
+    vm.performInvoicesSearch(vm.invoices.search.pagination.currentPage);
+});

@@ -70,25 +70,25 @@ Notiflix.Notify.init({
     timeout: 3000,
 
     failure: {
-        background: 'rgba(var(--a-systemPink_default), .2)',
+        background: 'rgba(var(--a-systemPink_default), .4)',
         notiflixIconColor: 'var(--systemPink_default)',
         textColor: 'var(--ascentColor)'
     },
 
     success: {
-        background: 'rgba(var(--a-systemGreen_default), .2)',
+        background: 'rgba(var(--a-systemGreen_default), .4)',
         notiflixIconColor: 'var(--systemGreen_default)',
         textColor: 'var(--ascentColor)'
     },
 
     warning: {
-        background: 'rgba(var(--a-systemOrange_default), .2)',
+        background: 'rgba(var(--a-systemOrange_default), .4)',
         notiflixIconColor: 'var(--systemOrange_default)',
         textColor: 'var(--ascentColor)'
     },
 
     info: {
-        background: 'rgba(var(--a-systemBlue_default), .2)',
+        background: 'rgba(var(--a-systemBlue_default), .4)',
         notiflixIconColor: 'var(--systemBlue_default)',
         textColor: 'var(--ascentColor)'
     },

@@ -37,6 +37,35 @@ public class JSJS {
         return jSi18n.toJSON();
     }
 
+    public static String transForPassport(String lang){
+
+        ResourceBundle langPack = bundle(lang);
+
+        JSi18n jSi18n = new JSi18n(langPack);
+        jSi18n.addInputLocalization("firstname", "pages.passport.input.firstname.placeholder", new LinkedList<>(List.of("pages.passport.input.firstname.checks.0")));
+        jSi18n.addInputLocalization("surname", "pages.passport.input.surname.placeholder", new LinkedList<>(List.of("pages.passport.input.surname.checks.0")));
+        jSi18n.addInputLocalization("patronymic", "pages.passport.input.patronymic.placeholder", new LinkedList<>(List.of("pages.passport.input.patronymic.checks.0")));
+        jSi18n.addInputLocalization("date_of_birth", "pages.passport.input.date_of_birth.placeholder", new LinkedList<>(List.of("pages.passport.input.date_of_birth.checks.0")));
+        jSi18n.addInputLocalization("date_of_issue", "pages.passport.input.date_of_issue.placeholder", new LinkedList<>(List.of("pages.passport.input.date_of_issue.checks.0")));
+        jSi18n.addInputLocalization("doc_number", "pages.passport.input.doc_number.placeholder", new LinkedList<>(List.of("pages.passport.input.doc_number.checks.0")));
+        jSi18n.addInputLocalization("rntrc", "pages.passport.input.rntrc.placeholder", new LinkedList<>(List.of("pages.passport.input.rntrc.checks.0")));
+        jSi18n.addInputLocalization("authority", "pages.passport.input.authority.placeholder", new LinkedList<>(List.of("pages.passport.input.authority.checks.0")));
+
+
+        return jSi18n.toJSON();
+    }
+
+    public static String transForDatepicker(String lang){
+        ResourceBundle langPack = bundle(lang);
+
+        return new GsonBuilder().setPrettyPrinting().create().toJson(Map.of(
+        "monthShort", langPack.getString("months.short").split(","),
+        "monthLong", langPack.getString("months.long").split(","),
+        "daysShort", langPack.getString("week_days.short").split(","),
+        "daysLong", langPack.getString("week_days.long").split(",")
+        ));
+    }
+
     public static String CitiesList(String lang){
         ResourceBundle langPack = bundle(lang);
 
