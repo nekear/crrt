@@ -1,14 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
+        <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{yyyy.MM.dd HH:mm:ss}] %highlight{[%p]} [%L] %C{1}.%M(): %msg%n" charset="windows-1251"/>
         </Console>
-    </Appenders>
 
+        <RollingFile name="rollingFile"
+                     fileName="${sys:catalina.home}/logs/crrt/current.log"
+                     filePattern="${sys:catalina.home}/logs/crrt/archive/lifecycle.%d{yyyy_MM_dd}.log.gz"
+        >
+            <PatternLayout pattern="[%d{yyyy.MM.dd HH:mm:ss}] %highlight{[%p]} [%L] %C{1}.%M(): %msg%n" charset="windows-1251"/>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <TimeBasedTriggeringPolicy interval="1" />
+            </Policies>
+            <DefaultRolloverStrategy max="5" />
+        </RollingFile>
+
+        <JDBC name="jdbcAppender" tableName="tbl_logs">
+            <MarkerFilter marker="DB" onMatch="ACCEPT" onMismatch="DENY"/>
+            <DataSource jndiName="java:comp/env/jdbc/mysql/crrt" />
+            <Column name="class" pattern="%C{1}" />
+            <Column name="method" pattern="%M" />
+            <Column name="level" pattern="%level" />
+            <Column name="message" isUnicode="false" pattern="%message" />
+        </JDBC>
+    </Appenders>
     <Loggers>
         <Root level="debug">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="console" level="debug"/>
+            <AppenderRef ref="rollingFile" level="info"/>
+            <AppenderRef ref="jdbcAppender" level="info"/>
         </Root>
     </Loggers>
 </Configuration>

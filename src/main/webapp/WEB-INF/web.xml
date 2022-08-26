@@ -18,8 +18,13 @@
     </jsp-config>
 
     <context-param>
-        <param-name>defaultLocale</param-name>
-        <param-value>en</param-value>
+        <param-name>enLocale</param-name>
+        <param-value>en_US</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>ukLocale</param-name>
+        <param-value>uk</param-value>
     </context-param>
 
     <!--  404 page  -->

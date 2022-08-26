@@ -1,6 +1,7 @@
 package com.github.DiachenkoMD.web.services;
 
 import com.github.DiachenkoMD.entities.DB_Constants;
+import com.github.DiachenkoMD.entities.adapters.CryptoAdapter;
 import com.github.DiachenkoMD.entities.dto.*;
 import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
@@ -18,6 +19,8 @@ import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.github.DiachenkoMD.web.utils.Utils;
 import com.google.gson.Gson;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.reflect.TypeToken;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +32,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -47,6 +51,7 @@ public class AdminService {
     private final ServletContext ctx;
 
     private final RightsManager rightsManager;
+
 
     public AdminService(UsersDAO usersDAO, CarsDAO carsDAO, InvoicesDAO invoicesDAO, ServletContext ctx){
         this.usersDAO = usersDAO;
@@ -524,8 +529,7 @@ public class AdminService {
 
 
         if(resultFieldsToUpdate.size() > 0)
-            if(!usersDAO.updateUsersData(userId, resultFieldsToUpdate))
-                throw new DescriptiveException("Zero rows were updated by calling updateUserData", ExceptionReason.DB_ACTION_ERROR);
+            usersDAO.updateUsersData(userId, resultFieldsToUpdate);
 
         // Adding user id to updating queue (to update his rights on any next action)
         rightsManager.add(userId);
@@ -559,6 +563,7 @@ public class AdminService {
      */
     public void deleteUsers(String usersListJSON) throws DBException, DescriptiveException {
         Gson gson = (Gson) ctx.getAttribute("gson");
+
         DeleteUsersJPC deleteUsersData = gson.fromJson(usersListJSON, DeleteUsersJPC.class);
 
 

@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -155,14 +156,17 @@ public class Car {
         return String.format("{%s, %s, %s, %s, %s, %4.3f, %s}", this.id, this.model, this.brand, this.segment, this.images, this.price, this.city);
     }
 
+
     @Override
-    public boolean equals(Object obj) {
-        if(obj == null)
-            return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Car car = (Car) o;
+        return Objects.equals(id, car.id) && brand.equals(car.brand) && model.equals(car.model) && segment == car.segment && price.equals(car.price) && city == car.city;
+    }
 
-        if(!(obj instanceof Car))
-            return false;
-
-        return id == ((Car) obj).getId();
+    @Override
+    public int hashCode() {
+        return Objects.hash(brand, model, segment, price, city);
     }
 }

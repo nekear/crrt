@@ -7,7 +7,9 @@ import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,54 +38,7 @@ public class Utils {
     public static final DateTimeFormatter localDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private Utils(){}
-    /**
-     * Method for parsing json object to specified parsingDestination. The parsingDestination should have methods like set[key from json object] to let this function fill the necessary fields.<br>
-     * Spoiler: at the end, I decided to switch to GSON library, so that method is useless, but I want to leave in here for future use in different projects.
-     * @param parsedJsonObject - parsed to json object
-     * @param parsingDestination - Class reference to which method should parse data
-     * @return new class instance with data from json object
-     * @param <T>
-     */
-    public static <T> T flatJsonParser(JSONObject parsedJsonObject, Class<T> parsingDestination) {
-        try {
-            Iterator<String> it = parsedJsonObject.keys();
 
-            T parsingDestInstance = parsingDestination.getConstructor().newInstance();
-
-            int failedMethodsToInvoke = 0;
-
-            while (it.hasNext()) {
-                String key = it.next();
-                Object value = parsedJsonObject.get(key);
-
-                Class<?> classType;
-
-                if (value instanceof Boolean) {
-                    classType = Boolean.class;
-                } else if (value instanceof Number) {
-                    classType = Number.class;
-                } else {
-                    classType = String.class;
-                }
-
-                try{
-                    Method settingMethod = parsingDestination.getDeclaredMethod("set" + (capitalize(key)), classType);
-
-                    settingMethod.invoke(parsingDestInstance, value);
-                }catch (NoSuchMethodException | SecurityException ignored){
-                    ++failedMethodsToInvoke;
-                }
-
-            }
-
-            return failedMethodsToInvoke == parsedJsonObject.length() ? null : parsingDestInstance;
-        }catch (NoSuchMethodException| InvocationTargetException | IllegalAccessException | InstantiationException e){
-            throw new IllegalStateException(String.format("[FJP] -> [Dest: %s] Exception occured while parsing %s", parsingDestination.getName(), parsedJsonObject), e);
-        }
-    }
-    public static <T> T flatJsonParser(String json, Class<T> parsingDestination) {
-        return flatJsonParser(new JSONObject(json), parsingDestination);
-    }
 
     /**
      * Method for capitalizing letters.
@@ -95,47 +50,6 @@ public class Utils {
             return incoming.substring(0,1).toUpperCase() + incoming.substring(1);
         }else{
             throw new IllegalArgumentException("Unable to capitalize *null*!");
-        }
-    }
-
-    /**
-     * Method from checking for equality of two objects using reflection. Main purpose was to use in unit testing, but it can be used anywhere else.
-     * @param obj1
-     * @param obj2
-     * @return
-     * @param <T>
-     */
-    public static <T> boolean reflectiveEquals(T obj1, T obj2){
-        Field[] obj1Fields = obj1.getClass().getDeclaredFields();
-        Field[] obj2Fields = obj2.getClass().getDeclaredFields();
-
-        try{
-            for(int i = 0; i < obj1Fields.length; i++){
-                Class<?> currentType = obj1Fields[i].getType();
-
-                Field f1 = obj1Fields[i];
-                Field f2 = obj2Fields[i];
-
-                f1.setAccessible(true);
-                f2.setAccessible(true);
-
-                if(f1.get(obj1) != null && f2.get(obj2) != null) {
-                    if (currentType.equals(String.class) && !((String) f1.get(obj1)).equalsIgnoreCase((String) f2.get(obj2)))
-                        return false;
-                    else if (currentType.equals(Number.class) && f1.getDouble(obj1) != f2.getDouble(obj2))
-                        return false;
-                    else if (currentType.equals(Boolean.class) && f1.getBoolean(obj1) != f2.getBoolean(obj2))
-                        return false;
-                    else if (!f1.get(obj1).equals(f2.get(obj2)))
-                        return false;
-                }else if(f1.get(obj1) == null && f2.get(obj2) != null || f1.get(obj2) == null && f2.get(obj1) != null) {
-                    return false;
-                }
-            }
-
-            return true;
-        }catch (IllegalAccessException e){
-            throw new IllegalStateException(String.format("[RE] Exception caught while comparing %s and %s", obj1, obj2), e);
         }
     }
 
@@ -161,8 +75,10 @@ public class Utils {
             return false;
 
         for(Validatable val : args){
-            if(!val.validate())
+            if(!val.validate()){
+                System.out.println("VT FAIL: " + val.getValidationParameter() + " with data: " + val.getData());
                 return false;
+            }
         }
         return true;
     }
@@ -217,40 +133,49 @@ public class Utils {
 
     /**
      * Email notification util. Simplifies the thing it was created for. For now uses mailtrap as SMTP. Configure at app.properties.
-     * @param user - user mail will be sent to
-     * @param subject - subject of the mail
-     * @param data - content of the mail (might be some html, for example)
+     * @param user user mail will be sent to
+     * @param subject subject of the mail
+     * @param data content of the mail (might be some html, for example)
      */
     public static void emailNotify(LimitedUser user, String subject, String data){
         emailNotify(user.getEmail(), subject, data);
     }
 
+
+    public static void emailNotify(String email, String subject, String data){
+        ResourceBundle mailHostDataBundle = ResourceBundle.getBundle("app");
+
+        emailNotify(email, subject, data,
+                mailHostDataBundle.getString("mail.active").equalsIgnoreCase("true"));
+    }
+
     /**
      * Email notification util. Simplifies the thing it was created for. For now uses mailtrap as SMTP. Configure at app.properties.
      * @param email
-     * @param subject - subject of the mail
-     * @param data - content of the mail (might be some html, for example)
+     * @param subject subject of the mail
+     * @param data сontent of the mail (might be some html, for example)
+     * @param isEnabled specifies whether to enable actual sending or to output messages to the console
      */
-    public static void emailNotify(String email, String subject, String data){
-        ResourceBundle rb = ResourceBundle.getBundle("app");
+    public static void emailNotify(String email, String subject, String data, boolean isEnabled){
+        ResourceBundle mailHostDataBundle = ResourceBundle.getBundle("app");
 
-        if(rb.getString("mail.active").equalsIgnoreCase("true")){
+        if(isEnabled){
             String to = email;
-            String from = rb.getString("mail.from");
-            String host = rb.getString("mail.host");
+            String from = mailHostDataBundle.getString("mail.from");
+            String host = mailHostDataBundle.getString("mail.host");
 
             Properties props = System.getProperties();
 
             props.setProperty("mail.smtp.auth", "true");
             props.setProperty("mail.smtp.starttls.enable", "true");
             props.setProperty("mail.smtp.host", host);
-            props.setProperty("mail.smtp.port", rb.getString("mail.smtp.port"));
+            props.setProperty("mail.smtp.port", mailHostDataBundle.getString("mail.smtp.port"));
 
 
             Session session = Session.getInstance(props, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(rb.getString("mail.smtp.user"), rb.getString("mail.smtp.password"));
+                    return new PasswordAuthentication(mailHostDataBundle.getString("mail.smtp.user"), mailHostDataBundle.getString("mail.smtp.password"));
                 }
             });
 
@@ -258,8 +183,15 @@ public class Utils {
                 MimeMessage message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(from));
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-                message.setSubject(subject);
-                message.setText(data);
+                message.setSubject(subject.replaceAll("<.+?>", ""));
+
+                Multipart multipart = new MimeMultipart("alternative");
+                MimeBodyPart htmlBody = new MimeBodyPart();
+                htmlBody.setContent(EmailFormatter.format(subject, data), "text/html; charset=utf-8");
+                multipart.addBodyPart(htmlBody);
+
+                message.setContent(multipart);
+                message.saveChanges();
 
                 Transport.send(message);
 
@@ -269,7 +201,7 @@ public class Utils {
             }
         }else{
             logger.info("Request for sending mail was blocked. Mail system is inactive!");
-            logger.info("MAIL SUBJECT: {}", subject);
+            logger.info("MAIL SUBJECT: {}", subject.replaceAll("<.+?>", ""));
             logger.info("MAIL BODY: {}", data);
         }
     }
@@ -326,8 +258,11 @@ public class Utils {
                 .replace("[", "![");
     }
 
-    public static boolean multieq(String str, String... els){
-        return Arrays.stream(els).parallel().filter(x -> x.equalsIgnoreCase(str)).toList().size() > 0;
+    public static boolean multieq(String val, String... els){
+        return Arrays.stream(els).parallel().filter(x -> x.equalsIgnoreCase(val)).toList().size() > 0;
+    }
+    public static boolean multieq(Object val, Object... els){
+        return Arrays.stream(els).parallel().filter(x -> x.equals(val)).toList().size() > 0;
     }
 
     public static String getFileExtension(String name) {
@@ -336,14 +271,5 @@ public class Utils {
             return ""; // empty extension
         }
         return name.substring(lastIndexOf);
-    }
-
-    public static boolean notNulls(Object... args){
-        for(Object arg : args){
-            if(arg == null)
-                return false;
-        }
-
-        return true;
     }
 }

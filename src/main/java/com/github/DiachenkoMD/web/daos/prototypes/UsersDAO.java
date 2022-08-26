@@ -48,7 +48,7 @@ public interface UsersDAO {
 
     AuthUser getUserByConfirmationCode(String code) throws DBException;
 
-    boolean updateUsersData(int userId, HashMap<String, String> fieldsToUpdate) throws DBException;
+    void updateUsersData(int userId, HashMap<String, String> fieldsToUpdate) throws DBException;
     String getPassword(int userId) throws DBException;
     boolean setPassword(int userId, String password) throws DBException;
 

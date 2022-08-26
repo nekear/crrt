@@ -24,17 +24,9 @@ public class TGenerators {
         passport.setSurname(generateRandomString(4));
         passport.setPatronymic(generateRandomString(8));
 
-        passport.setDateOfBirth(LocalDate.of(
-                2022,
-                random.nextInt(11)+1,
-                random.nextInt(27)+1
-        ));
+        passport.setDateOfBirth(LocalDate.now().minusYears(19));
 
-        passport.setDateOfIssue(LocalDate.of(
-                2022,
-                random.nextInt(11)+1,
-                random.nextInt(27)+1
-        ));
+        passport.setDateOfIssue(LocalDate.now().minusYears(1));
 
         passport.setDocNumber(111111111L);
         passport.setRntrc(2222222222L);

@@ -18,6 +18,8 @@ import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import jakarta.servlet.ServletContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,6 +32,7 @@ import static com.github.DiachenkoMD.web.utils.Utils.emailNotify;
 public class DriverService {
 
     private static final Logger logger = LogManager.getLogger(DriverService.class);
+    private static final Marker DB_MARKER = MarkerManager.getMarker("DB");
     private final UsersDAO usersDAO;
     private final InvoicesDAO invoicesDAO;
 
@@ -90,6 +93,12 @@ public class DriverService {
         String rentEndFormatted = rangeEnd.format(formatter);
 
         emailNotify(newDriver.getEmail(), "New rent was added to your list", String.format("Hello, driver. New rent, scheduled from <strong>%s</strong> to <strong>%s</strong> on <strong>%s</strong> has been added to your list!", rentStartFormatted, rentEndFormatted, invoice.getBrand() + invoice.getModel()));
+
+        logger.info(DB_MARKER, "Driver [{}] successfully skipped rent [{}]. In was delegated to driver [{}].",
+                driver.getId(),
+                invoiceId,
+                newDriver.getId()
+        );
 
         return true;
     }

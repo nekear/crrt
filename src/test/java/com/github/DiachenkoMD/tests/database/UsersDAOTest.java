@@ -9,6 +9,7 @@ import com.github.DiachenkoMD.entities.dto.users.Passport;
 import com.github.DiachenkoMD.entities.enums.AccountStates;
 import com.github.DiachenkoMD.entities.enums.CarSegments;
 import com.github.DiachenkoMD.entities.enums.Cities;
+import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.impls.mysql.MysqlCarsDAO;
 import com.github.DiachenkoMD.web.daos.impls.mysql.MysqlInvoicesDAO;
@@ -273,32 +274,63 @@ class UsersDAOTest {
         assertEquals(Cities.LVIV, usersDAO.getDriverFromUser((Integer) registered.getId()).get().getCity());
     }
 
-    @Test
+    @Nested
     @DisplayName("updateUsersData")
-    void updateUsersDataTest() throws Exception{
-        // Registering new user entity
-        LimitedUser registered = usersDAO.register(AuthUser.of("email@gmail.com", null, null, null), "password1");
+    class updateUsersDataTest{
 
-        String firstname = "Mykhailo";
-        String surname = "Diachenko";
-        String patronymic = "Dmytrovich";
+        @Test
+        @DisplayName("Update + role -> driver")
+        void updateUserAndSetRoleDriver() throws DBException {
+            // Registering new user entity
+            LimitedUser registered = usersDAO.register(AuthUser.of("email@gmail.com", null, null, null), "password1");
+
+            String firstname = "Mykhailo";
+            String surname = "Diachenko";
+            String patronymic = "Dmytrovich";
 
 
-        // Setting firstname, surname and patronymic
-        assertTrue(usersDAO.updateUsersData(registered.getCleanId().get(), new HashMap<>(
-                Map.of(
-                        "firstname", firstname,
-                        "surname", surname,
-                        "patronymic", patronymic
-                )
-        )));
+            // Setting firstname, surname, patronymic and role
+            assertDoesNotThrow(() -> usersDAO.updateUsersData(registered.getCleanId().get(), new HashMap<>(
+                    Map.of(
+                            "firstname", firstname,
+                            "surname", surname,
+                            "patronymic", patronymic,
+                            "role_id", String.valueOf(Roles.DRIVER.id())
+                    )
+            )));
 
-        // Checks
-        AuthUser acquiredFromDBUser = usersDAO.get(registered.getEmail());
+            // Checks
+            AuthUser acquiredFromDBUser = usersDAO.get(registered.getEmail());
 
-        assertEquals(firstname, acquiredFromDBUser.getFirstname());
-        assertEquals(surname, acquiredFromDBUser.getSurname());
-        assertEquals(patronymic, acquiredFromDBUser.getPatronymic());
+            assertEquals(firstname, acquiredFromDBUser.getFirstname());
+            assertEquals(surname, acquiredFromDBUser.getSurname());
+            assertEquals(patronymic, acquiredFromDBUser.getPatronymic());
+
+            assertEquals(acquiredFromDBUser.getRole(), Roles.DRIVER);
+            assertTrue(usersDAO.getDriverFromUser((Integer) acquiredFromDBUser.getId()).isPresent());
+        }
+
+        @Test
+        @DisplayName("Update + role from driver -> client")
+        void updateUserAndSetRoleFromDriverToClient() throws DBException {
+            // Registering new user entity
+            LimitedUser registered = usersDAO.register(AuthUser.of("email@gmail.com", null, null, null), "password1");
+
+            usersDAO.insertDriver((Integer) registered.getId(), Cities.KYIV.id());
+
+            // Setting role to client
+            assertDoesNotThrow(() -> usersDAO.updateUsersData(registered.getCleanId().get(), new HashMap<>(
+                    Map.of(
+                            "role_id", String.valueOf(Roles.CLIENT.id())
+                    )
+            )));
+
+            // Checks
+            AuthUser acquiredFromDBUser = usersDAO.get(registered.getEmail());
+
+            assertEquals(acquiredFromDBUser.getRole(), Roles.CLIENT);
+            assertTrue(usersDAO.getDriverFromUser((Integer) acquiredFromDBUser.getId()).isEmpty());
+        }
     }
 
     @Test

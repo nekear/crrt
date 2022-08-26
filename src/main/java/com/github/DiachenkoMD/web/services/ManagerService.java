@@ -20,6 +20,8 @@ import com.google.gson.annotations.JsonAdapter;
 import jakarta.servlet.ServletContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -42,6 +44,7 @@ import static com.github.DiachenkoMD.web.utils.Utils.*;
 public class ManagerService {
 
     private static final Logger logger = LogManager.getLogger(ManagerService.class);
+    private static final Marker DB_MARKER = MarkerManager.getMarker("DB");
     private final UsersDAO usersDAO;
     private final InvoicesDAO invoicesDAO;
 
@@ -138,7 +141,7 @@ public class ManagerService {
 
         // Deleting repairment invoice entry from db
         invoicesDAO.deleteRepairInvoice(repairInvoiceId);
-        logger.trace("Repairment invoice [#{}] deleted successfully from {}.", repairInvoice.getId(), repairInvoice.getClientEmail());
+        logger.info(DB_MARKER, "Repairment invoice [#{}] deleted successfully from {}.", repairInvoice.getId(), repairInvoice.getClientEmail());
         // Deciding whether we should notify user or not
         if(repairInvoice.isPaid()){
             AuthUser client = usersDAO.get(repairInvoice.getClientEmail());
@@ -148,7 +151,7 @@ public class ManagerService {
                 BigDecimal newBalance = BigDecimal.valueOf(client.getBalance()).add(repairInvoice.getPrice()); // should better use BigDecimal for balance from the start but now it`s too late to change it
                 usersDAO.setBalance((Integer) client.getId(), newBalance);
                 emailNotify(client, "Refund for cancelled repairment invoice", "We apologize for the inconvenience. Apparently, this repairment invoice was billed by mistake, but since you paid for it, we gave you your money back.");
-                logger.trace("Money refunded from repairment invoice [#{}] to {} at amount of {}$.", repairInvoice.getId(), repairInvoice.getClientEmail(), repairInvoice.getPrice());
+                logger.info(DB_MARKER, "Money refunded from repairment invoice [#{}] to {} at amount of {}$.", repairInvoice.getId(), repairInvoice.getClientEmail(), repairInvoice.getPrice());
 
                 // Adding user id to updating queue (to update his rights on any next action)
                 rightsManager.add((Integer) client.getId());
@@ -191,7 +194,7 @@ public class ManagerService {
                     String.format("Your car order has been rejected. Reason: %s. Car: %s. The money in the amount of %s has been returned to your balance. We apologize for the inconvenience.",
                             rejectionReason, informativeInvoice.getBrand() + informativeInvoice.getModel(), informativeInvoice.getPrice()));
 
-            logger.trace("Money refunded from invoice [#{}] to {} at amount of {}$. Reason: {}.", informativeInvoice.getId(), client.getEmail(), informativeInvoice.getPrice(), rejectionReason);
+            logger.info(DB_MARKER, "Money refunded from invoice [#{}] to {} at amount of {}$. Reason: {}.", informativeInvoice.getId(), client.getEmail(), informativeInvoice.getPrice(), rejectionReason);
 
             // Adding user id to updating queue (to update his balance)
             rightsManager.add((Integer) client.getId());

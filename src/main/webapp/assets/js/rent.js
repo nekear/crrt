@@ -343,10 +343,10 @@ const app = createApp({
                 })
                 .then(response => {
                     console.log(response);
-                    if(response.data){
-                        resultStatus = true;
-                    }else{
-                        Notiflix.Notify.info("Sorry, but we don`t have any available drivers on the specified dates interval!");
+                    resultStatus = response.data.value;
+
+                    if(!resultStatus){
+                        Notiflix.Notify.info(response.data.message);
                     }
                 })
                 .catch(error => {

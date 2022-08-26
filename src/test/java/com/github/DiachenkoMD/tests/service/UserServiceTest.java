@@ -306,8 +306,6 @@ public class UserServiceTest {
         void successfulUserDataUpdateTest() throws Exception{
             when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("firstname", "Mykhailo", "surname", "Diachenko")));
 
-            when(_usersDao.updateUsersData(user.getCleanId().get(), new HashMap<>(Map.of("firstname", "Mykhailo", "surname", "Diachenko")))).thenReturn(true);
-
             user.setFirstname("Mykhailo");
             user.setSurname("Diachenko");
 
@@ -352,19 +350,6 @@ public class UserServiceTest {
                             TValidationCategories.patronymic
                     )
             );
-        }
-
-
-        @Test
-        @DisplayName("Failed to execute update")
-        void failedToExecuteUpdateTest() throws Exception{
-            when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("firstname", "Mykhailo", "surname", "Diachenko")));
-
-            when(_usersDao.updateUsersData(user.getCleanId().get(), new HashMap<>(Map.of("firstname", "Mykhailo", "surname", "Diachenko")))).thenReturn(false);
-
-            DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.updateData(_req, _resp));
-
-            assertEquals(ExceptionReason.UUD_FAILED_TO_UPDATE, expectedException.getReason());
         }
     }
 

@@ -7,7 +7,7 @@
 
 <%
     // Resolving lang
-    request.setAttribute("endLocale", Optional.of(request.getSession().getAttribute("lang")).orElse("en"));
+    request.setAttribute("endLocale", Optional.ofNullable(request.getSession().getAttribute("lang")).orElse(request.getServletContext().getInitParameter("enLocale")));
 
     // Resolving theme
     Cookie themeCookie = Utils.getCookieFromArray("theme", request.getCookies()).orElse(null);

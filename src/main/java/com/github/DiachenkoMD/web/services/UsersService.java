@@ -100,7 +100,7 @@ public class UsersService {
 
         String confirmationCode = registeredUserEntity.getConfirmationCode();
 
-        emailNotify(registeringUser, "Account confirmation email from CRRT", "You can confirm your code at http://localhost:8080/crrt_war/confirmation?code="+confirmationCode);
+        emailNotify(registeringUser, "Account confirmation email from CRRT", "You can confirm your account by clicking on <a href='http://localhost:8080/crrt_war/confirmation?code="+confirmationCode+"'>this</a> link.");
 
         return email;
     }
@@ -206,8 +206,7 @@ public class UsersService {
 
         AuthUser current = (AuthUser) req.getSession().getAttribute("auth");
 
-        if(!usersDAO.updateUsersData(current.getCleanId().orElse(-1), resultFieldsToUpdate))
-            throw new DescriptiveException(ExceptionReason.UUD_FAILED_TO_UPDATE);
+        usersDAO.updateUsersData(current.getCleanId().orElse(-1), resultFieldsToUpdate);
 
         return usersDAO.get(current.getEmail());
     }

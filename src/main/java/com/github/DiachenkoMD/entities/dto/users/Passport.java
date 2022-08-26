@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Map;
 
 public class Passport {
@@ -58,6 +59,12 @@ public class Passport {
 
         if(!Utils.validate(firstnameVT, surnameVT, patronymicVT, dateOfBirthVT, dateOfIssueVT, docNumberVT, rntrcVT, authorityVT))
             throw new DescriptiveException("VALIDATION ERROR: " + this, ExceptionReason.PASSPORT_VALIDATION_ERROR);
+
+        if(!(Period.between(dateOfBirth, LocalDate.now()).getYears() >= 18))
+            throw new DescriptiveException("PASSPORT BAD DATES: You must be over 18 years old", ExceptionReason.AGE_TOO_YOUNG);
+
+        if(!(Period.between(dateOfIssue, LocalDate.now()).getYears() <= 10))
+            throw new DescriptiveException("PASSPORT BAD DATES: The passport must be up to date", ExceptionReason.PASSPORT_BAD_DATE_ISSUE);
     }
 
     public String getFirstname() {

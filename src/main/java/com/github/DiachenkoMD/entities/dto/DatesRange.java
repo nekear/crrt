@@ -1,6 +1,7 @@
 package com.github.DiachenkoMD.entities.dto;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 public class DatesRange {
     private LocalDate start;
@@ -27,6 +28,10 @@ public class DatesRange {
 
     public void setEnd(LocalDate end) {
         this.end = end;
+    }
+
+    public Period getLength(){
+        return Period.between(this.getStart(), this.getEnd());
     }
 
     @Override

@@ -13,4 +13,20 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+
+    <tag>
+        <name>lang</name>
+        <tag-class>com.github.DiachenkoMD.tag_handlers.LangTagHandler</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>prefix</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>clean</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>

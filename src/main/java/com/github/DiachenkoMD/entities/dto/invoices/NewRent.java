@@ -5,6 +5,8 @@ import com.github.DiachenkoMD.entities.dto.DatesRange;
 import com.github.DiachenkoMD.entities.dto.users.Passport;
 import com.google.gson.annotations.JsonAdapter;
 
+import java.time.Period;
+
 public class NewRent {
     @JsonAdapter(CryptoAdapter.class)
     private Object carId;
@@ -46,4 +48,6 @@ public class NewRent {
     public void setWithDriver(boolean withDriver) {
         isWithDriver = withDriver;
     }
+
+
 }

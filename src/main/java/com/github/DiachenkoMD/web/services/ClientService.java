@@ -130,7 +130,7 @@ public class ClientService {
      */
     public void cancelInvoice(int invoiceId, AuthUser client) throws DescriptiveException, DBException {
         // Getting client id
-        int clientId = client.getCleanId().get();
+        int clientId = (Integer) client.getId();
 
         // Getting invoice data (mainly to check price and whether it already rejected / cancelled or not)
         InformativeInvoice informativeInvoice = invoicesDAO.getInvoiceDetails(invoiceId);

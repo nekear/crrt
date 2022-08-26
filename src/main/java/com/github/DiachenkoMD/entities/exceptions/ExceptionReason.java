@@ -47,5 +47,9 @@ public enum ExceptionReason {
     REP_INVOICE_IS_ALREADY_PAID,
 
     DRIVER_NOT_ALLOWED,
-    NO_SUITABLE_DRIVER
+    NO_SUITABLE_DRIVER,
+
+//  Passport
+    AGE_TOO_YOUNG,
+    PASSPORT_BAD_DATE_ISSUE
 }

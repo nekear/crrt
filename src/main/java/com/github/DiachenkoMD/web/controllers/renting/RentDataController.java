@@ -24,6 +24,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.Buffer;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -58,7 +60,14 @@ public class RentDataController extends HttpServlet {
             String end = req.getParameter("end");
             int cityId = Integer.parseInt(req.getParameter("city"));
 
-            sendSuccess(gson.toJson(introService.getAvailableDriversOnRange(start, end, cityId).size() > 0), resp);
+            List<Integer> foundDrivers =  introService.getAvailableDriversOnRange(start, end, cityId);
+
+            sendSuccess(gson.toJson(
+                    Map.of(
+                            "value", foundDrivers.size() > 0,
+                            "message", foundDrivers.size() > 0 ? "" : new StatusText("rent.for_client.driver_not_found").convert(getLang(req))
+                    )
+            ), resp);
         }catch (Exception e){
             logger.error(e);
 

@@ -4,9 +4,6 @@ import com.github.DiachenkoMD.entities.dto.DatesRange;
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.web.services.IntroService;
 import com.github.DiachenkoMD.web.utils.Utils;
-import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
-import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.roles.DriverRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -47,7 +44,7 @@ public class OffersFiltersController extends HttpServlet {
             if(req.getParameter("end") != null)
                 datesRange.setEnd(LocalDate.parse(req.getParameter("end"), formatter));
 
-            Utils.sendSuccess(gson.toJson(introService.getCarsWithDatesRange(datesRange)), resp);
+            Utils.sendSuccess(gson.toJson(introService.getCarsNotRentedInDatesRange(datesRange)), resp);
 
         }catch (Exception e){
             logger.error(e);

@@ -52,7 +52,7 @@ public class RentController extends HttpServlet {
                 int decryptedCarId = Integer.parseInt(CryptoStore.decrypt(carRefId));
                 Map.Entry<Car, List<LocalDate>> carData = introService.getRentingInfo(decryptedCarId);
 
-                logger.info(carData);
+                logger.debug(carData);
 
                 req.setAttribute("carData", carData);
 

@@ -7,6 +7,8 @@ import java.time.Month;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
+import static com.github.DiachenkoMD.web.utils.Utils.multieq;
+
 public class Validatable {
     private static HashMap<ValidationParameters, Pattern> patterns = new HashMap<>();
 
@@ -26,6 +28,14 @@ public class Validatable {
 
     public static Validatable of(Object data, ValidationParameters validationParameter){
         Validatable validatable = new Validatable();
+
+        if(multieq(validationParameter, ValidationParameters.DATE_OF_BIRTH, ValidationParameters.DATE_OF_ISSUE) && !(data instanceof LocalDate)){
+            try {
+                data = LocalDate.parse((String) data, Utils.localDateFormatter);
+            }catch (Exception e){
+                throw new IllegalArgumentException(String.format("With {} you should pass LocalDate object or string, which can be parsed to LocalDate! Current value: {}.", validationParameter, data));
+            }
+        }
 
         validatable.setData(data);
         validatable.setValidationParameter(validationParameter);
@@ -48,12 +58,12 @@ public class Validatable {
 
         if(pattern != null){
             String str = String.valueOf(data);
-            return pattern != null && pattern.matcher(str).matches();
+            return pattern.matcher(str).matches();
         }else{
             if(data instanceof LocalDate ld){
                 return switch (validationParameter){
-                    case DATE_OF_BIRTH -> ld.isAfter(LocalDate.of(1910, Month.JANUARY, 1));
-                    case DATE_OF_ISSUE -> ld.isAfter(LocalDate.of(1991, Month.JANUARY, 1));
+                    case DATE_OF_BIRTH -> ld.isAfter(LocalDate.of(1910, Month.JANUARY, 1)) && ld.isBefore(LocalDate.now());
+                    case DATE_OF_ISSUE -> ld.isAfter(LocalDate.of(1991, Month.JANUARY, 1)) && ld.isBefore(LocalDate.now().plusDays(1));
                     default -> false;
                 };
             }

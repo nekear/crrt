@@ -1,23 +1,28 @@
 package com.github.DiachenkoMD.tests.utils;
 
-import com.github.DiachenkoMD.entities.adapters.DBCoupledAdapter;
-import com.github.DiachenkoMD.entities.adapters.LocalDateAdapter;
-import com.github.DiachenkoMD.entities.adapters.LocalDateTimeAdapter;
-import com.github.DiachenkoMD.entities.adapters.Skip;
 import com.github.DiachenkoMD.entities.dto.Car;
+import com.github.DiachenkoMD.entities.dto.JSi18n;
 import com.github.DiachenkoMD.entities.dto.users.Passport;
 import com.github.DiachenkoMD.entities.enums.*;
-import com.github.DiachenkoMD.entities.dto.users.AuthUser;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static com.github.DiachenkoMD.web.utils.Utils.*;
+import static org.mockito.Mockito.*;
 
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
+import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
+import com.github.DiachenkoMD.utils.TGenerators;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
-import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.EmailFormatter;
+import com.github.DiachenkoMD.web.utils.JSJS;
 import com.github.DiachenkoMD.web.utils.Validatable;
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,152 +30,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.*;
+import java.lang.reflect.Type;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
+
 @ExtendWith({MockitoExtension.class})
 @DisplayName("Global utils")
 public class GlobalUtilsTest {
-
-    @Nested
-    @DisplayName("flatJsonParser")
-    class FlatJsonParserTest{
-        @Test
-        @DisplayName("Contains only present fields")
-        public void testWithPresentOnly(){
-            String testingJsonObject = "{\n" +
-                    "    \"email\": \"some@gmail.com\",\n" +
-                    "    \"firstname\": \"user1\"\n" +
-                    "}";
-
-            AuthUser expectedUser = new AuthUser();
-            expectedUser.setEmail("some@gmail.com");
-            expectedUser.setFirstname("user1");
-
-            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, AuthUser.class), expectedUser));
-        }
-
-        @Test
-        @DisplayName("Contains present and not")
-        public void testWithPresentAndNot(){
-            String testingJsonObject = "{\n" +
-                    "    \"email\": \"some2@gmail.com\",\n" +
-                    "    \"firstname\": \"user2\",\n" +
-                    "    \"notPresentField1\": \"11.11.11\"\n" +
-                    "}";
-
-            AuthUser expectedUser = new AuthUser();
-            expectedUser.setEmail("some2@gmail.com");
-            expectedUser.setFirstname("user2");
-
-            assertTrue(Utils.reflectiveEquals(Utils.flatJsonParser(testingJsonObject, AuthUser.class), expectedUser));
-        }
-
-        @Test
-        @DisplayName("Contains fields not present")
-        public void testWithFieldsNotPresent(){
-            String testingJsonObject = "{\n" +
-                    "    \"notPresentField1\": \"notPresentContent\",\n" +
-                    "    \"notPresentField2\": 1" +
-                    "}";
-
-            assertNull(Utils.flatJsonParser(testingJsonObject, AuthUser.class));
-        }
-    }
-
-
-
-    @Nested
-    @DisplayName("reflectiveEquals")
-    class ReflectiveEqualsTest{
-        @ParameterizedTest
-        @MethodSource("provideTrueParameters")
-        public void expectedTrue(Object u1, Object u2){
-            assertTrue(Utils.reflectiveEquals(u1, u2));
-        }
-
-        @ParameterizedTest
-        @MethodSource("provideFalseParameters")
-        public void expectedFalse(Object u1, Object u2){
-            assertFalse(Utils.reflectiveEquals(u1, u2));
-        }
-
-        private static Stream<Arguments> provideTrueParameters() {
-            return Stream.of(
-                    Arguments.of(
-                            AuthUser.of(null, "John", null, null),
-                            AuthUser.of(null, "John", null, null)
-                    ),
-                    Arguments.of(
-                            AuthUser.of("martin@gmail.com", null, null, "martevich"),
-                            AuthUser.of("martin@gmail.com", null, null, "martevich")
-                    ),
-                    Arguments.of(
-                            AuthUser.of(null, null, null, null),
-                            AuthUser.of(null, null, null, null)
-                    ),
-                    Arguments.of(
-                            AuthUser.of(null, null, null, null, null, Roles.ADMIN, null, 0, null),
-                            AuthUser.of(null, null, null, null, null, Roles.ADMIN, null, 0, null)
-                    ),
-                    Arguments.of(
-                            new ForComparing(1, 0),
-                            new ForComparing(1, 0)
-                    ),
-                    Arguments.of(
-                            new ForComparing(0, 2D),
-                            new ForComparing(0, 2D)
-                    )
-            );
-        }
-
-        private static Stream<Arguments> provideFalseParameters() {
-            return Stream.of(
-                    Arguments.of(
-                            AuthUser.of(null, "John", null, null),
-                            AuthUser.of(null, "John2", null, null)
-                    ),
-                    Arguments.of(
-                            AuthUser.of("martin@gmail.com", "Luther", "King", "martevich"),
-                            AuthUser.of("martin@gmail.com", null, null, "martevich")
-                    ),
-                    Arguments.of(
-                            AuthUser.of("somecryptedid", null, null, null, null, null, null, 0, null),
-                            AuthUser.of(null, null, null, null)
-                    ),
-                    Arguments.of(
-                            AuthUser.of(null, null, null, null, null, Roles.CLIENT, null, 0, null),
-                            AuthUser.of(null, null, null, null, null, Roles.ADMIN, null, 0, null)
-                    ),
-                    Arguments.of(
-                            new ForComparing(0, 10.0),
-                            new ForComparing(0, 11.0)
-                    ),
-                    Arguments.of(
-                            new ForComparing(1, 0),
-                            new ForComparing(0, 0)
-                    )
-
-            );
-        }
-
-        private static class ForComparing{
-            int simpleInt;
-            double simpleFloat;
-
-            ForComparing(int simpleInt, double simpleFloat){
-                this.simpleInt = simpleInt;
-                this.simpleFloat = simpleFloat;
-            }
-        }
-    }
-
     @Nested
     @DisplayName("capitalize")
     class CapitalizeTest{
@@ -178,142 +51,391 @@ public class GlobalUtilsTest {
         @Test
         @DisplayName("Correct capitalization")
         public void correctCapitalizationTest(){
-            assertEquals(Utils.capitalize("love"), "Love");
+            assertEquals(capitalize("love"), "Love");
         }
 
         @Test
         @DisplayName("Throw exception on null")
         public void incorrectCapitalizationTest(){
-            assertThrows(IllegalArgumentException.class, () -> Utils.capitalize(null));
+            assertThrows(IllegalArgumentException.class, () -> capitalize(null));
         }
     }
 
-    // TODO: REMOVE ON PRODUCTION
-    @Test
-    @DisplayName("Testing password protection")
-    public void testPasswordProtection(){
-        String myPassword = "helloworld1234";
-        String encrypted = Utils.encryptPassword(myPassword);
+    @Nested
+    @DisplayName("validate + Validatable")
+    class validate{
+        @Test
+        @DisplayName("Validation pass")
+        void validationPass(){
+            Validatable nameVT = Validatable.of("Firstname", ValidationParameters.NAME);
+            Validatable dateOfBirthVT = Validatable.of("2000-01-01", ValidationParameters.DATE_OF_BIRTH);
+            Validatable dateOfIssueVT = Validatable.of("2010-01-01", ValidationParameters.DATE_OF_ISSUE);
+            Validatable emailVT = Validatable.of("test@gmail.com", ValidationParameters.EMAIL);
+            Validatable passwordVT = Validatable.of("nekear1234", ValidationParameters.PASSWORD);
+            Validatable docNumberVT = Validatable.of("123456789", ValidationParameters.DOC_NUMBER);
+            Validatable rntrcVT = Validatable.of("1234567890", ValidationParameters.RNTRC);
+            Validatable authorityVT = Validatable.of("1234", ValidationParameters.AUTHORITY);
 
-        System.out.println("Encrypted: " + encrypted);
+            assertTrue(
+                    validate(
+                        nameVT,
+                        dateOfBirthVT,
+                        dateOfIssueVT,
+                        emailVT,
+                        passwordVT,
+                        docNumberVT,
+                        rntrcVT,
+                        authorityVT
+                    )
+            );
+        }
 
-        assertTrue(Utils.encryptedPasswordsCompare(myPassword, encrypted));
+        @ParameterizedTest
+        @DisplayName("Validation fail")
+        @MethodSource("provideInvalidParameters")
+        void validationFail(Object value, ValidationParameters parameter){
+            assertFalse(Validatable.of(value, parameter).validate());
+        }
+
+        private static Stream<Arguments> provideInvalidParameters() {
+            return Stream.of(
+                    Arguments.of("Bad123", ValidationParameters.NAME),
+                    Arguments.of("1100-02-02", ValidationParameters.DATE_OF_BIRTH),
+                    Arguments.of("1990-01-01", ValidationParameters.DATE_OF_ISSUE),
+                    Arguments.of("mail.com", ValidationParameters.EMAIL),
+                    Arguments.of("$%$#%", ValidationParameters.PASSWORD),
+                    Arguments.of(1, ValidationParameters.DOC_NUMBER),
+                    Arguments.of(1, ValidationParameters.RNTRC),
+                    Arguments.of(1, ValidationParameters.AUTHORITY)
+            );
+        }
+
     }
 
     @Test
-    @DisplayName("Testing validation on cyrillic")
-    public void testValidation(){
-        assertTrue(Utils.validate("Привет", ValidationParameters.NAME));
-    }
+    @DisplayName("Password encryption tests")
+    void passwordEncryptionTests(){
+        String password = "hello1234";
 
-    @Captor
-    private ArgumentCaptor<DescriptiveException> argumentCaptor;
+        String encrypted = encryptPassword(password);
 
-    @Test
-    public void testGenerateKey() throws Exception {
-        String input = "1";
-        String cipherText = CryptoStore.encrypt(input);
-        String plainText = CryptoStore.decrypt(cipherText);
+        assertNotNull(encrypted);
+        assertNotEquals(password, encrypted);
 
-        System.out.println(cipherText);
-        System.out.println(plainText);
-        assertEquals(input, plainText);
+        assertTrue(encryptedPasswordsCompare(password, encrypted));
     }
 
     @Test
-    public void testUserEncryptDecrypt() throws Exception {
-        AuthUser user = new AuthUser();
-        user.setId(1);
-
-        System.out.println("--> " + user.encrypt());
-
-        System.out.println("User:" + user);
-
-        String encryptedId = CryptoStore.encrypt("1");
-
-        assertEquals(user.getId().toString(), encryptedId);
-
-        user.decrypt();
-
-        System.out.println(user);
-
-        assertEquals(user.getId().toString(), CryptoStore.decrypt(encryptedId));
-    }
-    @Test
-    public void testSegments(){
-        System.out.println(CarSegments.D_SEGMENT);
+    @DisplayName("cleanGetString")
+    void cleanGetStringTests(){
+        assertNull(cleanGetString(null));
+        assertNull(cleanGetString("    "));
+        assertEquals("hello", cleanGetString("   hello "));
     }
 
     @Test
-    public void testAdapters(){
-        Car car = new Car();
+    void generateRandomStringTest(){
+        String generated = generateRandomString(12);
 
-        car.setId("1");
-        car.setModel("Mercedes");
-        car.setBrand("G117");
-        car.setSegment(CarSegments.D_SEGMENT);
-        car.setCity(Cities.LVIV);
-        car.setPrice(3000d);
-
-        String jsoned = new Gson().toJson(car);
-
-        System.out.println(jsoned);
-
-        System.out.println(new Gson().fromJson(jsoned, Car.class));
+        assertNotNull(generated);
+        assertEquals(12, generated.length());
     }
 
     @Test
-    public void getFileExtensionTest(){
-        String fileName = "hello.jpg";
-
-        System.out.println(Utils.getFileExtension("Frame 1 (2).jpg"));
-
-        assertEquals(".jpg", Utils.getFileExtension(fileName));
+    void emailNotifyTest(){
+        assertDoesNotThrow(() -> emailNotify("FromJunitTest@crrt.com", "Junit test title", "Junit test body", true));
     }
 
     @Test
-    public void validatableTest(){
-        Validatable birth = Validatable.of(LocalDate.of(2014, Month.JANUARY, 1), ValidationParameters.DATE_OF_BIRTH);
-        Validatable name = Validatable.of("Vaisl", ValidationParameters.NAME);
-        Validatable nameFail = Validatable.of("hf123", ValidationParameters.NAME);
-        Validatable email = Validatable.of("xpert@gmail.com", ValidationParameters.EMAIL);
+    void getCookieFromArrayTest(){
+        Cookie cookie1 = new Cookie("cookie1", "value1");
+        Cookie cookie2 = new Cookie("cookie2", "value2");
+        Cookie cookie3 = new Cookie("cookie3", "value3");
 
-        assertTrue(birth.validate());
-        assertTrue(name.validate());
-        assertFalse(nameFail.validate());
-        assertTrue(email.validate());
+        Optional<Cookie> foundCookie = getCookieFromArray("cookie2", new Cookie[]{cookie1, cookie2, cookie3});
 
-        assertTrue(Utils.validate(birth, name, email));
-        assertFalse(Utils.validate(birth, name, nameFail, email));
-
-        assertTrue(Utils.validate(List.of(birth, name, email)));
+        assertTrue(foundCookie.isPresent());
+        assertEquals(cookie2, foundCookie.get());
     }
+
     @Test
-    public void validatableTest2() throws DescriptiveException {
-        String json = "{\"firstname\":\"asdfasfd\",\"surname\":\"asdfasdf\",\"patronymic\":\"asdfasf\",\"date_of_birth\":\"2003-10-22\",\"date_of_issue\":\"2004-10-22\",\"doc_number\":324123434,\"rntrc\":5555555555,\"authority\":6666}";
+    void createCookieTest(){
+        Cookie cookie = createCookie("cookie1", "value1", "/tests/");
 
-        Gson gson = new GsonBuilder()
-                .addSerializationExclusionStrategy(new ExclusionStrategy()
-                {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes f)
-                    {
-                        return f.getAnnotation(Skip.class) != null;
-                    }
+        assertNotNull(cookie);
+        assertEquals("cookie1", cookie.getName());
+        assertEquals("value1", cookie.getValue());
+        assertEquals("/tests/", cookie.getPath());
+    }
 
-                    @Override
-                    public boolean shouldSkipClass(Class<?> clazz)
-                    {
-                        return false;
-                    }
-                })
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-                .registerTypeHierarchyAdapter(DBCoupled.class, new DBCoupledAdapter())
-                .create();
+    @Test
+    void getRoleTranslationTest(){
+        assertEquals("roles."+Roles.CLIENT.keyword(), getRoleTranslation(Roles.CLIENT));
+    }
 
-        Passport passport = gson.fromJson(json, Passport.class);
+    @Test
+    void getLangTest(){
+        HttpServletRequest _req = mock(HttpServletRequest.class);
+        HttpSession _session = mock(HttpSession.class);
+        when(_req.getSession()).thenReturn(_session);
+        when(_session.getAttribute("lang")).thenReturn("uk");
 
-        passport.validate();
+        assertEquals("uk", getLang(_req));
+    }
+
+    @Test
+    void sendSuccessTest() throws IOException {
+        String data = "Hello world!";
+        HttpServletResponse _resp = mock(HttpServletResponse.class);
+
+        // Setting print writer to read data
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream));
+
+        when(_resp.getWriter()).thenReturn(writer);
+
+        assertDoesNotThrow(() -> sendSuccess(data, _resp));
+
+        // Checks
+        verify(_resp).setStatus(HttpServletResponse.SC_OK);
+        assertEquals(data, outputStream.toString());
+    }
+
+    @Test
+    void sendExceptionTest() throws IOException {
+        String data = "Hello, cruel world...";
+        HttpServletResponse _resp = mock(HttpServletResponse.class);
+
+        // Setting print writer to read data
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream));
+
+        when(_resp.getWriter()).thenReturn(writer);
+
+        sendException(data, _resp);
+
+        // Checks
+        verify(_resp).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        assertEquals(data, outputStream.toString());
+    }
+
+    @Test
+    void cleanTest(){
+        String incomingString = "  [Bad!    ";
+        String expectedString = "![Bad!!";
+
+        assertEquals(expectedString, clean(incomingString));
+    }
+
+    @Test
+    void multieqTest(){
+        assertTrue(multieq("Apple", "orange", "tomato", "APPle"));
+
+        assertFalse(multieq("Word", "job", "NoThing"));
+
+        Car car = TGenerators.genCar();
+        Car car2 = TGenerators.genCar();
+        Car car3 = TGenerators.genCar();
+
+        System.out.println(car.hashCode());
+        System.out.println(car2);
+        System.out.println(car3);
+
+        assertTrue(multieq(car, car3, car2, car));
+        assertFalse(multieq(car, car3, car2));
+    }
+
+    @Test
+    void getFileExtensionTest(){
+        assertEquals(".jpg", getFileExtension("some.jpg"));
+    }
+
+    @Test
+    void cryptoStoreTest(){
+        String str = "Hello world!";
+
+        String encrypted = assertDoesNotThrow(() -> CryptoStore.encrypt(str));
+        assertNotEquals(str, encrypted);
+
+        String decrypted = assertDoesNotThrow(() -> CryptoStore.decrypt(encrypted));
+        assertEquals(str, decrypted);
+    }
+
+    @Test
+    void emailFormatterTest(){
+        String title = "Hello title!";
+        String body = "Hello body!";
+
+        assertThat(EmailFormatter.format(title, body).length()).isGreaterThanOrEqualTo(title.length()+body.length());
+    }
+
+    @Test
+    @DisplayName("JSJS and JSi18n tests")
+    void JSJSAndJSi18nTests(){
+        String lang = "en_US";
+        Gson gson = new Gson();
+
+        // Values, expected to be acquired from method, which purpose is to convert enums to json objects
+        int citiesListExp = Cities.values().length;
+        int segmentsListExp = CarSegments.values().length;
+        int rolesListExp = Roles.values().length;
+        int accountStatesExp = AccountStates.values().length;
+        int invoiceStatusesFullExp = InvoiceStatuses.values().length;
+        int invoiceStatusesPartlyExp = InvoiceStatuses.values().length-1;
+
+        // Types for gson deserialization
+        Type listOfStrings = new TypeToken<List<String>>() {}.getType();
+        Type mapOfStringArray = new TypeToken<Map<String, List<String>>>() {}.getType();
+        Type mapOfIntegerMap = new TypeToken<Map<Integer, Map<String, String>>>() {}.getType();
+        Type mapOfStringString = new TypeToken<Map<String, String>>() {}.getType();
+
+
+        // transForLoginPage()
+        String transForLoginPageStr = assertDoesNotThrow(() -> JSJS.transForLoginPage(lang));
+        JSi18n transForLoginPageObj = gson.fromJson(transForLoginPageStr, JSi18n.class);
+        assertThat(transForLoginPageObj.notiflix.size()).isGreaterThanOrEqualTo(1);
+        assertThat(transForLoginPageObj.inputs.size()).isGreaterThanOrEqualTo(2);
+
+        // transForRegisterPage()
+        String transForRegisterPageStr = assertDoesNotThrow(() -> JSJS.transForRegisterPage(lang));
+        JSi18n transForRegisterPageObj = gson.fromJson(transForRegisterPageStr, JSi18n.class);
+        assertThat(transForRegisterPageObj.notiflix).isNull();
+        assertThat(transForRegisterPageObj.inputs.size()).isGreaterThanOrEqualTo(5);
+
+        // transForPassport()
+        String transForPassportStr = assertDoesNotThrow(() -> JSJS.transForPassport(lang));
+        JSi18n transForPassportObj = gson.fromJson(transForPassportStr, JSi18n.class);
+        assertThat(transForPassportObj.notiflix).isNull();
+        assertThat(transForPassportObj.inputs.size()).isGreaterThanOrEqualTo(8);
+
+        // transForDatepicker()
+        String transForDatePickerStr = assertDoesNotThrow(() -> JSJS.transForDatepicker(lang));
+        Map<String, List<String>> transForDatePickerMap = gson.fromJson(transForDatePickerStr, mapOfStringArray);
+        assertThat(transForDatePickerMap.size()).isGreaterThanOrEqualTo(4);
+
+        // Method for converting enums to json
+        List<Map.Entry<Integer, Supplier<String>>> enumTranslations = List.of(
+                Map.entry(citiesListExp, () -> JSJS.CitiesList(lang)),
+                Map.entry(segmentsListExp, () -> JSJS.SegmentsList(lang)),
+                Map.entry(rolesListExp, () -> JSJS.RolesList(lang)),
+                Map.entry(accountStatesExp, () -> JSJS.AccountStatesList(lang)),
+                Map.entry(invoiceStatusesFullExp, () -> JSJS.InvoiceStatusesList(lang, true)),
+                Map.entry(invoiceStatusesPartlyExp, () -> JSJS.InvoiceStatusesList(lang, false))
+        );
+
+        enumTranslations.forEach(
+                x -> assertThat(((Map<Integer, Map<String, String>>) gson.fromJson(x.getValue().get(), mapOfIntegerMap)).size())
+                        .isGreaterThanOrEqualTo(x.getKey())
+        );
+
+        // transForUsersDeleteConfirmation()
+        String transForUsersDeleteConfirmationStr = assertDoesNotThrow(() -> JSJS.transForUsersDeleteConfirmation(lang));
+        Map<String, String> transForUsersDeleteConfirmationMap = gson.fromJson(transForUsersDeleteConfirmationStr, mapOfStringString);
+
+        assertThat(transForUsersDeleteConfirmationMap).containsKeys("title", "desc", "yes", "no");
+    }
+
+
+    @Nested
+    @DisplayName("Passport")
+    class passportTests{
+
+        @ParameterizedTest(name = "{index}")
+        @DisplayName("Validation fail")
+        @MethodSource("provideInvalidParameters")
+        void validationFail(Supplier<Passport> passportSupplier ){
+            Passport passport = passportSupplier.get();
+            DescriptiveException descExc = assertThrows(DescriptiveException.class, passport::validate);
+            assertEquals(ExceptionReason.PASSPORT_VALIDATION_ERROR, descExc.getReason());
+        }
+
+        private static Stream<Arguments> provideInvalidParameters() {
+            return Stream.of(
+                    Arguments.of(
+                            (Supplier<Passport>) () -> {
+                                    Passport passport = TGenerators.genPassport();
+                                    passport.setFirstname("Name123");
+                                    return passport;
+                            }
+                    ),
+                    Arguments.of(
+                            (Supplier<Passport>) () -> {
+                                Passport passport = TGenerators.genPassport();
+                                passport.setSurname("Name123");
+                                return passport;
+                            }
+                    ),
+                    Arguments.of(
+                            (Supplier<Passport>) () -> {
+                                Passport passport = TGenerators.genPassport();
+                                passport.setPatronymic("Name123");
+                                return passport;
+                            }
+                    ),
+                    Arguments.of(
+                            (Supplier<Passport>) () -> {
+                                Passport passport = TGenerators.genPassport();
+                                passport.setDateOfBirth(LocalDate.of(1000, 1, 1));
+                                return passport;
+                            }
+                    ),
+                    Arguments.of(
+                            (Supplier<Passport>) () -> {
+                                Passport passport = TGenerators.genPassport();
+                                passport.setDateOfIssue(LocalDate.of(1990, 1, 1));
+                                return passport;
+                            }
+                    ),
+                    Arguments.of(
+                            (Supplier<Passport>) () -> {
+                                Passport passport = TGenerators.genPassport();
+                                passport.setDocNumber(1);
+                                return passport;
+                            }
+                    ),
+                    Arguments.of(
+                            (Supplier<Passport>) () -> {
+                                Passport passport = TGenerators.genPassport();
+                                passport.setRntrc(1);
+                                return passport;
+                            }
+                    ),
+                    Arguments.of(
+                            (Supplier<Passport>) () -> {
+                                Passport passport = TGenerators.genPassport();
+                                passport.setAuthority(1);
+                                return passport;
+                            }
+                    )
+            );
+        }
+        @Test
+        @DisplayName("Passport user is too young [fail]")
+        void userIsTooYoungFail(){
+            Passport passport = TGenerators.genPassport();
+            passport.setDateOfBirth(LocalDate.now().minusYears(6));
+
+            DescriptiveException descExc = assertThrows(DescriptiveException.class, passport::validate);
+
+            assertEquals(ExceptionReason.AGE_TOO_YOUNG, descExc.getReason());
+        }
+
+        @Test
+        @DisplayName("Passport must be up to date [fail]")
+        void passportMustBeUpToDateFail(){
+            Passport passport = TGenerators.genPassport();
+            passport.setDateOfIssue(LocalDate.now().minusYears(12));
+
+            DescriptiveException descExc = assertThrows(DescriptiveException.class, passport::validate);
+
+            assertEquals(ExceptionReason.PASSPORT_BAD_DATE_ISSUE, descExc.getReason());
+        }
+
+        @Test
+        @DisplayName("Validation successful")
+        void validationSuccessful(){
+            Passport passport = TGenerators.genPassport();
+            assertDoesNotThrow(passport::validate);
+        }
     }
 }

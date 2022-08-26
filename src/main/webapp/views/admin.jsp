@@ -8,7 +8,7 @@
 <%@ include file="components/generals.jspf"%>
 
 <!doctype html>
-<html lang="${lang}">
+<html lang="<crrt:lang/>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -834,6 +834,7 @@
                                         dark
                                         input-class-name="form-control"
                                         :min-date="new Date()"
+                                        locale="<crrt:lang/>"
                                         auto-apply
                                         :enable-time-picker="false"
                                         :state="invoices.repairInvoice.expirationDate.isValid"

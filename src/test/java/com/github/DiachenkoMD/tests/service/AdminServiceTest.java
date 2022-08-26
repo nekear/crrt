@@ -79,7 +79,7 @@ class AdminServiceTest {
 
     private final Gson gson;
 
-    public AdminServiceTest(DataSource ds) throws IOException {
+    public AdminServiceTest(DataSource ds) {
         this.usersDAO = spy(new MysqlUsersDAO(ds));
         this.invoicesDAO = spy(new MysqlInvoicesDAO(ds));
         this.carsDAO = spy(new MysqlCarsDAO(ds));

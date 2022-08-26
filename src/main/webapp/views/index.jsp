@@ -8,7 +8,7 @@
 <%@ include file="components/generals.jspf"%>
 
 <!doctype html>
-<html lang="${lang}">
+<html lang="<crrt:lang/>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -56,14 +56,14 @@
         <nav>
             <div class="lang-switcher">
                 <div id="lang-switcher-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" style="border: none">
-                    <img src="${assets}imgs/flags/${lang.equalsIgnoreCase("en") ? 'england' : 'ukraine'}.svg" alt="flag">
+                    <img src="${assets}imgs/flags/${lang.equalsIgnoreCase(pageContext.servletContext.getInitParameter("enLocale")) ? 'england' : 'ukraine'}.svg" alt="flag">
                 </div>
                 <ul class="dropdown-menu" aria-labelledby="lang-switcher-dropdown">
-                    <li><a class="dropdown-item" href="?lang=ua">
+                    <li><a class="dropdown-item" href="?lang=<crrt:lang prefix="uk" clean="true"/>">
                         <img src="${assets}imgs/flags/ukraine.svg" alt="flag">
                         <span>Українська</span>
                     </a></li>
-                    <li><a class="dropdown-item" href="?lang=en">
+                    <li><a class="dropdown-item" href="?lang=<crrt:lang prefix="en" clean="true"/>">
                         <img src="${assets}imgs/flags/england.svg" alt="flag">
                         <span>English</span>
                     </a></li>
@@ -235,6 +235,7 @@
                                         :enable-time-picker="false"
                                         hide-input-icon
                                         input-class-name="form-control"
+                                        locale="<crrt:lang/>"
                                         auto-apply
                                         :min-date="new Date()"
                                         placeholder="<fmt:message key='page.main.filters.dates_range'/>"/>

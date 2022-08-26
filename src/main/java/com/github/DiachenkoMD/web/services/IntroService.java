@@ -13,10 +13,13 @@ import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
+import com.github.DiachenkoMD.web.utils.Utils;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,6 +33,7 @@ import static com.github.DiachenkoMD.web.utils.Utils.emailNotify;
 
 public class IntroService {
     private static final Logger logger = LogManager.getLogger(IntroService.class);
+    private static final Marker DB_MARKER = MarkerManager.getMarker("DB");
     private final CarsDAO carsDAO;
     private final UsersDAO usersDAO;
     private final InvoicesDAO invoicesDAO;
@@ -51,11 +55,11 @@ public class IntroService {
        return carsDAO.getAll();
     }
 
-    public List<String> getCarsWithDatesRange(DatesRange datesRange) throws DBException {
+    public List<String> getCarsNotRentedInDatesRange(DatesRange datesRange) throws DBException {
         LocalDate start = datesRange.getStart();
         LocalDate end = datesRange.getEnd();
 
-        logger.info(datesRange);
+        logger.debug(datesRange);
 
         if(start == null || end == null) {
             throw new IllegalArgumentException("Date start or Date end is null");
@@ -109,10 +113,8 @@ public class IntroService {
      * @throws DBException may be thrown from {@link UsersDAO#getAvailableDriversOnRange(LocalDate, LocalDate, int)}
      */
     public List<Integer> getAvailableDriversOnRange(String dateStart, String dateEnd, int cityId) throws DBException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        LocalDate start = LocalDate.parse(dateStart, formatter);
-        LocalDate end = LocalDate.parse(dateEnd, formatter);
+        LocalDate start = LocalDate.parse(dateStart, Utils.localDateFormatter);
+        LocalDate end = LocalDate.parse(dateEnd, Utils.localDateFormatter);
 
         return getAvailableDriversOnRange(start, end, cityId);
     }
@@ -182,18 +184,44 @@ public class IntroService {
 
         currentUser.setBalance(clientBalance.subtract(price).doubleValue()); // The problem of using double instead of BigDecimal keeps catching up with me...
 
+        String rentStartFormatted = start.format(Utils.localDateFormatter);
+        String rentEndFormatted = end.format(Utils.localDateFormatter);
+
         // Getting drivers id (if we had isWithDriver: true) and notifying him, that he had new rent connected
         if(rentData.isWithDriver() && driverId != null){
             LimitedUser driver = usersDAO.getFromDriver(driverId).get();
             String driverEmail = driver.getEmail();
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-            String rentStartFormatted = start.format(formatter);
-            String rentEndFormatted = end.format(formatter);
-
             emailNotify(driverEmail, "New rent was added to your list", String.format("Hello, driver. New rent, scheduled from <strong>%s</strong> to <strong>%s</strong> on <strong>%s</strong> has been added to your list!", rentStartFormatted, rentEndFormatted, car.getBrand() + car.getModel()));
         }
+
+        logger.info(DB_MARKER, "User [{}] rented car [{}] for date range [{}] to [{}]. Rent price was [{}]. With driver -> [{}]",
+                currentUser.getId(),
+                car.getId(),
+                rentStartFormatted,
+                rentEndFormatted,
+                price,
+                driverId);
+
+        emailNotify(
+                currentUser.getEmail(),
+                String.format("Thank you for renting <strong>%s %s</strong>!", car.getBrand(), car.getModel()),
+                String.format("Good afternoon. Thank you for using our services. Your order for <strong>%s %s</strong> has been successfully paid and added to the list. We are waiting for you in our office in %s on %s. \n" +
+                        "<p>Price: %s</p>\n" +
+                        "<p>Auto: %s %s</p>\n" +
+                        "<p>With driver: %s</p>"+
+                        "<p>Rent start: %s</p>"+
+                        "<p>Rent end: %s</p>",
+                        car.getBrand(), car.getModel(),
+                        ResourceBundle.getBundle("langs.i18n_en_US").getString("cities."+car.getCity().keyword()),
+                        rentStartFormatted,
+                        price,
+                        car.getBrand(), car.getModel(),
+                        driverId == null ? "no" : "yes",
+                        rentStartFormatted,
+                        rentEndFormatted
+                )
+        );
     }
 
 }

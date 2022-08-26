@@ -41,14 +41,14 @@
             </div>
             <div class="lang-switcher">
                 <div id="lang-switcher-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                    <img src="${assets}imgs/flags/${lang.equalsIgnoreCase("en") ? 'england' : 'ukraine'}.svg" alt="flag">
+                    <img src="${assets}imgs/flags/${lang.equalsIgnoreCase(pageContext.servletContext.getInitParameter("enLocale")) ? 'england' : 'ukraine'}.svg" alt="flag">
                 </div>
                 <ul class="dropdown-menu" aria-labelledby="lang-switcher-dropdown">
-                    <li><a class="dropdown-item" href="?lang=ua">
+                    <li><a class="dropdown-item" href="?lang=<crrt:lang prefix="uk" clean="true"/>">
                         <img src="${assets}imgs/flags/ukraine.svg" alt="flag">
                         <span>Українська</span>
                     </a></li>
-                    <li><a class="dropdown-item" href="?lang=en">
+                    <li><a class="dropdown-item" href="?lang=<crrt:lang prefix="en" clean="true"/>">
                         <img src="${assets}imgs/flags/england.svg" alt="flag">
                         <span>English</span>
                     </a></li>

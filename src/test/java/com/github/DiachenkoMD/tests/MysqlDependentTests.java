@@ -97,9 +97,10 @@ public class MysqlDependentTests {
 
     @BeforeEach
     public void beforeEachSetup(){
-        TDatabaseManager.setup();
         TDatabaseManager.destroy();
+        TDatabaseManager.setup();
     }
+
 
     @Nested
     @DisplayName("InvoicesDAO")

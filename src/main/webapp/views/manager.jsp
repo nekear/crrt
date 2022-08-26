@@ -358,6 +358,7 @@
                                         input-class-name="form-control"
                                         :min-date="new Date()"
                                         auto-apply
+                                        locale="<crrt:lang/>"
                                         hide-input-icon
                                         :enable-time-picker="false"
                                         :state="invoices.repairInvoice.expirationDate.isValid"

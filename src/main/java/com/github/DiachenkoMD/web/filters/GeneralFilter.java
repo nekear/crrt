@@ -74,9 +74,9 @@ public class GeneralFilter implements Filter {
 
             String defaultLangForCountry;
             if(country.equalsIgnoreCase("UA") || country.equalsIgnoreCase("RU")){
-                defaultLangForCountry = "en"; // TODO: change to ua
+                defaultLangForCountry = req.getServletContext().getInitParameter("ukLocale"); // TODO: change to ua
             }else{
-                defaultLangForCountry = "en";
+                defaultLangForCountry = req.getServletContext().getInitParameter("enLocale");
             }
 
             req.getSession().setAttribute("lang", defaultLangForCountry);

@@ -29,7 +29,7 @@
 %>
 
 <!doctype html>
-<html lang="${lang}">
+<html lang="<crrt:lang/>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"

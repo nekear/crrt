@@ -5,6 +5,8 @@ import com.github.DiachenkoMD.entities.dto.drivers.ExtendedDriver;
 import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.dto.users.PanelUser;
+import com.github.DiachenkoMD.entities.enums.Cities;
+import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
@@ -312,23 +314,73 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public boolean updateUsersData(int userId, HashMap<String, String> fieldsToUpdate) throws DBException {
-        StringBuilder query = new StringBuilder("UPDATE tbl_users SET ");
+    public void updateUsersData(int userId, HashMap<String, String> fieldsToUpdate) throws DBException {
+        try(Connection con = ds.getConnection()){
+            try{
+                con.setAutoCommit(false);
 
-        query.append(fieldsToUpdate.keySet().stream().map(s -> s + "=?").collect(Collectors.joining(", ")));
+                // Updating all incoming data
+                StringBuilder query = new StringBuilder("UPDATE tbl_users SET ");
 
-        query.append("WHERE " + DB_Constants.TBL_USERS_USER_ID + " = ?");
-        try(
-            Connection con = ds.getConnection();
-            PreparedStatement stmt = con.prepareStatement(query.toString());
-        ){
-            int index = 0;
-            for(String value : fieldsToUpdate.values()){
-                stmt.setString(++index, value);
+                query.append(fieldsToUpdate.keySet().stream().map(s -> s + "=?").collect(Collectors.joining(", ")));
+
+                query.append("WHERE " + DB_Constants.TBL_USERS_USER_ID + " = ?");
+                try(
+
+                        PreparedStatement stmt = con.prepareStatement(query.toString());
+                ) {
+                    int index = 0;
+                    for (String value : fieldsToUpdate.values()) {
+                        stmt.setString(++index, value);
+                    }
+                    stmt.setInt(++index, userId);
+
+                    if(stmt.executeUpdate() == 0)
+                        throw new SQLException("Unable to update tbl_users");
+                }
+
+
+                // Checking whether we have our driver in tbl_drivers
+                boolean containsDriver = false;
+                try(
+                        PreparedStatement stmt = con.prepareStatement("SELECT id FROM tbl_drivers WHERE user_id = ?");
+                ){
+                    stmt.setInt(1, userId);
+
+                    try(ResultSet rs = stmt.executeQuery()){
+                        if(rs.next())
+                            containsDriver = true;
+                    }
+                }
+
+                // If setting up driver than we should add his entity (if not exist) to drivers table
+                if(fieldsToUpdate.get("role_id") != null && Integer.parseInt(fieldsToUpdate.get("role_id")) == Roles.DRIVER.id()){
+                    if(!containsDriver)
+                        try(
+                                PreparedStatement stmt = con.prepareStatement("INSERT INTO tbl_drivers (user_id, city_id) VALUES (?, ?)");
+                        ){
+                            stmt.setInt(1, userId);
+                            stmt.setInt(2, Integer.parseInt(ResourceBundle.getBundle("app").getString("driver.default_city_id")));
+
+                            stmt.execute();
+                        }
+                }else{ // if we don`t setting up our driver, than we should delete entity (if exists) from db
+                    if(containsDriver)
+                        try(
+                                PreparedStatement stmt = con.prepareStatement("DELETE FROM tbl_drivers WHERE user_id = ?");
+                        ){
+                            stmt.setInt(1, userId);
+                            stmt.execute();
+                        }
+                }
+
+                con.commit();
+                con.setAutoCommit(true);
+            }catch (SQLException e){
+                con.commit();
+                con.setAutoCommit(true);
+                throw e;
             }
-            stmt.setInt(++index, userId);
-
-            return stmt.executeUpdate() > 0;
         }catch (SQLException e){
             throw new DBException(e);
         }
@@ -651,6 +703,15 @@ public class MysqlUsersDAO implements UsersDAO {
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 rs.next();
                 newlyInsertedDriverId = rs.getInt(1);
+            }
+
+            try(
+                PreparedStatement setRoleStmt = con.prepareStatement("UPDATE tbl_users SET role_id = ? WHERE id = ?")
+            ){
+                setRoleStmt.setInt(1, Roles.DRIVER.id());
+                setRoleStmt.setInt(2, userId);
+
+                setRoleStmt.execute();
             }
 
             return newlyInsertedDriverId;

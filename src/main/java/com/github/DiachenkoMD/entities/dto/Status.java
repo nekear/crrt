@@ -16,10 +16,10 @@ public class Status {
     private final LinkedList<StatusText> data = new LinkedList<>();
 
     public Status(String text){
-        this(text, false);
+        this(text, true);
     }
     public Status(String text, boolean isTranslation){
-        data.add(new StatusText(text, isTranslation, StatusStates.SUCCESS));
+        data.add(new StatusText(text, isTranslation, StatusStates.ERROR));
     }
 
     public Status(String text, boolean isTranslation, HashMap<String, String> substitutes, StatusStates state){

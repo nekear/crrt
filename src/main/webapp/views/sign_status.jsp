@@ -7,7 +7,7 @@
 <%@ include file="components/generals.jspf"%>
 
 <!doctype html>
-<html lang="${lang}">
+<html lang="<crrt:lang/>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -51,7 +51,12 @@
             <div class="status-description">
                 <c:out value="${sessionScope.get('login_prg_message').get(0, lang)}" escapeXml="false"/>
             </div>
-            <div><a href="login" class="mdx-hover-underline-animation"><fmt:message key="sign.return_to_login"/> </a></div>
+            <div>
+                <c:choose>
+                    <c:when test="${status_type eq 'SUCCESS'}"><a href="login" class="mdx-hover-underline-animation"><fmt:message key="sign.return_to_login"/></a></c:when>
+                    <c:when test="${status_type eq 'ERROR'}"><a href="register" class="mdx-hover-underline-animation"><fmt:message key="sign.return_to_register"/></a></c:when>
+                </c:choose>
+            </div>
         </div>
     </div>
 </div>
