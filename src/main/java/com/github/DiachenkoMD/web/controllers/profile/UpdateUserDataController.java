@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
 import static com.github.DiachenkoMD.web.utils.Utils.sendException;
 @UseGuards({AuthGuard.class})
@@ -39,7 +40,7 @@ public class UpdateUserDataController extends HttpServlet {
         try{
             AuthUser updated = this.usersService.updateData(req, resp);
 
-            req.getSession().setAttribute("auth", updated);
+            req.getSession().setAttribute(SESSION_AUTH, updated);
 
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write(new StatusText("profile.data_changed_successfully", true, StatusStates.SUCCESS).convert(getLang(req)));

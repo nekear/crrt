@@ -18,6 +18,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
+
 
 @UseGuards({PageGuard.class, AuthGuard.class, DriverRGuard.class})
 @WebServlet("/driver")
@@ -37,7 +39,7 @@ public class DriverController extends HttpServlet {
         Cities city;
         try{
             // Getting city id to further use it on the page stats panel
-            int userId = (Integer) ((AuthUser) req.getSession().getAttribute("auth")).getId();
+            int userId = (Integer) ((AuthUser) req.getSession().getAttribute(SESSION_AUTH)).getId();
 
             city = driverService.getCity(userId);
 

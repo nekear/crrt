@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
+
 public class RightsManager {
     private static final Logger logger = LogManager.getLogger(RightsManager.class);
     /**
@@ -32,8 +34,8 @@ public class RightsManager {
      */
     public void manage(HttpServletRequest req){
         try{
-            if(req.getSession().getAttribute("auth") != null){
-                AuthUser user = (AuthUser) req.getSession().getAttribute("auth");
+            if(req.getSession().getAttribute(SESSION_AUTH) != null){
+                AuthUser user = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
                 int userId = (Integer) user.getId();
 
@@ -42,7 +44,7 @@ public class RightsManager {
 
                     logger.info("Updating user #[{}] data", updatedUserInfo.orElse(null));
 
-                    req.getSession().setAttribute("auth", updatedUserInfo.orElse(null));
+                    req.getSession().setAttribute(SESSION_AUTH, updatedUserInfo.orElse(null));
 
                     this.remove(userId);
 

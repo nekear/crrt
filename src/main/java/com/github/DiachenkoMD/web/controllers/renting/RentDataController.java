@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
 @UseGuards({AuthGuard.class, ClientRGuard.class})
@@ -80,7 +81,7 @@ public class RentDataController extends HttpServlet {
         try{
 
             String incomingJSON = new BufferedReader(req.getReader()).lines().collect(Collectors.joining());
-            AuthUser currentUser = (AuthUser) req.getSession().getAttribute("auth");
+            AuthUser currentUser = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
             logger.info(incomingJSON);
             introService.createRent(incomingJSON, currentUser);

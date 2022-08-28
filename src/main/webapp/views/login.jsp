@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="${assets}css/media.css">
   <title>Login | CRRT.</title>
 
-  <!--  Jquery  -->
+  <!--  JS libs  -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
   <!--  Custom  -->
@@ -81,6 +81,17 @@
               {{tip.message}}
             </div>
           </div>
+        </div>
+        <div class="input-item remember_me_container">
+          <input class="input-mdx-square-checkbox" id="remember-me" type="checkbox" style="display: none" v-model="shouldRemember"/>
+          <label class="mdx-square-checkbox" for="remember-me">
+              <span>
+                  <svg width="12px" height="10px" viewbox="0 0 12 10">
+                    <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                </svg>
+              </span>
+            <span><fmt:message key="page.login.remember_me" />.</span>
+          </label>
         </div>
         <div class="input-item">
           <button class="mdx-md-button button-blue button-bordered"  data-ripple="#1890FF" @click="login()">

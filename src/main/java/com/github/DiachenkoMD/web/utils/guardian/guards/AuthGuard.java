@@ -7,13 +7,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
+
 public class AuthGuard extends Guard {
     private final static Logger logger = LogManager.getLogger(AuthGuard.class);
 
     @Override
     public boolean check(HttpServletRequest req, HttpServletResponse resp) {
         try{
-            if(req.getSession().getAttribute("auth") == null){
+            if(req.getSession().getAttribute(SESSION_AUTH) == null){
                 GuardingTypes type = getGuardianType(req);
 
                 if(type == GuardingTypes.PAGE) {

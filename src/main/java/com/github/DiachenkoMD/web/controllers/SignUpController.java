@@ -60,6 +60,7 @@ public class SignUpController extends HttpServlet {
             // DescriptiveException class has execute() method which accepts execution condition and action to be executed (which is Runnable by its nature)
             e.execute(ExceptionReason.VALIDATION_ERROR, () -> req.getSession().setAttribute(Constants.END_PRG_STATUS, new Status("sign.validation_failed")));
             e.execute(ExceptionReason.EMAIL_EXISTS, () -> req.getSession().setAttribute(Constants.END_PRG_STATUS, new Status("sign_up.email_exists")));
+            e.execute(ExceptionReason.RECAPTCHA_VERIFICATION_ERROR, () -> req.getSession().setAttribute(Constants.END_PRG_STATUS, new Status("sign_up.recaptcha_verification_error")));
             e.execute(ExceptionReason.REGISTRATION_PROCESS_ERROR, () -> req.getSession().setAttribute(Constants.END_PRG_STATUS, new Status("global.unexpectedError")));
         }catch (Exception e){
             logger.error("Unexpected error", e);

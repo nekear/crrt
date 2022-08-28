@@ -118,7 +118,7 @@ body {
 .content .sign-process-container .sub-sign-info {
   color: #969696;
 }
-.content .sign-process-container .agree_with_terms_container {
+.content .sign-process-container .agree_with_terms_container, .content .sign-process-container .remember_me_container {
   color: var(--ascentColor);
 }
 

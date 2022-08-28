@@ -28,6 +28,7 @@ import java.io.BufferedReader;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 @UseGuards({AuthGuard.class, ClientRGuard.class})
 @WebServlet("/client/repairInvoice")
@@ -56,7 +57,7 @@ public class ClientRepairInvoiceController extends HttpServlet {
 
             int repairInvoiceId = Integer.parseInt(CryptoStore.decrypt(jsonBody.getString("id")));
 
-            AuthUser client = (AuthUser) req.getSession().getAttribute("auth");
+            AuthUser client = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
             sendSuccess(gson.toJson(clientService.payRepairmentInvoice(repairInvoiceId, client)), resp);
         }catch (Exception e){

@@ -13,6 +13,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
+
 @UseGuards({PageGuard.class, AuthGuard.class})
 @WebServlet("/exit")
 public class ExitController extends HttpServlet {
@@ -22,7 +24,7 @@ public class ExitController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{
-            req.getSession().removeAttribute("auth");
+            req.getSession().removeAttribute(SESSION_AUTH);
             resp.sendRedirect("login");
         }catch (Exception e){
             logger.error(e);

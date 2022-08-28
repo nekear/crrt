@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
+
 /**
  * RoleGuard class for allow guarding by roles. Should go after AuthGuard, because inside uses session "auth" attribute.
  */
@@ -23,7 +25,7 @@ public class RoleGuard extends Guard{
 
     @Override
     public boolean check(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        AuthUser user = (AuthUser) req.getSession().getAttribute("auth");
+        AuthUser user = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
         if(!roles.contains(user.getRole())){
             GuardingTypes type = getGuardianType(req);

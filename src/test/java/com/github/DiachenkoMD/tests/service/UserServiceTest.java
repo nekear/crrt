@@ -8,6 +8,7 @@ import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.entities.dto.Status;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.web.services.UsersService;
+import com.github.DiachenkoMD.web.utils.RecaptchaVerifier;
 import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.github.DiachenkoMD.web.utils.Utils;
 import com.google.gson.Gson;
@@ -30,6 +31,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static com.github.DiachenkoMD.web.utils.Utils.encryptPassword;
+import static com.github.DiachenkoMD.web.utils.Utils.generateRandomString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -61,10 +63,22 @@ public class UserServiceTest {
 
         private final String email = "test@gmail.com", password = "manitstest0204";
         private AuthUser processedUser;
+
+        @BeforeAll
+        public static void beforeAllRegs(){
+            RecaptchaVerifier.setTestingMode();
+        }
+
+        @AfterAll
+        public static void afterAllRegs(){
+            RecaptchaVerifier.setRealMode();
+        }
+
         @BeforeEach
         public void setUp(){
             lenient().when(_req.getParameter("email")).thenReturn(email);
             lenient().when(_req.getParameter("password")).thenReturn(password);
+            lenient().when(_req.getParameter("g-recaptcha-response")).thenReturn("someRandomRecaptchaFake");
 
             processedUser = AuthUser.of(email, null, null, null);
         }
@@ -88,6 +102,19 @@ public class UserServiceTest {
         @Test
         @DisplayName("User already exists")
         void testUserAlreadyExists() throws Exception {
+            when(_usersDao.doesExist(processedUser)).thenReturn(true);
+
+            DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.registerUser(_req, _resp));
+
+            assertEquals(ExceptionReason.EMAIL_EXISTS, expectedException.getReason());
+
+            verify(_usersDao).doesExist(processedUser);
+            verify(_usersDao, never()).completeRegister(processedUser, encryptPassword(password));
+        }
+
+        @Test
+        @DisplayName("Recaptcha verification fail")
+        void recaptchaVerificationFail() throws Exception {
             when(_usersDao.doesExist(processedUser)).thenReturn(true);
 
             DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.registerUser(_req, _resp));
@@ -299,7 +326,7 @@ public class UserServiceTest {
             user = AuthUser.of("test@gmail.com", null, null, null);
             user.setId(1);
 
-            lenient().when(_session.getAttribute("auth")).thenReturn(user);
+            lenient().when(_session.getAttribute(SESSION_AUTH)).thenReturn(user);
         }
         @Test
         @DisplayName("Successful update")
@@ -364,7 +391,7 @@ public class UserServiceTest {
             user = AuthUser.of("test@gmail.com", null, null, null);
             user.setId(1);
 
-            lenient().when(_session.getAttribute("auth")).thenReturn(user);
+            lenient().when(_session.getAttribute(SESSION_AUTH)).thenReturn(user);
         }
         @Test
         @DisplayName("Successful update")
@@ -422,7 +449,7 @@ public class UserServiceTest {
         @BeforeEach
         public void setUp(){
             lenient().when(_req.getSession()).thenReturn(_session);
-            lenient().when(_session.getAttribute("auth")).thenReturn(_user_);
+            lenient().when(_session.getAttribute(SESSION_AUTH)).thenReturn(_user_);
             _user_.setId(1);
         }
         @Test
@@ -486,7 +513,7 @@ public class UserServiceTest {
 
             // Configuring session to bypass getting of the user
             lenient().when(_req.getSession()).thenReturn(_session);
-            lenient().when(_session.getAttribute("auth")).thenReturn(_user_);
+            lenient().when(_session.getAttribute(SESSION_AUTH)).thenReturn(_user_);
             _user_.setId(1);
 
             // Configuring servlet context to get file path
@@ -590,7 +617,7 @@ public class UserServiceTest {
 
             // Configuring session to bypass getting of the user
             lenient().when(_req.getSession()).thenReturn(_session);
-            lenient().when(_session.getAttribute("auth")).thenReturn(_user_);
+            lenient().when(_session.getAttribute(SESSION_AUTH)).thenReturn(_user_);
             _user_.setId(1);
 
             // Configuring servlet context to get file path

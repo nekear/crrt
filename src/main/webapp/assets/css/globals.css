@@ -1100,3 +1100,23 @@ input.highlight, select.highlight {
   -webkit-transform: rotate(180deg) scale(0.8) translateY(-50%);
           transform: rotate(180deg) scale(0.8) translateY(-50%);
 }
+
+#recaptchaEl {
+  -webkit-transition: 0.25s;
+  transition: 0.25s;
+}
+
+.disabled-captcha {
+  -webkit-filter: grayscale(100%);
+          filter: grayscale(100%);
+  opacity: 0.5;
+  pointer-events: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+#rc-anchor-alert {
+  opacity: 0.1;
+}

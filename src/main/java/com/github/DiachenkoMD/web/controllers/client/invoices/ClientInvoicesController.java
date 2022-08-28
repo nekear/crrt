@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 import static com.github.DiachenkoMD.web.utils.Utils.sendException;
 import static com.github.DiachenkoMD.web.utils.Utils.sendSuccess;
 
@@ -38,7 +39,7 @@ public class ClientInvoicesController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         try{
-            int clientId = ((AuthUser) req.getSession().getAttribute("auth")).getCleanId().get();
+            int clientId = ((AuthUser) req.getSession().getAttribute(SESSION_AUTH)).getCleanId().get();
             sendSuccess(gson.toJson(clientService.getInvoices(clientId)), resp);
         }catch (Exception e){
             logger.error(e);

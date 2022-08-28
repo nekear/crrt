@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 
 @UseGuards({AuthGuard.class, DriverRGuard.class})
@@ -46,7 +47,7 @@ public class DriverInvoicesController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         try{
-            int userId = ((AuthUser) req.getSession().getAttribute("auth")).getCleanId().get();
+            int userId = ((AuthUser) req.getSession().getAttribute(SESSION_AUTH)).getCleanId().get();
 
             sendSuccess(gson.toJson(driverService.getInvoices(userId)), resp);
         }catch (Exception e){
@@ -62,7 +63,7 @@ public class DriverInvoicesController extends HttpServlet {
             JSONObject jsonBody = new JSONObject(req.getReader().lines().collect(Collectors.joining()));
 
             int cityId = Integer.parseInt(jsonBody.getString("cityId"));
-            int userId = (Integer) ((AuthUser) req.getSession().getAttribute("auth")).getId();
+            int userId = (Integer) ((AuthUser) req.getSession().getAttribute(SESSION_AUTH)).getId();
 
             driverService.changeCity(userId, Cities.getById(cityId));
         }catch (Exception e){
@@ -79,7 +80,7 @@ public class DriverInvoicesController extends HttpServlet {
 
             int invoiceId = Integer.parseInt(CryptoStore.decrypt(jsonBody.getString("id")));
 
-            AuthUser user = (AuthUser) req.getSession().getAttribute("auth");
+            AuthUser user = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
             boolean skipOperationResult = driverService.skipInvoice(invoiceId, user);
 

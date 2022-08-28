@@ -13,6 +13,7 @@ import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
+import com.github.DiachenkoMD.web.utils.RecaptchaVerifier;
 import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.github.DiachenkoMD.web.utils.Utils;
 import jakarta.servlet.ServletContext;
@@ -57,9 +58,16 @@ public class UsersService {
      * @param req HttpServletRequest instance coming from controller
      * @param resp HttpServletResponse instance coming from controller
      */
-    public String registerUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, DBException{
+    public String registerUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, DBException, IOException {
         
         logger.debug("Method entered from {}", req.getRemoteAddr());
+
+        // Verifying recaptcha
+        String recaptchaResponse = cleanGetString(req.getParameter("g-recaptcha-response"));
+        boolean isRecaptchaVerified = RecaptchaVerifier.verify(recaptchaResponse);
+
+        if(!isRecaptchaVerified)
+            throw new DescriptiveException("Recaptcha is not verified!", ExceptionReason.RECAPTCHA_VERIFICATION_ERROR);
 
         // Gathering data from parameters
         String email = cleanGetString(req.getParameter(REQ_EMAIL));
@@ -132,7 +140,7 @@ public class UsersService {
      * @param req HttpServletRequest instance coming from controller
      * @param resp HttpServletResponse instance coming from controller
      */
-    public AuthUser loginUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException {
+    public Map.Entry<AuthUser, Boolean> loginUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException {
 
         String requestData = req.getReader().lines().collect(Collectors.joining());
 
@@ -140,6 +148,7 @@ public class UsersService {
 
         String email = acquiredData.getString(REQ_EMAIL);
         String password = acquiredData.getString(REQ_PASSWORD);
+        boolean shouldRemember = acquiredData.getBoolean(REQ_SHOULD_REMEMBER);
 
         logger.debug("Email: {} and password: {}", email, password);
 
@@ -165,7 +174,7 @@ public class UsersService {
         // Removing user from rights manager queue, because there is no any sense to make another data update right after login (in fact, login already contains data reloading)
         ((RightsManager) req.getServletContext().getAttribute("rights_manager")).remove((Integer) user.getId());
 
-        return user;
+        return Map.entry(user, shouldRemember);
     }
 
     public AuthUser updateData(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
@@ -204,7 +213,7 @@ public class UsersService {
 
         logger.debug("Going to update via HashMap: {}", resultFieldsToUpdate);
 
-        AuthUser current = (AuthUser) req.getSession().getAttribute("auth");
+        AuthUser current = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
         usersDAO.updateUsersData(current.getCleanId().orElse(-1), resultFieldsToUpdate);
 
@@ -224,7 +233,7 @@ public class UsersService {
         if(!validate(newPassword, ValidationParameters.PASSWORD))
             throw new DescriptiveException("New password validation fail", ExceptionReason.VALIDATION_ERROR);
 
-        AuthUser current = (AuthUser) req.getSession().getAttribute("auth");
+        AuthUser current = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
         Integer user_id = current.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
 
@@ -249,7 +258,7 @@ public class UsersService {
         if(requestedAmount <= 0)
             throw new DescriptiveException("Amount is less or equals 0", ExceptionReason.VALIDATION_ERROR);
 
-        AuthUser current = (AuthUser) req.getSession().getAttribute("auth");
+        AuthUser current = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
         Integer user_id = current.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
 
@@ -280,7 +289,7 @@ public class UsersService {
 
         String realPath = req.getServletContext().getRealPath(AVATAR_UPLOAD_DIR);
 
-        AuthUser currentUser = (AuthUser) req.getSession().getAttribute("auth");
+        AuthUser currentUser = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
         Integer user_id = currentUser.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
 
@@ -311,7 +320,7 @@ public class UsersService {
     public String deleteAvatar(HttpServletRequest req, HttpServletResponse resp) throws DBException, DescriptiveException, IOException{
         String realPath = req.getServletContext().getRealPath("/uploads/avatars");
 
-        AuthUser currentUser = (AuthUser) req.getSession().getAttribute("auth");
+        AuthUser currentUser = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
         Integer user_id = currentUser.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
 

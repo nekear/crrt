@@ -9,13 +9,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
+
 public class StateGuard extends Guard {
     private final static Logger logger = LogManager.getLogger(StateGuard.class);
 
     @Override
     public boolean check(HttpServletRequest req, HttpServletResponse resp) {
         try{
-            AuthUser user = (AuthUser) req.getSession().getAttribute("auth");
+            AuthUser user = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
             if(user.getState() == AccountStates.BLOCKED){
                 GuardingTypes type = getGuardianType(req);

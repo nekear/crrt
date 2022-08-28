@@ -73,12 +73,6 @@ body {
 .input-item .input-item + .input-item {
   margin-top: 20px;
 }
-.input-item .sub-sign-info {
-  color: #969696;
-}
-.input-item .agree_with_terms_container {
-  color: var(--ascentColor);
-}
 
 .final-price {
   font-size: 20px;

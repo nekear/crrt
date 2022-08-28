@@ -39,7 +39,8 @@ const app = createApp({
                     type: "password",
                     isNecessary: true,
                 }
-            }
+            },
+            shouldRemember: false
         }
     },
     created(){
@@ -136,7 +137,8 @@ const app = createApp({
             if(isEverythingOkay){
                 axios.post('http://localhost:8080/crrt_war/login', {
                     email: this.input_list.email.inputData,
-                    password: this.input_list.password.inputData
+                    password: this.input_list.password.inputData,
+                    remember: this.shouldRemember
                 })
                     .then(function (response) {
                         console.log(response);

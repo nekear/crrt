@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
 
@@ -77,7 +78,7 @@ public class ClientInvoiceController extends HttpServlet {
 
             int invoiceId = Integer.parseInt(CryptoStore.decrypt(invoiceIdEncrypted));
 
-            AuthUser client = (AuthUser) req.getSession().getAttribute("auth");
+            AuthUser client = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
             clientService.cancelInvoice(invoiceId, client);
 

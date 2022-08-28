@@ -6,11 +6,21 @@ const validationPatterns = {
     "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
 }
 
+var recaptchaLoadCallback = function() {
+    grecaptcha.render('recaptchaEl', {
+        sitekey : '6LeThTkhAAAAAI7ynKvUTVf_wPPfOc8Lkpz88QNi',
+        theme: 'dark',
+        callback: function(recaptchaCode){
+            app.isRecaptchaSubmitted = true;
+        }
+    });
+};
 
 const app = createApp({
     data() {
         return {
             doesAgreeWithTerms: false,
+            isRecaptchaSubmitted: false,
             input_list:{
                 email: {
                     inputData: "",
@@ -170,6 +180,20 @@ const app = createApp({
             });
         });
     },
+    computed: {
+        showRecaptcha: function (){
+            let isEverythingOkay = true;
+            const inputs_list = this.input_list;
+            for(let el in inputs_list){
+                if(!this.doesPassValidation(el, false)){
+                    isEverythingOkay = false;
+                    break
+                }
+            }
+
+            return isEverythingOkay || this.isRecaptchaSubmitted;
+        }
+    },
     methods:{
         doesPassValidation(input_id, is_soft = true){
             const currentInput = this.input_list[input_id];
@@ -216,3 +240,7 @@ const app = createApp({
         }
     }
 }).mount('#app');
+
+const recaptchaFunc = function (code){
+    console.log("Code is", code);
+}

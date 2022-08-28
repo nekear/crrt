@@ -28,8 +28,9 @@
   <link rel="stylesheet" href="${assets}css/media.css">
   <title>Register | CRRT.</title>
 
-  <!--  Jquery  -->
+  <!--  JS libs  -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://www.google.com/recaptcha/api.js?hl=<crrt:lang/>&onload=recaptchaLoadCallback" async defer></script>
 
   <!--  Custom  -->
   <script src="${assets}js/mdx.js"></script>
@@ -81,6 +82,9 @@
             </div>
           </div>
         </div>
+        <div class="input-item">
+          <div id="recaptchaEl" :class="{'disabled-captcha': !showRecaptcha}"></div>
+        </div>
         <div class="input-item agree_with_terms_container">
           <input class="input-mdx-square-checkbox" id="agree_with_terms" type="checkbox" style="display: none" v-model="doesAgreeWithTerms"/>
           <label class="mdx-square-checkbox" for="agree_with_terms">
@@ -93,7 +97,7 @@
           </label>
         </div>
         <div class="input-item">
-          <button class="mdx-md-button button-blue button-bordered" data-ripple="#1890FF" :disabled="!doesAgreeWithTerms" @click.prevent="registerSubmit()">
+          <button class="mdx-md-button button-blue button-bordered" data-ripple="#1890FF" :disabled="!doesAgreeWithTerms || !isRecaptchaSubmitted" @click.prevent="registerSubmit()">
             <fmt:message key="page.register.button" />
           </button>
         </div>

@@ -17,6 +17,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
@@ -57,9 +59,12 @@ public class SignInController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp){
         try {
-            AuthUser logged_in = usersService.loginUser(req, resp);
+            Map.Entry<AuthUser, Boolean> loginResponse = usersService.loginUser(req, resp);
 
-            req.getSession().setAttribute(SESSION_AUTH, logged_in);
+            req.getSession().setAttribute(SESSION_AUTH, loginResponse.getKey());
+
+            if(loginResponse.getValue()) // if we should remember current session
+                req.getSession().setMaxInactiveInterval(31536000); // 60 x 60 x 24 x 365
 
             resp.setStatus(200);
         }catch (Exception e) { // including DescriptiveException
