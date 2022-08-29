@@ -1,0 +1,50 @@
+body {
+  background: var(--systemGray6_default);
+}
+
+.content {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  min-height: 100vh;
+}
+.content .restore-form {
+  padding: 1.5rem;
+  background: var(--systemGray6_accessible);
+  border: 1px solid var(--borderColor_accessible);
+  border-radius: 5px;
+  color: var(--systemGray_accessible);
+  min-width: 800px;
+}
+.content .restore-form .logo {
+  margin-bottom: 15px;
+}
+.content .restore-form .logo img {
+  -webkit-transform: scale(0.8);
+          transform: scale(0.8);
+  opacity: 0.6;
+  margin-left: -8px;
+}
+.content .restore-form .title {
+  color: #fff;
+  font-size: 20px;
+  margin-top: 15px;
+}
+.content .restore-form .subtitle {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.content .restore-form .input-item {
+  position: relative;
+  margin-bottom: 15px;
+}

@@ -1,20 +1,19 @@
-package com.github.DiachenkoMD.web.utils.guardian;
+package com.github.DiachenkoMD.web.utils.middlewares.guardian;
 
-import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.Guard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.StateGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.origins.Guard;
+import com.github.DiachenkoMD.web.utils.middlewares.Middleware;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.StateGuard;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.regex.Pattern;
 
-public class Guardian {
+public class Guardian implements Middleware {
 
     private final static Logger logger = LogManager.getLogger(Guardian.class);
 
@@ -27,6 +26,7 @@ public class Guardian {
         this.init(Set.of(classes));
     }
 
+    @Override
     public void init(Set<Class<?>> classes) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<String> protectedRoutes = new LinkedList<>();
 
@@ -36,6 +36,7 @@ public class Guardian {
             Class<? extends Guard>[] connectedGuards = guardAnno.value();
 
             LinkedList<Guard> guardsList = new LinkedList<>();
+
             for(Class<? extends Guard> guardClass : connectedGuards){
                 guardsList.add(guardClass.getConstructor().newInstance());
 
@@ -58,12 +59,13 @@ public class Guardian {
         logger.info("Guardian will protect: {}", protectedRoutes);
     }
 
-    public boolean guard(String path, HttpServletRequest req, HttpServletResponse resp){
+    @Override
+    public boolean process(String path, HttpServletRequest req, HttpServletResponse resp) {
         try {
             Guard relatedGuard = guards.get(path);
 
             if(relatedGuard != null)
-                return relatedGuard.check(req, resp);
+                return relatedGuard.process(req, resp);
 
             return true;
         }catch (Exception e){

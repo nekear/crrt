@@ -2,17 +2,14 @@ package com.github.DiachenkoMD.web.controllers.client.repair_invoices;
 
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
-import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.controllers.client.invoices.ClientInvoiceController;
 import com.github.DiachenkoMD.web.services.ClientService;
-import com.github.DiachenkoMD.web.services.ManagerService;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
-import com.github.DiachenkoMD.web.utils.Utils;
-import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
-import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ClientRGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.roles.ClientRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -24,7 +21,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 

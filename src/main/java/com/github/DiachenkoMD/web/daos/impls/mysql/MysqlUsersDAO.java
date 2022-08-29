@@ -5,7 +5,6 @@ import com.github.DiachenkoMD.entities.dto.drivers.ExtendedDriver;
 import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.dto.users.PanelUser;
-import com.github.DiachenkoMD.entities.enums.Cities;
 import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
@@ -232,12 +231,17 @@ public class MysqlUsersDAO implements UsersDAO {
 
     @Override
     public boolean doesExist(LimitedUser user) throws DBException{
+        return doesExist(user.getEmail());
+    }
+
+    @Override
+    public boolean doesExist(String email) throws DBException{
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT id FROM tbl_users WHERE email=?");
         ){
 
-            stmt.setString(1, user.getEmail());
+            stmt.setString(1, email);
 
             try(ResultSet rs = stmt.executeQuery()){
                 return rs.next();
@@ -247,8 +251,6 @@ public class MysqlUsersDAO implements UsersDAO {
             throw new DBException(e);
         }
     }
-
-
 
     @Override
     public boolean setConfirmationCode(int userId, String confirmationCode) throws DBException{
@@ -263,31 +265,6 @@ public class MysqlUsersDAO implements UsersDAO {
         }catch (SQLException e){
             throw new DBException(e);
         }
-    }
-
-    @Override
-    public String generateConfirmationCode() throws DBException{
-        String generated = null;
-
-        boolean doesCodeExists = false;
-
-        try(Connection con = ds.getConnection()){
-            do{
-                generated = generateRandomString(12);
-                try(PreparedStatement stmt = con.prepareStatement("SELECT * FROM tbl_users WHERE conf_code=?")){
-                    stmt.setString(1, generated);
-                    try(ResultSet rs = stmt.executeQuery()){
-                        if(rs.next())
-                            doesCodeExists = true;
-                    }
-                }
-            }while(doesCodeExists);
-        }catch (SQLException e){
-            logger.error(e);
-            throw new DBException(e);
-        }
-
-        return generated;
     }
 
     @Override
@@ -450,12 +427,11 @@ public class MysqlUsersDAO implements UsersDAO {
 
     @Override
     public boolean setBalance(int userId, double newBalance) throws DBException {
-        this.setBalance(userId, BigDecimal.valueOf(newBalance));
-        return true;
+        return this.setBalance(userId, BigDecimal.valueOf(newBalance));
     }
 
     @Override
-    public void setBalance(int userId, BigDecimal newBalance) throws DBException {
+    public boolean setBalance(int userId, BigDecimal newBalance) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("UPDATE tbl_users SET balance=? WHERE id=?");
@@ -464,7 +440,7 @@ public class MysqlUsersDAO implements UsersDAO {
             stmt.setBigDecimal(1, newBalance);
             stmt.setInt(2, userId);
 
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
             logger.error(e);
@@ -473,18 +449,18 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public Optional<String> getAvatar(int user_id) throws DBException {
+    public Optional<String> getAvatar(int userId) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("SELECT avatar FROM tbl_users WHERE id=?");
         ){
-            stmt.setInt(1, user_id);
+            stmt.setInt(1, userId);
 
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next()){
                     return Optional.ofNullable(rs.getString(DB_Constants.TBL_USERS_AVATAR));
                 }else{
-                    throw new DBException("Couldn`t get user avatar. Target user id: " + user_id);
+                    throw new DBException("Couldn`t get user avatar. Target user id: " + userId);
                 }
             }
 
@@ -495,14 +471,14 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public boolean setAvatar(int user_id, String avatarName) throws DBException {
+    public boolean setAvatar(int userId, String avatarName) throws DBException {
         try(
                 Connection con = ds.getConnection();
                 PreparedStatement stmt = con.prepareStatement("UPDATE tbl_users SET avatar=? WHERE id=?");
         ){
 
             stmt.setString(1, avatarName);
-            stmt.setInt(2, user_id);
+            stmt.setInt(2, userId);
 
             return stmt.executeUpdate() > 0;
 

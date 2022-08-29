@@ -52,5 +52,9 @@ public enum ExceptionReason {
 
 //  Passport
     AGE_TOO_YOUNG,
-    PASSPORT_BAD_DATE_ISSUE
+    PASSPORT_BAD_DATE_ISSUE,
+
+//    Password restoration
+    TOKEN_ALREADY_USED,
+    TOKEN_ALREADY_EXPIRED
 }

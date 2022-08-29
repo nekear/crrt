@@ -5,8 +5,8 @@ import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
-import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
-import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.AuthGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 

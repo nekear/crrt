@@ -1,12 +1,11 @@
 package com.github.DiachenkoMD.web.controllers.manager.invoices;
 
-import com.github.DiachenkoMD.entities.dto.PaginationRequest;
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.web.services.ManagerService;
 import com.github.DiachenkoMD.web.utils.Utils;
-import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
-import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.roles.HTierRGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.roles.HTierRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -18,11 +17,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import java.io.File;
 import java.time.LocalDate;
 
 import static com.github.DiachenkoMD.web.utils.Utils.sendException;
-import static com.github.DiachenkoMD.web.utils.Utils.sendSuccess;
 
 @UseGuards({AuthGuard.class, HTierRGuard.class})
 @WebServlet("/manage/invoices/report")

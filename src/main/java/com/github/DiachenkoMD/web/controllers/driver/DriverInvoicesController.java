@@ -3,14 +3,12 @@ package com.github.DiachenkoMD.web.controllers.driver;
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.enums.Cities;
-import com.github.DiachenkoMD.web.services.ClientService;
 import com.github.DiachenkoMD.web.services.DriverService;
 import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.github.DiachenkoMD.web.utils.Utils;
-import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
-import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ClientRGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.roles.DriverRGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.roles.DriverRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -22,7 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 

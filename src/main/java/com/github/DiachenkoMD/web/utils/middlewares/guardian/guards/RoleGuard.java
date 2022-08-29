@@ -1,9 +1,10 @@
-package com.github.DiachenkoMD.web.utils.guardian.guards;
+package com.github.DiachenkoMD.web.utils.middlewares.guardian.guards;
 
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.web.utils.Utils;
-import com.github.DiachenkoMD.web.utils.guardian.GuardingTypes;
+import com.github.DiachenkoMD.web.utils.middlewares.origins.Guard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.GuardingTypes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
@@ -18,13 +19,13 @@ import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 /**
  * RoleGuard class for allow guarding by roles. Should go after AuthGuard, because inside uses session "auth" attribute.
  */
-public class RoleGuard extends Guard{
+public class RoleGuard extends Guard {
     private final static Logger logger = LogManager.getLogger(RoleGuard.class);
 
     private final List<Roles> roles = new LinkedList<>();
 
     @Override
-    public boolean check(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public boolean process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         AuthUser user = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
         if(!roles.contains(user.getRole())){

@@ -259,7 +259,7 @@ public class UserServiceTest {
             String email = "xp.com.test";
             String password = "random1234";
 
-            when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password)));
+            when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password, "remember", false)));
 
             DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.loginUser(_req, _resp));
 
@@ -271,7 +271,7 @@ public class UserServiceTest {
         void passwordValidationFailTest() throws Exception{
             String email = "test@gmail.com";
             String password = "bp";
-            when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password)));
+            when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password, "remember", false)));
 
             DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.loginUser(_req, _resp));
 
@@ -283,7 +283,7 @@ public class UserServiceTest {
             String email = "test@gmail.com";
             String password = "pass1234";
 
-            when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password)));
+            when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password, "remember", false)));
             when(_usersDao.get(email)).thenReturn(null);
 
             DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.loginUser(_req, _resp));
@@ -297,7 +297,7 @@ public class UserServiceTest {
             String email = "test@gmail.com";
             String password = "pass1234";
 
-            when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password)));
+            when(_req.getReader()).thenReturn(getBufferedReaderWithJson(Map.of("email", email, "password", password, "remember", false)));
             ServletContext tmpCtxMock = mock(ServletContext.class);
             when(_req.getServletContext()).thenReturn(tmpCtxMock);
             when(tmpCtxMock.getAttribute("rights_manager")).thenReturn(mock(RightsManager.class));
@@ -336,7 +336,7 @@ public class UserServiceTest {
             user.setFirstname("Mykhailo");
             user.setSurname("Diachenko");
 
-            when(_usersDao.get(user.getEmail())).thenReturn(user);
+            when(_usersDao.get(anyInt())).thenReturn(user);
 
             assertEquals(user, usersService.updateData(_req, _resp));
         }

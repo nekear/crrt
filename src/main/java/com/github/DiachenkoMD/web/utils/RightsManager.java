@@ -7,10 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 
@@ -19,7 +16,7 @@ public class RightsManager {
     /**
      * LinkedList, which is needed to store ids of users, whose data should be reloaded from db to their session object.
      */
-    private static final List<Integer> rightsToUpdateStorage = new LinkedList<>();
+    private static final Set<Integer> rightsToUpdateStorage = new HashSet<>();
 
     private final UsersDAO usersDAO;
 

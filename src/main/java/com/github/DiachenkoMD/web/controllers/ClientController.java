@@ -1,9 +1,9 @@
 package com.github.DiachenkoMD.web.controllers;
 
-import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
-import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.PageGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ClientRGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.PageGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.roles.ClientRGuard;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;

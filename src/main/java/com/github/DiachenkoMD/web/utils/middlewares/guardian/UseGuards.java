@@ -1,6 +1,6 @@
-package com.github.DiachenkoMD.web.utils.guardian;
+package com.github.DiachenkoMD.web.utils.middlewares.guardian;
 
-import com.github.DiachenkoMD.web.utils.guardian.guards.Guard;
+import com.github.DiachenkoMD.web.utils.middlewares.origins.Guard;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

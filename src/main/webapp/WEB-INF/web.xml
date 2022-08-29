@@ -36,7 +36,7 @@
     <!--  If unexpected error occurred  -->
     <error-page>
         <exception-type>java.lang.Throwable</exception-type>
-        <location>/views/exceptions/500.jsp</location>
+        <location>/exception</location>
     </error-page>
 
     <!--  General Filter  -->

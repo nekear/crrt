@@ -13,12 +13,10 @@ import static org.mockito.Mockito.*;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.utils.TGenerators;
-import com.github.DiachenkoMD.web.utils.CryptoStore;
-import com.github.DiachenkoMD.web.utils.EmailFormatter;
-import com.github.DiachenkoMD.web.utils.JSJS;
-import com.github.DiachenkoMD.web.utils.Validatable;
+import com.github.DiachenkoMD.web.utils.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.fusionauth.jwt.domain.JWT;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -437,5 +435,21 @@ public class GlobalUtilsTest {
             Passport passport = TGenerators.genPassport();
             assertDoesNotThrow(passport::validate);
         }
+    }
+
+    @Test
+    @DisplayName("JWTManager")
+    void JWTManagerTest(){
+
+        Map<String, String> originalMap = Map.of(
+                "key1", "value1",
+                "key2", "value2"
+        );
+
+        String encoded = JWTManager.encode(originalMap);
+        JWT decoded = JWTManager.decode(encoded);
+
+        assertEquals(originalMap.get("key1"), decoded.getString("key1"));
+        assertEquals(originalMap.get("key2"), decoded.getString("key2"));
     }
 }

@@ -14,12 +14,42 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UsersDAO {
+    /**
+     * Method for getting user entity. {@link #get(int)} should be better used instead if possibly (in case speed matters).
+     * @param email user email
+     * @return {@link AuthUser} entity.
+     * @throws DBException
+     */
     AuthUser get(String email) throws DBException;
 
+    /**
+     * Method for getting user entity.
+     * @param userId
+     * @return {@link AuthUser} entity.
+     * @throws DBException
+     */
     AuthUser get(int userId) throws DBException;
+
+    /**
+     * Method for getting {@link LimitedUser user} from driver id.
+     * @param driverId
+     * @return user entity.
+     */
     Optional<LimitedUser> getFromDriver(int driverId) throws DBException;
+
+    /**
+     * Method for gettin {@link ExtendedDriver driver} entity from user id.
+     * @param userId
+     * @return driver entity.
+     */
     Optional<ExtendedDriver> getDriverFromUser(int userId) throws DBException;
 
+    /**
+     * Method for getting all available users. <br/>
+     * Inside user entities, images are omitted.
+     * @return list of found users.
+     * @throws DBException
+     */
     List<AuthUser> getAll() throws DBException;
 
     /**
@@ -41,23 +71,100 @@ public interface UsersDAO {
      * @throws DBException
      */
     AuthUser completeRegister(AuthUser user, String password) throws DBException;
+
+    /**
+     * Method for checking whether such user exists or not. Inside calls {@link #doesExist(String)}.
+     * @param user user entity. Only emails is taken from it.
+     * @return true if user exists and false otherwise.
+     */
     boolean doesExist(LimitedUser user) throws DBException;
 
-    boolean setConfirmationCode(int userId, String confirmationCode) throws DBException;
-    String generateConfirmationCode() throws DBException;
+    /**
+     * Method for checking whether such user exists or not.
+     * @param email user`s email.
+     * @return true if user exists and false otherwise.
+     */
+    boolean doesExist(String email) throws DBException;
 
+    /**
+     * Method for setting confirmation code for user. Can accept "null" value inside "confirmationCode" parameter.
+     * @param userId
+     * @param confirmationCode
+     * @return true if more than one entity has been updated and false otherwise.
+     */
+    boolean setConfirmationCode(int userId, String confirmationCode) throws DBException;
+
+    /**
+     * Method for getting user by confirmation code. Might be used, for example, at email confirmation page.
+     * @param code confirmation code.
+     * @return found user entity.
+     */
     AuthUser getUserByConfirmationCode(String code) throws DBException;
 
+    /**
+     * Method for updating user data.
+     * @param userId
+     * @param fieldsToUpdate can contain "firstname", "surname", "patronymic" etc. fields.
+     * @implSpec fieldsToUpdated are references to db columns names.
+     * @throws DBException
+     */
     void updateUsersData(int userId, HashMap<String, String> fieldsToUpdate) throws DBException;
+
+    /**
+     * Method for getting user password.
+     * @param userId
+     * @return encrypted user password.
+     * @throws DBException
+     */
     String getPassword(int userId) throws DBException;
+
+    /**
+     * Method for setting user password.
+     * @param userId
+     * @param password new user password. Should better be encrypted.
+     * @return true if more than one entry has been updated and false otherwise.
+     */
     boolean setPassword(int userId, String password) throws DBException;
 
+    /**
+     * Method for getting user balance.
+     * @param userId
+     * @return double (should better made it BigDecimal) balance value.
+     */
     double getBalance(int userId) throws DBException;
-    boolean setBalance(int userId, double newBalance) throws DBException;
-    void setBalance(int userId, BigDecimal newBalance) throws DBException;
 
-    Optional<String> getAvatar(int id) throws DBException;
-    boolean setAvatar(int id, String avatarName) throws DBException;
+    /**
+     * Method for setting user balance.
+     * @param userId
+     * @param newBalance
+     * @return true if more than one entry has been updated and false otherwise.
+     * @implNote inside calls {@link #setBalance(int, BigDecimal)}
+     */
+    boolean setBalance(int userId, double newBalance) throws DBException;
+
+    /**
+     * Method for setting user balance.
+     * @param userId
+     * @param newBalance
+     * @return true if more than one entry has been updated and false otherwise.
+     */
+    boolean setBalance(int userId, BigDecimal newBalance) throws DBException;
+
+    /**
+     * Method for getting user avatar.
+     * @param userId
+     * @return user avatar.
+     */
+    Optional<String> getAvatar(int userId) throws DBException;
+
+    /**
+     * Method for setting user avatar.
+     * @param userId
+     * @param avatarName
+     * @return
+     * @throws DBException
+     */
+    boolean setAvatar(int userId, String avatarName) throws DBException;
 
     /**
      * Returns users which satisfied requested filters. Used with limit offset and limit count. <br/>
@@ -88,7 +195,7 @@ public interface UsersDAO {
 
     /**
      * Returns extended info about the requested user. Used at admin-panel in user-editing section.
-     * @param userId id of the requested user
+     * @param userId id of the requested user.
      * @return {@link InformativeUser InformativeUser} with all fields filled.
      * @throws DBException
      */
@@ -103,6 +210,12 @@ public interface UsersDAO {
      */
     boolean setUserState(int userId, int stateId) throws DBException;
 
+    /**
+     * Method for deleting users. Used at admin-panel.
+     * @param userIds list of users` ids.
+     * @return true if all entities were deleted and false otherwise.
+     * @throws DBException
+     */
     boolean deleteUsers(List<Integer> userIds) throws DBException;
 
     /**
@@ -114,6 +227,13 @@ public interface UsersDAO {
      */
     List<Integer> getAvailableDriversOnRange(LocalDate start, LocalDate end, int cityId) throws DBException;
 
+    /**
+     * Method for setting city for a driver. Used at driver-panel to change dislocation place.
+     * @param driverId
+     * @param cityId city`s id from {@link com.github.DiachenkoMD.entities.enums.Cities Cities} enum.
+     * @return true if more than one entry has been updated and false otherwise.
+     * @throws DBException
+     */
     boolean setDriverCity(int driverId, int cityId) throws DBException;
 
 
@@ -121,7 +241,7 @@ public interface UsersDAO {
 
     /**
      * @param userId
-     * @param cityId
+     * @param cityId city`s id from {@link com.github.DiachenkoMD.entities.enums.Cities Cities} enum
      * @return id of newly created driver
      * @throws DBException
      */

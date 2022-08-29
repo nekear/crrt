@@ -1,10 +1,10 @@
 package com.github.DiachenkoMD.web.filters;
 
-import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.enums.VisualThemes;
 import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.github.DiachenkoMD.web.utils.Utils;
-import com.github.DiachenkoMD.web.utils.guardian.Guardian;
+import com.github.DiachenkoMD.web.utils.middlewares.Middleware;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.Guardian;
 import jakarta.servlet.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,24 +13,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.github.DiachenkoMD.web.utils.Utils.createCookie;
-import static com.github.DiachenkoMD.web.utils.Utils.getCookieFromArray;
 
 public class GeneralFilter implements Filter {
     private static final Logger logger = LogManager.getLogger(GeneralFilter.class);
 
 
-    private Guardian guardian;
+    private Middleware guardian;
+    private Middleware warden;
     private RightsManager rightsManager;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         Filter.super.init(filterConfig);
-        this.guardian = (Guardian) filterConfig.getServletContext().getAttribute("guardian");
+        this.guardian = (Middleware) filterConfig.getServletContext().getAttribute("guardian");
+        this.warden = (Middleware) filterConfig.getServletContext().getAttribute("warden");
         this.rightsManager = (RightsManager) filterConfig.getServletContext().getAttribute("rights_manager");
     }
 
@@ -46,8 +45,10 @@ public class GeneralFilter implements Filter {
 
         rightsManager.manage(httpRequest);
 
-        if(!guardian.guard(httpRequest.getServletPath(), httpRequest, httpResponse))
+        if(!guardian.process(httpRequest.getServletPath(), httpRequest, httpResponse))
             return;
+
+        warden.process(httpRequest.getServletPath(), httpRequest, httpResponse);
 
         resolveDefaultLang(httpRequest);
 

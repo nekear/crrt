@@ -893,6 +893,12 @@ footer .right-content .copy-item .content:hover .text {
   opacity: 1;
 }
 
+.micro-caution-success {
+  font-size: 12px;
+  color: var(--systemGreen_default);
+  opacity: 1;
+}
+
 .passport-block {
   border: 1px solid var(--borderColor_accessible);
   border-radius: 5px;
@@ -1119,4 +1125,13 @@ input.highlight, select.highlight {
 
 #rc-anchor-alert {
   opacity: 0.1;
+}
+
+.fade-enter-active, .fade-leave-active {
+  -webkit-transition: opacity 0.5s;
+  transition: opacity 0.5s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }

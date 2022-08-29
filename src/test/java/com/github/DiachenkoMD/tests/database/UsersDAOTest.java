@@ -220,14 +220,6 @@ class UsersDAOTest {
     }
 
     @Test
-    @DisplayName("generateConfirmationCode")
-    void generateUserCodeTest() throws Exception {
-        String generatedCode = usersDAO.generateConfirmationCode();
-        assertNotNull(generatedCode);
-        assertNull(usersDAO.getUserByConfirmationCode(generatedCode));
-    }
-
-    @Test
     @DisplayName("Overall get tests")
     void overallGetTests() throws Exception{
         // Registering new user entity

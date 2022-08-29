@@ -4,6 +4,7 @@ import static com.github.DiachenkoMD.entities.Constants.*;
 
 import com.github.DiachenkoMD.entities.DB_Constants;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
+import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.enums.ValidationParameters;
 import com.github.DiachenkoMD.entities.enums.VisualThemes;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
@@ -13,9 +14,9 @@ import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
-import com.github.DiachenkoMD.web.utils.RecaptchaVerifier;
-import com.github.DiachenkoMD.web.utils.RightsManager;
-import com.github.DiachenkoMD.web.utils.Utils;
+import com.github.DiachenkoMD.web.utils.*;
+import io.fusionauth.jwt.domain.JWT;
+import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -29,6 +30,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -38,9 +40,11 @@ public class UsersService {
 
     private static final Logger logger = LogManager.getLogger(UsersService.class);
     private final UsersDAO usersDAO;
+    private final ServletContext ctx;
 
-    public UsersService(UsersDAO usersDAO){
+    public UsersService(UsersDAO usersDAO, ServletContext ctx){
         this.usersDAO = usersDAO;
+        this.ctx = ctx;
     }
 
     /**
@@ -177,6 +181,15 @@ public class UsersService {
         return Map.entry(user, shouldRemember);
     }
 
+    /**
+     * Method for updating user data on profile page.
+     * @param req should contain json object with optional fields like "firstname", "surname" and "patronymic".
+     * @param resp
+     * @return updated user data as {@link AuthUser} object.
+     * @throws DescriptiveException might be thrown with {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR} reason.
+     * @throws IOException might be thrown from {@link HttpServletRequest#getReader() getReader()} method.
+     * @throws DBException might be thrown from {@link UsersDAO#updateUsersData(int, HashMap) updateUsersData(int, HashMap)} or {@link UsersDAO#get(String) get(String)}.
+     */
     public AuthUser updateData(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
         String incomingJson = req.getReader().lines().collect(Collectors.joining("\n"));
 
@@ -211,15 +224,31 @@ public class UsersService {
         if(resultFieldsToUpdate.size() == 0)
             throw new DescriptiveException(ExceptionReason.VALIDATION_ERROR);
 
-        logger.debug("Going to update via HashMap: {}", resultFieldsToUpdate);
+        logger.debug("Going to update user data via HashMap: {}", resultFieldsToUpdate);
 
         AuthUser current = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
-        usersDAO.updateUsersData(current.getCleanId().orElse(-1), resultFieldsToUpdate);
+        int userId = (Integer) current.getId();
 
-        return usersDAO.get(current.getEmail());
+        usersDAO.updateUsersData(userId, resultFieldsToUpdate);
+
+        return usersDAO.get(userId);
     }
 
+    /**
+     * Method for updating user`s password. Used from profile page.
+     * @param req should contain json object with fields "old_password" and "new_password".
+     * @param resp
+     * @throws DescriptiveException might be thrown with many different reasons like:
+     * <ul>
+     *     <li>VALIDATION_ERROR</li>
+     *     <li>SESSION_AUTH</li>
+     *     <li>ACQUIRING_ERROR (if we could not get user id from session)</li>
+     *     <li>UUD_PASSWORDS_DONT_MATCH</li>
+     *     <li>DB_ACTION_ERROR (if password was not updated)</li>
+     * </ul>
+     * @throws DBException might be thrown from {@link UsersDAO#getPassword(int)} and {@link UsersDAO#setPassword(int, String)}
+     */
     public void updatePassword(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
         String incomingJson = req.getReader().lines().collect(Collectors.joining("\n"));
 
@@ -246,6 +275,14 @@ public class UsersService {
             throw new DescriptiveException("Zero rows returned from updating password in db", ExceptionReason.DB_ACTION_ERROR);
     }
 
+    /**
+     * Method for replenishing user`s balance.
+     * @param req should contain json object with "amount" field inside.
+     * @param resp
+     * @return new user`s balance
+     * @throws DescriptiveException might be thrown with reasons VALIDATION_ERROR, ACQUIRING_ERROR, DB_ACTION_ERROR.
+     * @throws DBException might be thrown from {@link UsersDAO#getBalance(int)} and {@link UsersDAO#setBalance(int, double)}
+     */
     public double replenishBalance(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
         String incomingJson = req.getReader().lines().collect(Collectors.joining());
 
@@ -274,6 +311,14 @@ public class UsersService {
         return newBalance;
     }
 
+    /**
+     * Method for uploading user`s avatar.
+     * @param req should contain {@link Part} with "avatar" field.
+     * @param resp
+     * @return newly generated avatar file name.
+     * @throws DBException may be thrown from {@link UsersDAO#getAvatar(int)}, {@link UsersDAO#setAvatar(int, String)}.
+     * @throws DescriptiveException might be thrown with reasons TOO_MANY_FILES, TOO_BIG_FILE_SIZE, BAD_FILE_EXTENSION, ACQUIRING_ERROR, DB_ACTION_ERROR.
+     */
     public String uploadAvatar(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, DBException, DescriptiveException{
         Part filePart = req.getPart("avatar");
 
@@ -317,6 +362,14 @@ public class UsersService {
 
     }
 
+    /**
+     * Method for deleting user avatar
+     * @param req awaits nothing.
+     * @param resp
+     * @return name of new avatar (basically, it is generated from current user login)
+     * @throws DBException may be thrown from {@link UsersDAO#getAvatar(int)} and {@link UsersDAO#setAvatar(int, String)}.
+     * @throws DescriptiveException may be thrown with reasons ACQUIRING_ERROR and DB_ACTION_ERROR.
+     */
     public String deleteAvatar(HttpServletRequest req, HttpServletResponse resp) throws DBException, DescriptiveException, IOException{
         String realPath = req.getServletContext().getRealPath("/uploads/avatars");
 
@@ -340,6 +393,11 @@ public class UsersService {
         return currentUser.idenAvatar(realPath);
     }
 
+    /**
+     * Method for changing current visual theme.
+     * @param req should better contain "theme" cookie otherwise theme will be set to dark.
+     * @param resp
+     */
     public void changeTheme(HttpServletRequest req, HttpServletResponse resp){
         Cookie themeCookie = Utils.getCookieFromArray("theme", req.getCookies()).orElse(null);
 
@@ -354,5 +412,64 @@ public class UsersService {
         }else{
             resp.addCookie(createCookie("theme", VisualThemes.DARK.toString(), path));
         }
+    }
+
+    /**
+     * Method for generating unique restoration JWT token and sending email with it to user.
+     * @param email where the email with restoration link should be sent.
+     * @throws DBException might be thrown from {@link UsersDAO#doesExist(LimitedUser)}.
+     * @throws DescriptiveException might be thrown with reason ACQUIRING_ERROR.
+     */
+    public void sendRestorationLink(String email) throws DBException, DescriptiveException {
+        if(!usersDAO.doesExist(email))
+            throw new DescriptiveException("Could find user with entered email " + email, ExceptionReason.ACQUIRING_ERROR);
+
+        LocalDateTime expirationDate = LocalDateTime.now().plusDays(1);
+
+        String restorationToken = JWTManager.encode("email", email.trim(), expirationDate);
+
+        emailNotify(email,
+                "Account password recovery",
+                String.format(
+                        "Good afternoon. To reset your account password, follow this <a href='http://localhost:8080%s/restore?token=%s'>link</a>. <p>This link is available till %s.<p/>",
+                        ctx.getContextPath(),
+                        restorationToken,
+                        expirationDate.format(localDateTimeFormatter)
+                )
+        );
+    }
+
+    /**
+     * Method for changing user password on "password restore" operation.
+     * @param jwtToken token, which should contain user email
+     * @param password new user password
+     * @throws DescriptiveException may be thrown with reasons {@link ExceptionReason#ACQUIRING_ERROR ACQUIRING_ERROR} or {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR}.
+     * @throws DBException may be thrown from methods {@link UsersDAO#get(String)} and {@link UsersDAO#setPassword(int, String)}.
+     */
+    public void updatePasswordForAccount(String jwtToken, String password) throws DescriptiveException, DBException {
+        // Decoding jwt token
+        JWT jwt = JWTManager.decode(jwtToken);
+
+        // Validating token
+        if(jwt == null || jwt.getString("email") == null)
+            throw new DescriptiveException("Enable to validate jwt token", ExceptionReason.ACQUIRING_ERROR);
+
+        if(!JWTManager.isTokenAlive(jwt))
+            throw new DescriptiveException("Token has been already used", ExceptionReason.TOKEN_ALREADY_USED);
+
+        if(jwt.isExpired())
+            throw new DescriptiveException("Token has already expired", ExceptionReason.TOKEN_ALREADY_EXPIRED);
+
+        // Validating password
+        if(!Validatable.of(password, ValidationParameters.PASSWORD, false).validate())
+            throw new DescriptiveException("Password failed validation", ExceptionReason.VALIDATION_ERROR);
+
+        // Changing password
+        String email = jwt.getString("email");
+        AuthUser user = usersDAO.get(email);
+
+        usersDAO.setPassword((Integer) user.getId(), encryptPassword(password));
+
+        JWTManager.disableToken(jwt);
     }
 }

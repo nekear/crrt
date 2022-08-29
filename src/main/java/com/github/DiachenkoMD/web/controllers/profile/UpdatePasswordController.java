@@ -5,8 +5,8 @@ import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
-import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
-import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.AuthGuard;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,7 +19,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.github.DiachenkoMD.web.utils.Utils.getLang;
+import static com.github.DiachenkoMD.web.utils.Utils.*;
+
 @UseGuards({AuthGuard.class})
 @WebServlet("/profile/updatePassword")
 public class UpdatePasswordController extends HttpServlet {
@@ -37,10 +38,7 @@ public class UpdatePasswordController extends HttpServlet {
         try{
             this.usersService.updatePassword(req, resp);
 
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(new StatusText("profile.password_change_success", true, StatusStates.SUCCESS).convert(getLang(req)));
-            resp.getWriter().flush();
-
+            sendSuccess(new StatusText("profile.password_change_success", true, StatusStates.SUCCESS).convert(getLang(req)), resp);
         }catch (Exception e){
             AtomicReference<String> exceptionToClient = new AtomicReference<>("");
 
@@ -56,13 +54,7 @@ public class UpdatePasswordController extends HttpServlet {
 
             logger.debug(exceptionToClient.get());
 
-            try {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write(exceptionToClient.get());
-                resp.getWriter().flush();
-            } catch (IOException ioExc) {
-                logger.error(ioExc);
-            }
+            sendException(exceptionToClient.get(), resp);
         }
     }
 }

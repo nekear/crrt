@@ -2,7 +2,6 @@ package com.github.DiachenkoMD.web.listeners;
 
 import com.github.DiachenkoMD.entities.adapters.*;
 import com.github.DiachenkoMD.entities.enums.DBCoupled;
-import com.github.DiachenkoMD.web.controllers.*;
 import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
 import com.github.DiachenkoMD.web.daos.prototypes.InvoicesDAO;
 import com.github.DiachenkoMD.web.services.*;
@@ -10,12 +9,10 @@ import com.github.DiachenkoMD.web.daos.DBTypes;
 import com.github.DiachenkoMD.web.daos.factories.DAOFactory;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.web.utils.RightsManager;
-import com.github.DiachenkoMD.web.utils.guardian.Guardian;
-import com.github.DiachenkoMD.web.utils.guardian.UseGuards;
-import com.github.DiachenkoMD.web.utils.guardian.guards.AuthGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.Guard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.PageGuard;
-import com.github.DiachenkoMD.web.utils.guardian.guards.roles.ManagerRGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.Guardian;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.UseGuards;
+import com.github.DiachenkoMD.web.utils.middlewares.warden.UseWards;
+import com.github.DiachenkoMD.web.utils.middlewares.warden.Warden;
 import com.github.DiachenkoMD.web.utils.pinger.Pinger;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -28,7 +25,6 @@ import jakarta.servlet.annotation.WebListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
-import org.reflections.scanners.TypeAnnotationsScanner;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
@@ -65,7 +61,7 @@ public class ContextListener implements ServletContextListener {
         initGson(ctx);
 
         try{
-            initGuardian(ctx);
+            initMiddlewares(ctx);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -85,7 +81,7 @@ public class ContextListener implements ServletContextListener {
 
         // Services initialization
 
-        UsersService usersService = new UsersService(usersDAO);
+        UsersService usersService = new UsersService(usersDAO, ctx);
         ctx.setAttribute("users_service", usersService);
         logger.info("[✓] UsersService -> initialized");
 
@@ -145,16 +141,22 @@ public class ContextListener implements ServletContextListener {
         logger.info("[✓] Gson -> initialized");
     }
 
-    private static void initGuardian(ServletContext ctx) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    private static void initMiddlewares(ServletContext ctx) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         Reflections reflections = new Reflections("com.github.DiachenkoMD.web.controllers");
         Set<Class<?>> guardedRoutes = reflections.get(SubTypes.of(TypesAnnotated.with(UseGuards.class)).asClass());
+        Set<Class<?>> wardedRoutes = reflections.get(SubTypes.of(TypesAnnotated.with(UseWards.class)).asClass());
 
         Guardian guardian = new Guardian();
         guardian.init(guardedRoutes);
 
+        Warden warden = new Warden();
+        warden.init(wardedRoutes);
+
         ctx.setAttribute("guardian", guardian);
+        ctx.setAttribute("warden", warden);
 
         logger.info("[✓] Guardian -> initialized");
+        logger.info("[✓] Warden -> initialized");
     }
 
     @Override
