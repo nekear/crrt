@@ -8,6 +8,9 @@ import com.google.gson.annotations.JsonAdapter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Extended driver entity. Provides more info about driver.
+ */
 public class ExtendedDriver extends LimitedDriver{
     @JsonAdapter(CryptoAdapter.class)
     private Object id;

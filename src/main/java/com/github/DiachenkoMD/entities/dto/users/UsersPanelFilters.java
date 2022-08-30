@@ -12,6 +12,9 @@ import com.google.gson.annotations.JsonAdapter;
 
 import java.util.HashMap;
 
+/**
+ * Class for storing filters data. Contains {@link #getDBPresentation(String)} which purpose is to transform fields data into column-value connection.
+ */
 public class UsersPanelFilters extends Filters {
     private String email;
     private String firstname;
@@ -70,7 +73,10 @@ public class UsersPanelFilters extends Filters {
         this.state = state;
     }
 
-
+    /**
+     * Overload of {@link Filters#getDBPresentation()}.
+     * @param part string that will be glued to fields data. For example, "%" for LIKE.
+     */
     public HashMap<String, String> getDBPresentation(String part) {
         HashMap<String, String> representation = new HashMap<>();
 

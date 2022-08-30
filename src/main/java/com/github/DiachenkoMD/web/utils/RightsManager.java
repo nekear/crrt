@@ -11,6 +11,9 @@ import java.util.*;
 
 import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 
+/**
+ * Utility for updating user`s rights, balance and other stuff.
+ */
 public class RightsManager {
     private static final Logger logger = LogManager.getLogger(RightsManager.class);
     /**

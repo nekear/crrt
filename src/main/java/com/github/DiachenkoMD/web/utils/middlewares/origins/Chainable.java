@@ -8,6 +8,11 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Main unit in creating Middleware chains. Uses <i>Chain of responsibility</i> pattern. <br/>
+ * @apiNote to create pipeline {@link #pipe(List)} is used. To execute some actions, use {@link #process(HttpServletRequest, HttpServletResponse)}
+ * and to pass the data on down the chain, {@link #devolve(HttpServletRequest, HttpServletResponse)} is used.
+ */
 public abstract sealed class Chainable permits Guard, Ward {
     private final static Logger logger = LogManager.getLogger(Chainable.class);
 

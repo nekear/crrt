@@ -17,6 +17,9 @@ import java.util.List;
 import static com.github.DiachenkoMD.entities.DB_Constants.TBL_INVOICES_IS_CANCELED;
 import static com.github.DiachenkoMD.entities.DB_Constants.TBL_INVOICES_IS_REJECTED;
 
+/**
+ * Class designed for storing full invoice info, which intended to be shown when admin or manager wants to get detailed info about specific invoice.
+ */
 public class InformativeInvoice extends PanelInvoice {
 
     private Passport passport;

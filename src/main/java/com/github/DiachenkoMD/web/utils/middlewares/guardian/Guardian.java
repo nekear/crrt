@@ -13,6 +13,12 @@ import org.apache.logging.log4j.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+/**
+ * Processor realization for {@link Guard} classes. Depends on {@link UseGuards @UseGuards}. For more information on how middlewares work, checkout @see reference.
+ * @see com.github.DiachenkoMD.web.utils.middlewares.Middleware
+ * @see Middleware#init(Set)
+ * @see Guard
+ */
 public class Guardian implements Middleware {
 
     private final static Logger logger = LogManager.getLogger(Guardian.class);

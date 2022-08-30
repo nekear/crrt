@@ -30,12 +30,11 @@ public class StatsController extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{
             List<Double> statsList = adminService.getStats();
             Utils.sendSuccess(gson.toJson(statsList), resp);
         }catch (Exception e){
-
             logger.error(e);
 
             Utils.sendException("", resp);

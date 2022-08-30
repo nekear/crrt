@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import static com.github.DiachenkoMD.entities.DB_Constants.*;
 import static com.github.DiachenkoMD.web.utils.Utils.*;
 
+/**
+ * Class designed to store filters selected at admin-panel on "Invoices" tab or at managers-panel.
+ */
 public class InvoicePanelFilters extends Filters {
 
     private String code;

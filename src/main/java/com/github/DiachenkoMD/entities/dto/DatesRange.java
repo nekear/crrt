@@ -3,6 +3,9 @@ package com.github.DiachenkoMD.entities.dto;
 import java.time.LocalDate;
 import java.time.Period;
 
+/**
+ * Class designed to easily store dates ranges together.
+ */
 public class DatesRange {
     private LocalDate start;
     private LocalDate end;

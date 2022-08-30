@@ -7,6 +7,11 @@ import com.google.gson.annotations.SerializedName;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Designed to transmit search requests. <br/>
+ * Don't let the name of the class mislead you, it is designed not only for pagination,
+ * but also for passing filters. It was named so because when you switch pages, filters are always passed, so as not to break the search.
+ */
 public class PaginationRequest {
     private int askedPage;
     private int elementsPerPage;

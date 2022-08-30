@@ -10,6 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Class designed for storing information about client invoices. Used at client panel ("My invoices").
+ */
 public class ClientInvoice extends LimitedInvoice{
     private String brand;
     private String model;

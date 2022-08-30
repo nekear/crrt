@@ -13,6 +13,20 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+/**
+ * Utility for verifying Recaptcha response. <br/>
+ * <ul>
+ *     <li>To verify recaptcha use {@link #verify(String)}.</li>
+ *     <li>To disable real verification and switch to dev mode, where all recaptcha`s verifications results in positive response, use {@link #setTestingMode()}</li>
+ *     <li>To disable previously mentioned behavior, use {@link #setRealMode()}</li>
+ * </ul>
+ * @implNote Next fields are obtained from <i>app.properties</i>:
+ * <ul>
+ *     <li>recaptcha.verifier.url</li>
+ *     <li>recaptcha.secretKey</li>
+ *     <li>test.recaptcha.secretKey</li>
+ * </ul>
+ */
 public class RecaptchaVerifier {
     private final static Logger logger = LogManager.getLogger(RecaptchaVerifier.class);
     private static final String url, realSiteKey, testSiteKey;

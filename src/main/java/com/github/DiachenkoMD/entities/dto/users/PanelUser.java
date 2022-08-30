@@ -7,6 +7,9 @@ import com.github.DiachenkoMD.entities.enums.Roles;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class, designed to store little information about invoice to pretty display it on the admin-panel table.
+ */
 public class PanelUser extends LimitedUser{
 
     public static PanelUser of(ResultSet rs) throws SQLException {

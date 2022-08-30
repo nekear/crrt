@@ -13,6 +13,7 @@
   <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <%@include file="components/favicon.jspf" %>
 
   <!-- Design libs -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
@@ -26,7 +27,7 @@
   <link rel="stylesheet" href="${assets}css/sign_rel.css">
 
   <link rel="stylesheet" href="${assets}css/media.css">
-  <title>Login | CRRT.</title>
+  <title><fmt:message key="title.login"/> | CRRT.</title>
 
   <!--  JS libs  -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
@@ -34,7 +35,7 @@
   <!--  Custom  -->
   <script src="${assets}js/mdx.js"></script>
   <script src="${assets}modules/notiflix/notiflix-3.2.5.min.js"></script>
-  <script src="${assets}js/global.js"></script>
+  <script src="${assets}js/global.js" defer></script>
   <script src="${assets}js/login.js" defer></script>
 
   <script>
@@ -101,6 +102,9 @@
         <div class="mdx-divider solid mt-4 mb-4"></div>
         <div class="sub-sign-info">
           <span><fmt:message key="page.login.dont_have_account_yet" /></span> <a href="register" class="mdx-hover-underline-animation"><fmt:message key="page.login.create_account_link" /></a>
+        </div>
+        <div class="sub-sign-info">
+          <span><fmt:message key="page.login.forgot_password" /></span> <a href="restore" class="mdx-hover-underline-animation"><fmt:message key="page.login.restore_password_link" /></a>
         </div>
       </div>
     </div>

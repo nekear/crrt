@@ -1,4 +1,11 @@
 
+const validationPatterns = {
+    "min-symbols": ".{$v$,}",
+    "min-letters": ".*[a-zA-Z]{$v$,}.*",
+    "min-digits": ".*\\d{$v$,}.*",
+    "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
+}
+
 // Vue components
 const sorterComponent = {
     props: ["name", "orderBy"],

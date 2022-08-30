@@ -3,6 +3,9 @@ package com.github.DiachenkoMD.entities.dto.drivers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * DTO for driver entities. Represents only little information to show driver at panels as chips.
+ */
 public class LimitedDriver {
     private String avatar;
     private String email;

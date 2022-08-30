@@ -2,24 +2,28 @@ package com.github.DiachenkoMD.tests.service;
 
 import static com.github.DiachenkoMD.entities.Constants.*;
 
+import com.github.DiachenkoMD.entities.enums.VisualThemes;
+import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.entities.dto.Status;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.web.services.UsersService;
+import com.github.DiachenkoMD.web.utils.JWTManager;
 import com.github.DiachenkoMD.web.utils.RecaptchaVerifier;
 import com.github.DiachenkoMD.web.utils.RightsManager;
 import com.github.DiachenkoMD.web.utils.Utils;
 import com.google.gson.Gson;
+import io.fusionauth.jwt.InvalidJWTException;
+import io.fusionauth.jwt.JWTExpiredException;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.Part;
+import jakarta.servlet.http.*;
+import javassist.runtime.Desc;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -27,6 +31,8 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -53,6 +59,9 @@ public class UserServiceTest {
     private HttpServletRequest _req;
     @Mock
     private HttpServletResponse _resp;
+
+    @Mock
+    private ServletContext _ctx;
     @Mock
     private HttpSession _session;
 
@@ -510,7 +519,6 @@ public class UserServiceTest {
         private ServletContext _servletContext;
         @BeforeEach
         public void setUp() throws ServletException, IOException {
-
             // Configuring session to bypass getting of the user
             lenient().when(_req.getSession()).thenReturn(_session);
             lenient().when(_session.getAttribute(SESSION_AUTH)).thenReturn(_user_);
@@ -518,8 +526,7 @@ public class UserServiceTest {
 
             // Configuring servlet context to get file path
             lenient().when(_req.getServletContext()).thenReturn(_servletContext);
-            lenient().when(_servletContext.getRealPath(AVATAR_UPLOAD_DIR)).thenReturn(new File(".").getAbsolutePath()+AVATAR_UPLOAD_DIR);
-
+            lenient().when(_servletContext.getRealPath(anyString())).thenReturn("");
             // Configuring file acquirement
             _parts_ = spy(new ArrayList<>(List.of(_filePart)));
             when(_req.getParts()).thenReturn(_parts_); // to bypass size() check
@@ -527,18 +534,32 @@ public class UserServiceTest {
         }
         @Test
         @DisplayName("Successful uploading")
-        void successfulUploadingTest() throws Exception{
+        void successfulUploadingTest(@TempDir Path tempDir) throws Exception{
+            String imageName = "some.jpg";
+
+            // Creating file to be able to delete in inside method
+            tempDir.resolve(imageName).toFile().createNewFile();
+
+            // Faking file part object
             when(_filePart.getSize()).thenReturn((long) (1024 * 1024));
             when(_filePart.getSubmittedFileName()).thenReturn("file.jpg");
 
-            when(_usersDao.getAvatar((Integer) _user_.getId())).thenReturn(Optional.empty());
+            // Faking situation, when user already had avatar, to test avatar deletion
+            when(_usersDao.getAvatar((Integer) _user_.getId())).thenReturn(Optional.of("some.jpg"));
+            lenient().when(_servletContext.getRealPath(anyString())).thenReturn(tempDir.toAbsolutePath().toString());
 
+            // Faking setAvatar response to bypass specific checks
             when(_usersDao.setAvatar(eq((Integer) _user_.getId()), anyString())).thenReturn(true);
 
+            // Asserting that as the result of the execution, String is returned
             assertInstanceOf(String.class, usersService.uploadAvatar(_req, _resp));
 
+            // Checking that those methods were called needed amount of times
             verify(_user_).setAvatar(anyString());
             verify(_filePart).write(anyString());
+
+            // Make sure that file was successfully deleted
+            assertFalse(tempDir.resolve(imageName).toFile().exists());
         }
 
         @Test
@@ -546,9 +567,11 @@ public class UserServiceTest {
         void tooManyFilesFailTest() throws Exception{
             when(_parts_.size()).thenReturn(3); // <----
 
+            // Faking file part object
             lenient().when(_filePart.getSize()).thenReturn((long) (1024 * 1024));
             lenient().when(_filePart.getSubmittedFileName()).thenReturn("file.jpg");
 
+            // Awaiting getting exception, that we tried to upload too many files
             DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.uploadAvatar(_req, _resp));
 
             verify(_user_, never()).setAvatar(anyString());
@@ -560,9 +583,11 @@ public class UserServiceTest {
         @Test
         @DisplayName("File size is larger than allowed fail")
         void fileSizeLargerAllowedFailTest() throws Exception{
+            // Faking file part object
             when(_filePart.getSize()).thenReturn((long) (1024 * 1024 * 20)); // <----
             lenient().when(_filePart.getSubmittedFileName()).thenReturn("file.jpg");
 
+            // Awaiting getting exception, that the file size is larger that allowed
             DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.uploadAvatar(_req, _resp));
 
             verify(_user_, never()).setAvatar(anyString());
@@ -574,9 +599,11 @@ public class UserServiceTest {
         @Test
         @DisplayName("File should end with .jpg or .png fail")
         void fileEndingFailTest() throws Exception{
+            // Faking file part object
             lenient().when(_filePart.getSize()).thenReturn((long) (1024 * 1024));
             when(_filePart.getSubmittedFileName()).thenReturn("file.pdf"); // <----
 
+            // Awaiting getting exception, that the file extension is bad
             DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.uploadAvatar(_req, _resp));
 
             verify(_user_, never()).setAvatar(anyString());
@@ -588,13 +615,17 @@ public class UserServiceTest {
         @Test
         @DisplayName("Setting avatar name to db fail")
         void settingAvatarNameToDBFailTest() throws Exception{
+            // Faking file part object
             when(_filePart.getSize()).thenReturn((long) (1024 * 1024));
             when(_filePart.getSubmittedFileName()).thenReturn("file.jpg");
 
+            // Saying "in that situation, we didn`t have avatar already set"
             when(_usersDao.getAvatar((Integer) _user_.getId())).thenReturn(Optional.empty());
 
+            // Here, we should not bypass check
             when(_usersDao.setAvatar(eq((Integer) _user_.getId()), anyString())).thenReturn(false);
 
+            // Awaiting getting exception DB_ACTION_ERROR on setAvatar() method call
             DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> usersService.uploadAvatar(_req, _resp));
 
             verify(_user_, never()).setAvatar(anyString());
@@ -614,24 +645,224 @@ public class UserServiceTest {
         private ServletContext _servletContext;
         @BeforeEach
         public void setUp() throws ServletException, IOException {
-
             // Configuring session to bypass getting of the user
             lenient().when(_req.getSession()).thenReturn(_session);
             lenient().when(_session.getAttribute(SESSION_AUTH)).thenReturn(_user_);
             _user_.setId(1);
-
-            // Configuring servlet context to get file path
-            lenient().when(_req.getServletContext()).thenReturn(_servletContext);
-            lenient().when(_servletContext.getRealPath(AVATAR_UPLOAD_DIR)).thenReturn(new File(".").getAbsolutePath()+AVATAR_UPLOAD_DIR);
+            _user_.setEmail("test@gmail.com");
         }
         @Test
         @DisplayName("Return null avatar link if nothing to delete")
-        void successfulUploadingTest() throws Exception{
-            when(_usersDao.getAvatar((Integer) _user_.getId())).thenReturn(Optional.empty());
+        void successfulUploadingTest(@TempDir Path tempDir) throws Exception{
+            String currentAvatarName = "some.jpg";
+            File currentAvatarFile = tempDir.resolve("some.jpg").toFile();
+            currentAvatarFile.createNewFile();
 
-            assertEquals(_user_.idenAvatar("doesntmatter"), usersService.deleteAvatar(_req, _resp));
+            // Configuring servlet context to get file path
+            when(_req.getServletContext()).thenReturn(_servletContext);
+            when(_servletContext.getRealPath(anyString())).thenReturn(tempDir.toAbsolutePath().toString());
 
-            verify(_usersDao, never()).setAvatar(anyInt(), eq(null));
+            int userId = (Integer) _user_.getId();
+            when(_usersDao.getAvatar(userId)).thenReturn(Optional.of(currentAvatarName));
+            when(_usersDao.setAvatar(userId, null)).thenReturn(true);
+
+            assertEquals(_user_.idenAvatar(tempDir.toAbsolutePath().toString()), usersService.deleteAvatar(_req, _resp));
+            assertFalse(currentAvatarFile.exists());
+
+            verify(_user_).setAvatar(null);
+        }
+    }
+
+    @Nested
+    @DisplayName("changeTheme")
+    class changeThemeTests{
+
+        @BeforeEach
+        public void baInit(){
+            when(_req.getContextPath()).thenReturn("/crrt_war");
+        }
+        @Test
+        @DisplayName("From dark to light")
+        void fromDarkToLight(){
+            // Faking input (currently, have dark theme set)
+            when(_req.getCookies()).thenReturn(new Cookie[]{new Cookie("theme", VisualThemes.DARK.name())});
+
+            // Executing method
+            usersService.changeTheme(_req, _resp);
+
+            // Capturing set cookie
+            ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+            verify(_resp).addCookie(cookieArgumentCaptor.capture());
+
+            // Verifying set theme
+            Cookie capturedCookie = cookieArgumentCaptor.getValue();
+
+            assertEquals("theme", capturedCookie.getName());
+            assertEquals(VisualThemes.LIGHT.name(), capturedCookie.getValue());
+        }
+
+        @Test
+        @DisplayName("From light to dark")
+        void fromLightToDark(){
+            // Faking input (currently, have light theme set)
+            when(_req.getCookies()).thenReturn(new Cookie[]{new Cookie("theme", VisualThemes.LIGHT.name())});
+
+            // Executing method
+            usersService.changeTheme(_req, _resp);
+
+            // Capturing set cookie
+            ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+            verify(_resp).addCookie(cookieArgumentCaptor.capture());
+
+            // Verifying set theme
+            Cookie capturedCookie = cookieArgumentCaptor.getValue();
+
+            assertEquals("theme", capturedCookie.getName());
+            assertEquals(VisualThemes.DARK.name(), capturedCookie.getValue());
+        }
+
+        @Test
+        @DisplayName("No theme set before")
+        void noThemeSetBefore(){
+            // Faking input (currently, have no theme set)
+            when(_req.getCookies()).thenReturn(new Cookie[]{});
+
+            // Executing method
+            usersService.changeTheme(_req, _resp);
+
+            // Capturing set cookie
+            ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+            verify(_resp).addCookie(cookieArgumentCaptor.capture());
+
+            // Verifying set theme
+            Cookie capturedCookie = cookieArgumentCaptor.getValue();
+
+            assertEquals("theme", capturedCookie.getName());
+            assertEquals(VisualThemes.DARK.name(), capturedCookie.getValue());
+        }
+    }
+
+    @Nested
+    @DisplayName("sendRestorationLink")
+    class sendRestorationLinkTest{
+        @Test
+        @DisplayName("Generating link for existing email")
+        void generateForExistingEmail() throws DBException {
+            String email = "test@gmail.com";
+            when(_usersDao.doesExist(email)).thenReturn(true);
+            when(_ctx.getContextPath()).thenReturn("/crrt_war");
+
+            assertDoesNotThrow(() -> usersService.sendRestorationLink(email));
+        }
+
+        @Test
+        @DisplayName("No user with such email found [fail]")
+        void noEmailFoundFail() throws DBException {
+            String email = "test@gmail.com";
+            when(_usersDao.doesExist(email)).thenReturn(false);
+
+            DescriptiveException descExc = assertThrows(DescriptiveException.class, () -> usersService.sendRestorationLink(email));
+
+            assertEquals(ExceptionReason.ACQUIRING_ERROR, descExc.getReason());
+        }
+    }
+
+    @Nested
+    @DisplayName("updatePasswordForAccount")
+    class updatePasswordAccountTests{
+
+        @BeforeEach
+        public void beInit(){
+            JWTManager.emptyDisabledTokensList();
+        }
+        @Test
+        @DisplayName("Update successful")
+        void generateForExistingEmail() throws DBException, DescriptiveException {
+            // Configuring incoming data
+            String email = "test@gmail.com";
+            String newPassword = "pass1234";
+            String jwtToken = JWTManager.encode("email", email);
+
+            // Faking acquiring user from db
+            AuthUser user = new AuthUser();
+            user.setId(1);
+            when(_usersDao.get(email)).thenReturn(user);
+
+            // Executing method
+            assertDoesNotThrow(() -> usersService.updatePasswordForAccount(jwtToken, newPassword));
+
+            verify(_usersDao).setPassword(eq(1), anyString());
+
+            assertFalse(JWTManager.isTokenAlive(JWTManager.decode(jwtToken)));
+        }
+
+        @Test
+        @DisplayName("Token not validated [fail]")
+        void tokenNotValidatedFail() {
+            // Configuring incoming data
+            String newPassword = "pass1234";
+
+            // Executing method
+            DescriptiveException descExc = assertThrows(DescriptiveException.class, () -> usersService.updatePasswordForAccount("", newPassword));
+
+            assertEquals(ExceptionReason.ACQUIRING_ERROR, descExc.getReason());
+        }
+
+        @Test
+        @DisplayName("Email is not inside token [fail]")
+        void emailIsNotInsideTokenFail() {
+            // Configuring incoming data
+            String newPassword = "pass1234";
+            String jwtToken = JWTManager.encode(Map.of());
+
+            // Executing method
+            DescriptiveException descExc = assertThrows(DescriptiveException.class, () -> usersService.updatePasswordForAccount(jwtToken, newPassword));
+
+            assertEquals(ExceptionReason.ACQUIRING_ERROR, descExc.getReason());
+        }
+
+        @Test
+        @DisplayName("Token is disabled [fail]")
+        void tokenIsDisabledFail() {
+            // Configuring incoming data
+            String email = "test@gmail.com";
+            String newPassword = "pass1234";
+            String jwtToken = JWTManager.encode("email", email);
+
+            JWTManager.disableToken(JWTManager.decode(jwtToken));
+
+            // Executing method
+            DescriptiveException descExc = assertThrows(DescriptiveException.class, () -> usersService.updatePasswordForAccount(jwtToken, newPassword));
+
+            assertEquals(ExceptionReason.TOKEN_ALREADY_USED, descExc.getReason());
+        }
+
+        @Test
+        @DisplayName("Token has expired [fail]")
+        void tokenHasExpiredFail() {
+            // Configuring incoming data
+            String email = "test@gmail.com";
+            String newPassword = "pass1234";
+            String jwtToken = JWTManager.encode("email", email, LocalDateTime.now().minusDays(1));
+
+            // Executing method
+            DescriptiveException descExc = assertThrows(DescriptiveException.class, () -> usersService.updatePasswordForAccount(jwtToken, newPassword));
+
+            assertEquals(ExceptionReason.TOKEN_ALREADY_EXPIRED, descExc.getReason());
+        }
+
+        @Test
+        @DisplayName("New password validation fail")
+        void newPasswordValidationFail() {
+            // Configuring incoming data
+            String email = "test@gmail.com";
+            String newPassword = "p1";
+            String jwtToken = JWTManager.encode("email", email);
+
+            // Executing method
+            DescriptiveException descExc = assertThrows(DescriptiveException.class, () -> usersService.updatePasswordForAccount(jwtToken, newPassword));
+
+            assertEquals(ExceptionReason.VALIDATION_ERROR, descExc.getReason());
         }
     }
 

@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 
 import static com.github.DiachenkoMD.web.utils.Utils.containsColumn;
 
+/**
+ * Class designed to store information about specific vehicle.
+ */
 public class Car {
     @JsonAdapter(CryptoAdapter.class)
     @SerializedName("id")

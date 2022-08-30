@@ -5,6 +5,9 @@ import jakarta.servlet.jsp.tagext.SimpleTagSupport;
 
 import java.io.IOException;
 
+/**
+ * Custom tag to get information about current language or, if needed, get specific language name.
+ */
 public class LangTagHandler extends SimpleTagSupport {
     private String prefix;
     private boolean clean = false;

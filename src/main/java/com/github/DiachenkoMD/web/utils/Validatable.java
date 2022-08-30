@@ -9,13 +9,17 @@ import java.util.regex.Pattern;
 
 import static com.github.DiachenkoMD.web.utils.Utils.multieq;
 
+/**
+ * Utility for easily validating data. All available validation criteria could be viewed at {@link ValidationParameters}.<br/>
+ * To validate something, you should firstly obtain {@link Validatable} object from {@link #of(Object, ValidationParameters)} method and then call {@link #validate()} on it.
+ */
 public class Validatable {
     private static HashMap<ValidationParameters, Pattern> patterns = new HashMap<>();
 
     static {
         patterns.put(ValidationParameters.NAME, Pattern.compile("[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+"));
         patterns.put(ValidationParameters.EMAIL, Pattern.compile("\\w+@[a-zA-Z0-9]+\\.[a-z]+"));
-        patterns.put(ValidationParameters.PASSWORD, Pattern.compile("(?=.*\\d)[a-zA-Z\\d]{4,}$"));
+        patterns.put(ValidationParameters.PASSWORD, Pattern.compile("(?=.*\\d).{4,}$"));
         patterns.put(ValidationParameters.DOC_NUMBER, Pattern.compile("^\\d{9}$"));
         patterns.put(ValidationParameters.RNTRC, Pattern.compile("^\\d{10}$"));
         patterns.put(ValidationParameters.AUTHORITY, Pattern.compile("^\\d{4}$"));
@@ -26,6 +30,12 @@ public class Validatable {
 
     private boolean isNullAllowed = false;
 
+    /**
+     * Builder of Validatable object. Has {@link #of(Object, ValidationParameters, boolean) overloaded method} for specifying if NULL value allowed or not.
+     * @param data any value that should be validated.
+     * @param validationParameter
+     * @return Validatable entity.
+     */
     public static Validatable of(Object data, ValidationParameters validationParameter){
         Validatable validatable = new Validatable();
 

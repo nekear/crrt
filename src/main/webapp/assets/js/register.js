@@ -1,11 +1,5 @@
 const { createApp } = Vue;
 
-const validationPatterns = {
-    "min-symbols": "\\w{$v$,}",
-    "min-letters": ".*[a-zA-Z]{$v$,}.*",
-    "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
-}
-
 var recaptchaLoadCallback = function() {
     grecaptcha.render('recaptchaEl', {
         sitekey : '6LeThTkhAAAAAI7ynKvUTVf_wPPfOc8Lkpz88QNi',
@@ -124,7 +118,7 @@ const app = createApp({
                         {
                             configs:{
                                 level: "high",
-                                type: "min-letters",
+                                type: "min-digits",
                                 value: "1"
                             },
                             message: "",

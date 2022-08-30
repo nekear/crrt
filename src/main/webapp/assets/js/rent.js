@@ -2,13 +2,6 @@ const { createApp } = Vue;
 
 dayjs.extend(window.dayjs_plugin_customParseFormat);
 
-const validationPatterns = {
-    "min-symbols": "\\w{$v$,}",
-    "min-letters": ".*[a-zA-Z]{$v$,}.*",
-    "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
-}
-
-
 
 const app = createApp({
     data() {

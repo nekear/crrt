@@ -6,7 +6,6 @@ import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
 import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.web.services.UsersService;
-import com.github.DiachenkoMD.web.utils.pinger.Pinger;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,23 +17,21 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
+import static com.github.DiachenkoMD.web.utils.Utils.sendException;
 
 
 @WebServlet("/login")
 public class SignInController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(SignInController.class);
     private UsersService usersService;
-    private Pinger pinger;
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         usersService = ((UsersService) config.getServletContext().getAttribute("users_service"));
-        pinger = ((Pinger) config.getServletContext().getAttribute("pinger"));
     }
 
     /**
@@ -66,28 +63,23 @@ public class SignInController extends HttpServlet {
             if(loginResponse.getValue()) // if we should remember current session
                 req.getSession().setMaxInactiveInterval(31536000); // 60 x 60 x 24 x 365
 
-            resp.setStatus(200);
+            resp.setStatus(HttpServletResponse.SC_OK);
         }catch (Exception e) { // including DescriptiveException
+            String lang = getLang(req);
             AtomicReference<String> exceptionToClient = new AtomicReference<>("");
 
             logger.error(e);
             if (e instanceof DescriptiveException descExc) {
-                descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("login.validation_failed", true, StatusStates.ERROR).convert("en")));
-                descExc.execute(ExceptionReason.LOGIN_USER_NOT_FOUND, () -> exceptionToClient.set(new StatusText("login.incorrect_data", true, StatusStates.ERROR).convert("en")));
-                descExc.execute(ExceptionReason.LOGIN_NOT_CONFIRMED, () -> exceptionToClient.set(new StatusText("login.account_not_confirmed", true, StatusStates.ERROR).convert("en")));
-                descExc.execute(ExceptionReason.LOGIN_WRONG_PASSWORD, () -> exceptionToClient.set(new StatusText("login.incorrect_data", true, StatusStates.ERROR).convert("en")));
+                descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("login.validation_failed", true, StatusStates.ERROR).convert(lang)));
+                descExc.execute(ExceptionReason.LOGIN_USER_NOT_FOUND, () -> exceptionToClient.set(new StatusText("login.incorrect_data", true, StatusStates.ERROR).convert(lang)));
+                descExc.execute(ExceptionReason.LOGIN_NOT_CONFIRMED, () -> exceptionToClient.set(new StatusText("login.account_not_confirmed", true, StatusStates.ERROR).convert(lang)));
+                descExc.execute(ExceptionReason.LOGIN_WRONG_PASSWORD, () -> exceptionToClient.set(new StatusText("login.incorrect_data", true, StatusStates.ERROR).convert(lang)));
             }
 
             if(exceptionToClient.get().isEmpty())
-                exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
+                exceptionToClient.set(new StatusText("global.unexpectedError").convert(lang));
 
-            try {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write(exceptionToClient.get());
-                resp.getWriter().flush();
-            } catch (IOException ioExc) {
-                pinger.omit(ioExc);
-            }
+            sendException(exceptionToClient.get(), resp);
         }
     }
 }

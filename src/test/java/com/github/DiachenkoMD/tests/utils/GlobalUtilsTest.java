@@ -2,6 +2,7 @@ package com.github.DiachenkoMD.tests.utils;
 
 import com.github.DiachenkoMD.entities.dto.Car;
 import com.github.DiachenkoMD.entities.dto.JSi18n;
+import com.github.DiachenkoMD.entities.dto.JWTAnalysis;
 import com.github.DiachenkoMD.entities.dto.users.Passport;
 import com.github.DiachenkoMD.entities.enums.*;
 
@@ -21,6 +22,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -451,5 +454,73 @@ public class GlobalUtilsTest {
 
         assertEquals(originalMap.get("key1"), decoded.getString("key1"));
         assertEquals(originalMap.get("key2"), decoded.getString("key2"));
+    }
+
+    @Nested
+    @DisplayName("JWTAnalysis")
+    class JWTAnalysisTests{
+
+        private Map<String, String> originalMap;
+
+        @BeforeEach
+        public void beforeEach(){
+            this.originalMap = Map.of(
+                    "key1", "value1",
+                    "key2", "value2"
+            );
+        }
+
+        @Test
+        void goodToken(){
+            String encoded = JWTManager.encode(originalMap);
+
+            JWTAnalysis analysis = JWTAnalysis.of(encoded);
+
+            assertEquals(originalMap.get("key1"), analysis.getToken().getString("key1"));
+            assertEquals(originalMap.get("key2"), analysis.getToken().getString("key2"));
+            assertTrue(analysis.isValid());
+        }
+
+        @Test
+        void expiredToken(){
+            String encoded = JWTManager.encode(originalMap, LocalDateTime.now().minusDays(1));
+
+            JWTAnalysis analysis = JWTAnalysis.of(encoded);
+
+            assertTrue(analysis.isExpired());
+            assertFalse(analysis.isValid());
+        }
+
+        @Test
+        void badSignToken(){
+            String encoded = JWTManager.encode(originalMap, LocalDateTime.now().minusDays(1));
+
+            JWTAnalysis analysis = JWTAnalysis.of(encoded.replace("a", "b"));
+
+            assertTrue(analysis.isInvalidSigned());
+            assertFalse(analysis.isValid());
+        }
+
+        @Test
+        void disabledToken(){
+            String encoded = JWTManager.encode(originalMap);
+
+            JWTManager.disableToken(JWTManager.decode(encoded));
+
+            JWTAnalysis analysis = JWTAnalysis.of(encoded);
+
+            assertTrue(analysis.isDisabled());
+            assertFalse(analysis.isValid());
+
+            JWTManager.emptyDisabledTokensList();
+        }
+
+        @Test
+        void badFormattedToken(){
+            JWTAnalysis analysis = JWTAnalysis.of("sadfasf");
+
+            assertTrue(analysis.isBadFormatted());
+            assertFalse(analysis.isValid());
+        }
     }
 }

@@ -11,6 +11,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+/**
+ * Utility to easily encrypt and decrypt sensitive data. <br/>
+ * At this project, primarily used at encrypting entities`s ids while converting them to JSON. </br>
+ * @implSpec Salt is generated randomly each time the server boots.
+ * @apiNote You can freely use {@link #encrypt(String)} method for encrypting data and {@link #decrypt(String)} for decrypting.
+ */
 public class CryptoStore {
     private static SecretKey key;
     private static IvParameterSpec iv;

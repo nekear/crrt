@@ -20,6 +20,7 @@ import com.github.DiachenkoMD.entities.exceptions.ExceptionReason;
 import com.github.DiachenkoMD.extensions.ConnectionParameterResolverExtension;
 import com.github.DiachenkoMD.extensions.DatabaseOperationsExtension;
 import com.github.DiachenkoMD.utils.TGenerators;
+import com.github.DiachenkoMD.utils.TStore;
 import com.github.DiachenkoMD.web.daos.impls.mysql.MysqlCarsDAO;
 import com.github.DiachenkoMD.web.daos.impls.mysql.MysqlInvoicesDAO;
 import com.github.DiachenkoMD.web.daos.impls.mysql.MysqlUsersDAO;
@@ -77,22 +78,7 @@ class IntroServiceTest {
 
         ServletContext _ctx = mock(ServletContext.class);
 
-        this.gson = new GsonBuilder()
-                .addSerializationExclusionStrategy(new ExclusionStrategy() {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes f) {
-                        return f.getAnnotation(Skip.class) != null;
-                    }
-
-                    @Override
-                    public boolean shouldSkipClass(Class<?> clazz) {
-                        return false;
-                    }
-                })
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-                .registerTypeHierarchyAdapter(DBCoupled.class, new DBCoupledAdapter())
-                .create();
+        this.gson = TStore.getGson();
 
         lenient().when(_ctx.getAttribute("gson")).thenReturn(gson);
         lenient().when(_ctx.getAttribute("rights_manager")).thenReturn(mock(RightsManager.class));

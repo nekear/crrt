@@ -12,6 +12,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+/**
+ * Designed for storing extended information about specific user. Might be used, for example, at admin-panel when getting info about specific users.
+ */
 public class InformativeUser extends LimitedUser{
     private double balance;
     private String confirmationCode;

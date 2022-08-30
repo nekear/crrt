@@ -14,6 +14,10 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 
+/**
+ * Class, designed to store data about user`s passport. Contains {@link #validate()} method to validate user`s data. <br/>
+ * @implNote Minimal age for a user is 18 years + the passport is considered invalid if it`s date of issue is greater than 10 years.
+ */
 public class Passport {
     private String firstname;
     private String surname;

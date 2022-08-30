@@ -7,6 +7,9 @@ import com.google.gson.annotations.JsonAdapter;
 
 import java.time.Period;
 
+/**
+ * Class, to transmit information about a new rental order.
+ */
 public class NewRent {
     @JsonAdapter(CryptoAdapter.class)
     private Object carId;

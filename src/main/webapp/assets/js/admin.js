@@ -1,12 +1,6 @@
 
 const { createApp } = Vue;
 
-const validationPatterns = {
-    "min-symbols": "\\w{$v$,}",
-    "min-letters": ".*[a-zA-Z]{$v$,}.*",
-    "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
-}
-
 const carsWorkingOnObjectProto = {
     id: null,
     images: [], // for editing
@@ -169,7 +163,7 @@ const app = createApp({
                                 {
                                     configs:{
                                         level: "high",
-                                        type: "min-letters",
+                                        type: "min-digits",
                                         value: "1"
                                     },
                                     message: "",
@@ -285,7 +279,7 @@ const app = createApp({
                                 {
                                     configs:{
                                         level: "high",
-                                        type: "min-letters",
+                                        type: "min-digits",
                                         value: "1"
                                     },
                                     message: "",

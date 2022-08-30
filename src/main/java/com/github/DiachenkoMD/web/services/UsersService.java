@@ -3,6 +3,7 @@ package com.github.DiachenkoMD.web.services;
 import static com.github.DiachenkoMD.entities.Constants.*;
 
 import com.github.DiachenkoMD.entities.DB_Constants;
+import com.github.DiachenkoMD.entities.dto.JWTAnalysis;
 import com.github.DiachenkoMD.entities.dto.users.AuthUser;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.enums.ValidationParameters;
@@ -145,7 +146,7 @@ public class UsersService {
      * @param resp HttpServletResponse instance coming from controller
      */
     public Map.Entry<AuthUser, Boolean> loginUser(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException {
-
+        // Getting json data
         String requestData = req.getReader().lines().collect(Collectors.joining());
 
         JSONObject acquiredData = new JSONObject(requestData);
@@ -156,12 +157,14 @@ public class UsersService {
 
         logger.debug("Email: {} and password: {}", email, password);
 
+        // Validating email and password
         if(!validate(email, ValidationParameters.EMAIL))
             throw new DescriptiveException("Email validation failed", ExceptionReason.VALIDATION_ERROR);
 
         if(!validate(password, ValidationParameters.PASSWORD))
             throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
 
+        // Executing general checks for user
         AuthUser user = usersDAO.get(email);
 
         if(user == null)
@@ -191,6 +194,7 @@ public class UsersService {
      * @throws DBException might be thrown from {@link UsersDAO#updateUsersData(int, HashMap) updateUsersData(int, HashMap)} or {@link UsersDAO#get(String) get(String)}.
      */
     public AuthUser updateData(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
+        // Getting incoming json data
         String incomingJson = req.getReader().lines().collect(Collectors.joining("\n"));
 
         JSONObject json = new JSONObject(incomingJson);
@@ -203,6 +207,7 @@ public class UsersService {
 
         logger.debug("Acquired values: {} {} {}", firstname, surname, patronymic);
 
+        // Validating firstname, surname and patronymic (if any is not null)
         if(firstname != null){
             if(!validate(firstname, ValidationParameters.NAME))
                 throw new DescriptiveException("Firstname validation failed", ExceptionReason.VALIDATION_ERROR);
@@ -226,6 +231,7 @@ public class UsersService {
 
         logger.debug("Going to update user data via HashMap: {}", resultFieldsToUpdate);
 
+        // Upadting user data and returning updated data from db
         AuthUser current = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
         int userId = (Integer) current.getId();
@@ -243,13 +249,13 @@ public class UsersService {
      * <ul>
      *     <li>VALIDATION_ERROR</li>
      *     <li>SESSION_AUTH</li>
-     *     <li>ACQUIRING_ERROR (if we could not get user id from session)</li>
      *     <li>UUD_PASSWORDS_DONT_MATCH</li>
      *     <li>DB_ACTION_ERROR (if password was not updated)</li>
      * </ul>
      * @throws DBException might be thrown from {@link UsersDAO#getPassword(int)} and {@link UsersDAO#setPassword(int, String)}
      */
     public void updatePassword(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
+        // Getting incoming json data and extracting "old_password" and "new_password"
         String incomingJson = req.getReader().lines().collect(Collectors.joining("\n"));
 
         JSONObject json = new JSONObject(incomingJson);
@@ -259,19 +265,24 @@ public class UsersService {
 
         logger.debug("Acquired passwords: {} and {}", oldPassword, newPassword);
 
+        // Validating new password
         if(!validate(newPassword, ValidationParameters.PASSWORD))
             throw new DescriptiveException("New password validation fail", ExceptionReason.VALIDATION_ERROR);
 
+        // Getting user from session
         AuthUser current = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
-        Integer user_id = current.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
+        int userId = (Integer) current.getId();
 
-        String currentPassword = usersDAO.getPassword(user_id);
+        // Getting current password to compare it further
+        String currentPassword = usersDAO.getPassword(userId);
 
+        // Comparing passwords
         if(!encryptedPasswordsCompare(oldPassword, currentPassword))
             throw new DescriptiveException("Old password and current one are not the same", ExceptionReason.UUD_PASSWORDS_DONT_MATCH);
 
-        if(!usersDAO.setPassword(user_id, encryptPassword(newPassword)))
+        // Updating user password
+        if(!usersDAO.setPassword(userId, encryptPassword(newPassword)))
             throw new DescriptiveException("Zero rows returned from updating password in db", ExceptionReason.DB_ACTION_ERROR);
     }
 
@@ -284,6 +295,7 @@ public class UsersService {
      * @throws DBException might be thrown from {@link UsersDAO#getBalance(int)} and {@link UsersDAO#setBalance(int, double)}
      */
     public double replenishBalance(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
+        // Getting incoming json and extracting "amount"
         String incomingJson = req.getReader().lines().collect(Collectors.joining());
 
         JSONObject json = new JSONObject(incomingJson);
@@ -292,18 +304,19 @@ public class UsersService {
 
         logger.debug("Acquired amount {}", requestedAmount);
 
+        // Validating money amount (should be > 0)
         if(requestedAmount <= 0)
             throw new DescriptiveException("Amount is less or equals 0", ExceptionReason.VALIDATION_ERROR);
 
+        // Gathering user data
         AuthUser current = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
+        int userId = (Integer) current.getId();
+        double currentBalance = usersDAO.getBalance(userId);
 
-        Integer user_id = current.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
-
-        double currentBalance = usersDAO.getBalance(user_id);
-
+        // Calculating new balance and updating it
         double newBalance = currentBalance + requestedAmount;
 
-        if(!usersDAO.setBalance(user_id, newBalance))
+        if(!usersDAO.setBalance(userId, newBalance))
             throw new DescriptiveException("Zero rows were updated (unable to update balance)", ExceptionReason.DB_ACTION_ERROR);
 
         current.setBalance(newBalance);
@@ -320,6 +333,7 @@ public class UsersService {
      * @throws DescriptiveException might be thrown with reasons TOO_MANY_FILES, TOO_BIG_FILE_SIZE, BAD_FILE_EXTENSION, ACQUIRING_ERROR, DB_ACTION_ERROR.
      */
     public String uploadAvatar(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, DBException, DescriptiveException{
+        // Getting avatar file part and executing some checks for size, amount of files acquired (should be == 1) and extension of file.
         Part filePart = req.getPart("avatar");
 
         if(req.getParts().size() > 1)
@@ -336,23 +350,25 @@ public class UsersService {
 
         AuthUser currentUser = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
-        Integer user_id = currentUser.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
+        int userId = (Integer) currentUser.getId();
 
-        Optional<String> current_avatar = usersDAO.getAvatar(user_id);
+        Optional<String> current_avatar = usersDAO.getAvatar(userId);
 
+        // Deleting previous avatar if has been set before
         if(current_avatar.isPresent()) {
             Path avatarFilePath = Path.of(realPath, current_avatar.get());
             Files.delete(avatarFilePath);
             logger.debug("Deleting avatar with name [{}] from [{}]", current_avatar.get(), avatarFilePath);
         }
 
+        // Generating new file name and saving avatar
         String fileName = String.format("%s%s",System.currentTimeMillis(), random.nextInt(100000) + filePart.getSubmittedFileName());
 
         filePart.write(realPath + "/" + fileName);
 
         logger.debug("Uploading avatar with name [{}] to [{}]", fileName, realPath);
 
-        if(!usersDAO.setAvatar(currentUser.getCleanId().orElse(-1), fileName))
+        if(!usersDAO.setAvatar((Integer) currentUser.getId(), fileName))
             throw new DescriptiveException("Zero rows were updated while setting avatar in db", ExceptionReason.DB_ACTION_ERROR);
 
 
@@ -368,23 +384,23 @@ public class UsersService {
      * @param resp
      * @return name of new avatar (basically, it is generated from current user login)
      * @throws DBException may be thrown from {@link UsersDAO#getAvatar(int)} and {@link UsersDAO#setAvatar(int, String)}.
-     * @throws DescriptiveException may be thrown with reasons ACQUIRING_ERROR and DB_ACTION_ERROR.
+     * @throws DescriptiveException may be thrown with reason DB_ACTION_ERROR.
      */
     public String deleteAvatar(HttpServletRequest req, HttpServletResponse resp) throws DBException, DescriptiveException, IOException{
         String realPath = req.getServletContext().getRealPath("/uploads/avatars");
 
         AuthUser currentUser = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
-        Integer user_id = currentUser.getCleanId().orElseThrow(() -> new DescriptiveException("Unable to get user id from session", ExceptionReason.ACQUIRING_ERROR));
+        int userId = (Integer) currentUser.getId();
 
-        Optional<String> current_avatar = usersDAO.getAvatar(user_id);
-
-        if(current_avatar.isPresent()) {
-            Path avatarFilePath = Path.of(realPath, current_avatar.get());
+        // If user have avatar, we should delete it otherwise no actions should be done
+        Optional<String> currentAvatar = usersDAO.getAvatar(userId);
+        if(currentAvatar.isPresent()) {
+            Path avatarFilePath = Path.of(realPath, currentAvatar.get());
             Files.delete(avatarFilePath);
-            logger.debug("Deleting avatar with name [{}] from [{}]", current_avatar.get(), avatarFilePath);
+            logger.debug("Deleting avatar with name [{}] from [{}]", currentAvatar.get(), avatarFilePath);
 
-            if(!usersDAO.setAvatar(currentUser.getCleanId().orElse(-1), null))
+            if(!usersDAO.setAvatar(userId, null))
                 throw new DescriptiveException("Zero rows were updated while setting avatar in db", ExceptionReason.DB_ACTION_ERROR);
 
             currentUser.setAvatar(null);
@@ -443,30 +459,35 @@ public class UsersService {
      * Method for changing user password on "password restore" operation.
      * @param jwtToken token, which should contain user email
      * @param password new user password
-     * @throws DescriptiveException may be thrown with reasons {@link ExceptionReason#ACQUIRING_ERROR ACQUIRING_ERROR} or {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR}.
+     * @throws DescriptiveException may be thrown with reasons
+     * {@link ExceptionReason#ACQUIRING_ERROR ACQUIRING_ERROR},
+     * {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR},
+     * {@link ExceptionReason#TOKEN_ALREADY_USED TOKEN_ALREADY_USED},
+     * {@link ExceptionReason#TOKEN_ALREADY_EXPIRED TOKEN_ALREADY_EXPIRED}
      * @throws DBException may be thrown from methods {@link UsersDAO#get(String)} and {@link UsersDAO#setPassword(int, String)}.
      */
     public void updatePasswordForAccount(String jwtToken, String password) throws DescriptiveException, DBException {
-        // Decoding jwt token
-        JWT jwt = JWTManager.decode(jwtToken);
-
         // Validating token
-        if(jwt == null || jwt.getString("email") == null)
-            throw new DescriptiveException("Enable to validate jwt token", ExceptionReason.ACQUIRING_ERROR);
+        JWTAnalysis jwtAnalysis = JWTAnalysis.of(jwtToken);
 
-        if(!JWTManager.isTokenAlive(jwt))
+        if(jwtAnalysis.isDisabled())
             throw new DescriptiveException("Token has been already used", ExceptionReason.TOKEN_ALREADY_USED);
 
-        if(jwt.isExpired())
-            throw new DescriptiveException("Token has already expired", ExceptionReason.TOKEN_ALREADY_EXPIRED);
+        if(jwtAnalysis.isExpired())
+            throw new DescriptiveException("Token has been already expired", ExceptionReason.TOKEN_ALREADY_EXPIRED);
+
+        if(!jwtAnalysis.isValid() || !jwtAnalysis.containsFields("email"))
+            throw new DescriptiveException("Enable to validate jwt token", ExceptionReason.ACQUIRING_ERROR);
 
         // Validating password
         if(!Validatable.of(password, ValidationParameters.PASSWORD, false).validate())
             throw new DescriptiveException("Password failed validation", ExceptionReason.VALIDATION_ERROR);
 
+        JWT jwt = jwtAnalysis.getToken();
+
         // Changing password
         String email = jwt.getString("email");
-        AuthUser user = usersDAO.get(email);
+        LimitedUser user = usersDAO.get(email);
 
         usersDAO.setPassword((Integer) user.getId(), encryptPassword(password));
 

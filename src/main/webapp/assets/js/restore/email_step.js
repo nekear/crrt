@@ -1,22 +1,5 @@
 const { createApp } = Vue;
 
-const validationPatterns = {
-    "min-symbols": "\\w{$v$,}",
-    "min-letters": ".*[a-zA-Z]{$v$,}.*",
-    "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
-}
-
-const js_localization = {
-    inputs:{
-        email: {
-            placeholder: "Пошта",
-            checks: [
-                "Пошта має мати коректний вигляд"
-            ]
-        }
-    }
-}
-
 const app = createApp({
     data() {
         return {

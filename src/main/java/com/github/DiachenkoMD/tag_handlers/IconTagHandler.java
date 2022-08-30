@@ -5,6 +5,9 @@ import jakarta.servlet.jsp.tagext.SimpleTagSupport;
 
 import java.io.IOException;
 
+/**
+ * Custom tag, designed to reduce code on client-side and store some icons in one place.
+ */
 public class IconTagHandler extends SimpleTagSupport {
     private IconTypes type;
 

@@ -10,13 +10,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+/**
+ * Class, designed to easily store information about specific image. Contains different builders, which allow us to get images from string.
+ */
 public class Image {
     @JsonAdapter(CryptoAdapter.class)
     private Object id;
 
     private String fileName;
 
-    public static Optional<Image> of(String imageData){ // string should be in format {id}#{imageFileName}
+    /**
+     * Method for getting image data from String.
+     * @param imageData string should be in format {id}#{imageFileName}
+     */
+    public static Optional<Image> of(String imageData){
         String[] split = imageData.split("#");
         if(split.length == 2){
             Image image = new Image();

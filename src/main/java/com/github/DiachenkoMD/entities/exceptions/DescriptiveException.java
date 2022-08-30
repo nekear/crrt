@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 
 /**
- * Custom exception to use, for example, in validations at {@link UsersService#registerUser(HttpServletRequest, HttpServletResponse) UsersService.registerUser}.
+ * Custom exception to use, for example, in validations at {@link UsersService#registerUser(HttpServletRequest, HttpServletResponse)}.
  */
 public class DescriptiveException extends Exception{
     /**
@@ -19,6 +19,10 @@ public class DescriptiveException extends Exception{
      */
     private HashMap<String, String> arguments;
     public DescriptiveException(ExceptionReason reason){
+        this.reason = reason;
+    }
+    public DescriptiveException(Exception exception, ExceptionReason reason){
+        super(exception);
         this.reason = reason;
     }
     public DescriptiveException(String message, ExceptionReason reason) {

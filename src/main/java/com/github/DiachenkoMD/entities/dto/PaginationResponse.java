@@ -4,6 +4,9 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
+/**
+ *  Designed to transmit search response. Can store {@link #totalElements} to know how many elements were found and form pagination on client-side and {@link #responseData} for storing found objects.
+ */
 public class PaginationResponse <T>{
     private int totalElements;
 

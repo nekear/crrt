@@ -12,6 +12,7 @@
   <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <%@include file="../components/favicon.jspf" %>
 
   <!-- Design libs -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
@@ -25,32 +26,45 @@
   <link rel="stylesheet" href="${assets}css/restore.css">
 
   <link rel="stylesheet" href="${assets}css/media.css">
-  <title>Restore password | CRRT.</title>
+  <title><fmt:message key="title.restore"/> | CRRT.</title>
 
   <!--  JS libs  -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
   <!--  Custom  -->
+  <script src="${assets}js/global.js" defer></script>
   <script src="${assets}js/mdx.js"></script>
   <script src="${assets}js/restore/email_step.js" defer></script>
+  <script>
+    const js_localization = {
+      inputs:{
+        email: {
+          placeholder: '<fmt:message key="pages.sign.input.email.placeholder"/>',
+          checks: [
+            "<fmt:message key="pages.sign.input.email.checks.0"/>"
+          ]
+        }
+      }
+    }
+  </script>
 </head>
 <body>
 
 <div class="content" id="app">
   <div class="restore-form">
-    <c:if test="${requestScope.restoreWarnMessage}">
+    <c:if test="${not empty requestScope.tokenErrorMessage}">
       <div class="alert alert-danger" role="alert">
-          ${requestScope.restoreWarnMessage.convert(lang)}
+          ${requestScope.tokenErrorMessage.convert(lang)}
       </div>
     </c:if>
     <div class="logo">
       <img src="${assets}imgs/CRRT.svg" alt="crrt logo">
     </div>
     <div class="title">
-      Restoring password
+      <fmt:message key="page.restore.title"/>
     </div>
     <div class="subtitle">
-      Enter email link to account with lost access.
+      <fmt:message key="page.restore.email_step.subtitle"/>.
     </div>
     <div class="input-item" v-for="(input_i, key) in input_list" :key="key" :class="{necessary_input: input_i.isNecessary, highlight_necessity: input_i.isNecessary && input_i.isFocused}">
       <input :type="input_i.type" class="form-control" :placeholder="input_i.placeholder"
@@ -74,8 +88,8 @@
         </div>
       </template>
     </div>
-    <button class="mdx-md-button button-blue button-bordered" :disabled="!allowSendRestorationLink" @click="sendLink">Send restoration link</button>
-    <div class="micro-caution mt-2">Return to <a href="login" class="mdx-hover-underline-animation">login</a> page.</div>
+    <button class="mdx-md-button button-blue button-bordered" :disabled="!allowSendRestorationLink" @click="sendLink"><fmt:message key="page.restore.email_step.button"/></button>
+    <div class="micro-caution mt-2"><fmt:message key="page.restore.caution.0"/> <a href="login" class="mdx-hover-underline-animation"><fmt:message key="page.restore.caution.1"/></a> <fmt:message key="page.restore.caution.2"/>.</div>
   </div>
 </div>
 <%@include file="../components/loader.jspf"%>

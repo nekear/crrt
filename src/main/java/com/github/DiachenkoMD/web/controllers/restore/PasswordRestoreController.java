@@ -1,5 +1,6 @@
 package com.github.DiachenkoMD.web.controllers.restore;
 
+import com.github.DiachenkoMD.entities.dto.JWTAnalysis;
 import com.github.DiachenkoMD.entities.dto.StatusText;
 import com.github.DiachenkoMD.entities.enums.StatusStates;
 import com.github.DiachenkoMD.entities.exceptions.DescriptiveException;
@@ -8,6 +9,8 @@ import com.github.DiachenkoMD.web.services.UsersService;
 import com.github.DiachenkoMD.web.utils.JWTManager;
 import com.github.DiachenkoMD.web.utils.middlewares.warden.UseWards;
 import com.github.DiachenkoMD.web.utils.middlewares.warden.wards.JWTWard;
+import io.fusionauth.jwt.InvalidJWTException;
+import io.fusionauth.jwt.JWTExpiredException;
 import io.fusionauth.jwt.domain.JWT;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -41,27 +44,23 @@ public class PasswordRestoreController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JWT jwt = (JWT) req.getAttribute("jwtToken");
+        JWTAnalysis jwtAnalysis = (JWTAnalysis) req.getAttribute("jwtAnalysis");
 
-        try{
-            if(jwt == null || jwt.getString("email") == null)
-                throw new IllegalArgumentException("Token or email are null!");
+        logger.info("JWT token analysis: {}", jwtAnalysis);
 
-            if(!JWTManager.isTokenAlive(jwt)){
-                req.setAttribute("restoreWarnMessage", new StatusText("restore.token_has_been_disabled"));
-                throw new IllegalArgumentException("Token has been already disabled!");
-            }else if(jwt.isExpired()){
-                req.setAttribute("restoreWarnMessage", new StatusText("restore.token_has_expired"));
-                throw new IllegalArgumentException("Token has already expired!");
+        if(jwtAnalysis.isValid() && jwtAnalysis.containsFields("email")){
+            JWT token = jwtAnalysis.getToken();
+            req.setAttribute("targetEmail", token.getString("email"));
+            req.getRequestDispatcher("/views/restore/new_password_step.jsp").forward(req, resp);
+        }else{
+            if(jwtAnalysis.isDisabled()){
+                req.setAttribute("tokenErrorMessage", new StatusText("restore.token_has_been_disabled"));
+            }else if(jwtAnalysis.isExpired()){
+                req.setAttribute("tokenErrorMessage", new StatusText("restore.token_has_expired"));
             }
-        }catch (IllegalArgumentException e){
-            logger.debug(e.getMessage());
-            req.getRequestDispatcher("/views/restore/email_step.jsp").forward(req, resp);
-            return;
-        }
 
-        req.setAttribute("targetEmail", jwt.getString("email"));
-        req.getRequestDispatcher("/views/restore/new_password_step.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/restore/email_step.jsp").forward(req, resp);
+        }
     }
 
     @Override
@@ -105,9 +104,9 @@ public class PasswordRestoreController extends HttpServlet {
 
             if (e instanceof DescriptiveException descExc) {
                 descExc.execute(ExceptionReason.ACQUIRING_ERROR, () -> exceptionToClient.set(new StatusText("restore.unable_to_validate_token").convert(getLang(req))));
-                descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("restore.password_validation_failed").convert(getLang(req))));
                 descExc.execute(ExceptionReason.TOKEN_ALREADY_USED, () -> exceptionToClient.set(new StatusText("restore.token_has_been_disabled").convert(getLang(req))));
                 descExc.execute(ExceptionReason.TOKEN_ALREADY_EXPIRED, () -> exceptionToClient.set(new StatusText("restore.token_has_expired").convert(getLang(req))));
+                descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("restore.password_validation_failed").convert(getLang(req))));
             }
 
             if(exceptionToClient.get() == null)

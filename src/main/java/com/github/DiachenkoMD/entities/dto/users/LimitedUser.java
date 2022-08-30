@@ -13,6 +13,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+/**
+ * Basic user entity. Contains little info about user. Not used at page and acts more like parent for more informative classes.
+ */
 public class LimitedUser {
     @JsonAdapter(CryptoAdapter.class)
     protected Object id;

@@ -1,13 +1,15 @@
 package com.github.DiachenkoMD.entities.dto;
 
-import com.google.gson.Gson;
+
 import com.google.gson.GsonBuilder;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 
+/**
+ * Designed to store information about inputs localization (needed for Vue.js validation) and notiflix pop-ups.
+ */
 public class JSi18n {
 
     private final transient ResourceBundle rs;

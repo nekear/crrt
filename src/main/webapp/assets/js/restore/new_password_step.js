@@ -1,22 +1,5 @@
 const { createApp } = Vue;
 
-const validationPatterns = {
-    "min-symbols": "\\w{$v$,}",
-    "min-letters": ".*[a-zA-Z]{$v$,}.*",
-    "name_pattern": "^[a-zA-ZА-ЩЬЮЯҐЄІЇа-щьюяґєії'`]+$"
-}
-
-const js_localization = {
-    inputs:{
-        password: {
-            placeholder: "Пароль",
-            checks: [
-                "Пароль має містити не менше 4 символів",
-                "Пароль має містити хоча б 1 літеру"
-            ],
-        }
-    }
-}
 
 const app = createApp({
     data() {
@@ -44,7 +27,7 @@ const app = createApp({
                         {
                             configs:{
                                 level: "high",
-                                type: "min-letters",
+                                type: "min-digits",
                                 value: "1"
                             },
                             message: "",

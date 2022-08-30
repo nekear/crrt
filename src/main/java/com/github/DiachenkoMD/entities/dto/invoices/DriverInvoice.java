@@ -14,6 +14,9 @@ import java.util.ResourceBundle;
 
 import static com.github.DiachenkoMD.entities.DB_Constants.*;
 
+/**
+ * Class designed for storing invoice info, intended to display on driver panel.
+ */
 public class DriverInvoice extends LimitedInvoice{
     private String brand;
     private String model;

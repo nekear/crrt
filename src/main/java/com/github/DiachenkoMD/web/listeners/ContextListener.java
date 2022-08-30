@@ -13,7 +13,6 @@ import com.github.DiachenkoMD.web.utils.middlewares.guardian.Guardian;
 import com.github.DiachenkoMD.web.utils.middlewares.guardian.UseGuards;
 import com.github.DiachenkoMD.web.utils.middlewares.warden.UseWards;
 import com.github.DiachenkoMD.web.utils.middlewares.warden.Warden;
-import com.github.DiachenkoMD.web.utils.pinger.Pinger;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
@@ -55,8 +54,6 @@ public class ContextListener implements ServletContextListener {
         logger.info("[✓] DAOFactory -> initialized");
 
         initServices(ctx);
-
-        initPinger(ctx);
 
         initGson(ctx);
 
@@ -104,15 +101,6 @@ public class ContextListener implements ServletContextListener {
         DriverService driverService = new DriverService(usersDAO, invoicesDAO, ctx);
         ctx.setAttribute("driver_service", driverService);
         logger.info("[✓] DriverService -> initialized");
-    }
-
-    private static void initPinger(ServletContext ctx){
-        Pinger pinger = new Pinger();
-        pinger.addListener(Exception.class, logger::error);
-        pinger.addListener(String.class, logger::info);
-
-        ctx.setAttribute("pinger", pinger);
-        logger.info("[✓] Pinger -> initialized");
     }
 
     private static void initGson(ServletContext ctx){

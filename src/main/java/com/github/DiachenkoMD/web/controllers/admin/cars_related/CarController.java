@@ -47,7 +47,7 @@ public class CarController extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{
             String carIdString = req.getParameter("id");
 
@@ -62,7 +62,7 @@ public class CarController extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{
             HashMap<String, String> carCreatingData = adminService.createCar(req);
 
@@ -93,7 +93,7 @@ public class CarController extends HttpServlet {
 
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+    public void doPut(HttpServletRequest req, HttpServletResponse resp) {
         try{
             adminService.updateCar(req);
 
@@ -117,7 +117,7 @@ public class CarController extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{
             adminService.deleteCar(req);
 

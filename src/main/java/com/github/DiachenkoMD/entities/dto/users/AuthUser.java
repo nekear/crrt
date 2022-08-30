@@ -9,6 +9,9 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Auth user entity acts like container for logged-in user data in session.
+ */
 public class AuthUser extends LimitedUser implements Serializable {
     protected String avatar;
     protected double balance;
@@ -17,6 +20,12 @@ public class AuthUser extends LimitedUser implements Serializable {
     public String getAvatar() {
         return avatar;
     }
+
+    /**
+     * Method for getting avatar url to display it on the page.
+     * @param prefix path prefix (to project root directory)
+     * @return
+     */
     public String idenAvatar(String prefix){
         if(this.avatar == null){
             return getUrlForNullAvatar();
@@ -25,12 +34,19 @@ public class AuthUser extends LimitedUser implements Serializable {
         }
     }
 
+    /**
+     * Generating avatar for null avatar. Depends on {@link #getLogin()}.
+     * @return
+     */
     public String getUrlForNullAvatar(){
         String customAvatarId = getLogin();
         return String.format("https://avatars.dicebear.com/api/identicon/%s.svg?background=333333", customAvatarId);
     }
 
-    // This class doesn`t have login field in it and db neither, but this function allows to get prettified login from email
+    /**
+     * This class doesn`t have login field in it and db neither, but this function allows to get prettified login from email.
+     * @return user login (cut from email).
+     */
     public String getLogin(){
         return this.email == null ? "crr_user" : this.email.split("@")[0];
     }
@@ -64,7 +80,6 @@ public class AuthUser extends LimitedUser implements Serializable {
                 "} " + super.toString();
     }
 
-    // TODO:: add comparing encoded id (String) to decoded id (Integer)
     @Override
     public boolean equals(final Object obj) {
         if(obj == null)
@@ -100,7 +115,14 @@ public class AuthUser extends LimitedUser implements Serializable {
         return user;
     }
 
-    // These two methods were created mainly for backward compatibility, because originally I developed AuthUser (User originally) without nesting and with chaotic constructor of 8 or 9 parameters.
+    /**
+     * These two methods were created mainly for backward compatibility, because originally I developed AuthUser (User originally) without nesting and with chaotic constructor of 8 or 9 parameters.
+     * @param email
+     * @param firstname
+     * @param surname
+     * @param patronymic
+     * @return
+     */
     public static AuthUser of(String email, String firstname, String surname, String patronymic){
         AuthUser user = new AuthUser();
         user.setEmail(email);

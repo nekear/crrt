@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class designed to concisely present invoice information in the corresponding tables at admin-panel or manager-panel.
+ */
 public class PanelInvoice extends LimitedInvoice{
     private String brand;
     private String model;

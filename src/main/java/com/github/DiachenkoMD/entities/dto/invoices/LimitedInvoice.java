@@ -13,6 +13,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base class designed to contain limited info about invoice.
+ */
 public class LimitedInvoice {
     @JsonAdapter(CryptoAdapter.class)
     private Object id;

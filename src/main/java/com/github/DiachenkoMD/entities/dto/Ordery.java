@@ -1,5 +1,8 @@
 package com.github.DiachenkoMD.entities.dto;
 
+/**
+ * Designed to store data about specified order filter.
+ */
 public class Ordery {
     private String name;
     private String type;

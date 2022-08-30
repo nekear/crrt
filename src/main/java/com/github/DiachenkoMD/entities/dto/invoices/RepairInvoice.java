@@ -11,6 +11,9 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Class designed to represent information about repairment invoice.
+ */
 public class RepairInvoice {
     @JsonAdapter(CryptoAdapter.class)
     private Object id;
@@ -29,7 +32,7 @@ public class RepairInvoice {
     private LocalDateTime tsEdited;
 
     @Skip
-    private String clientEmail; // for informing client about delete his repairment invoice (should not be exposed to client side)
+    private String clientEmail; // for informing client about deleting his repairment invoice (should not be exposed to client side)
 
     @Skip
     private int originInvoiceId;
