@@ -54,7 +54,7 @@
         const currentCityId = ${cityId};
 
         const js_localization = {
-            days: [<fmt:message key="days.1"/>, <fmt:message key="days.2"/>, <fmt:message key="days.3"/>]
+            days: ['<fmt:message key="days.1"/>', '<fmt:message key="days.2"/>', '<fmt:message key="days.3"/>']
         }
     </script>
 </head>
@@ -73,7 +73,7 @@
                                 </svg>
                             </div>
                             <div class="stat-card-title">
-                                {{driver.upcomingRents}}
+                                {{driverStats.upcomingRents}}
                             </div>
                             <div class="stat-car-description">
                                 <div><fmt:message key="page.driver.stats.stat1.title"/></div>
@@ -105,7 +105,7 @@
                                 </svg>
                             </div>
                             <div class="stat-card-title">
-                                {{driver.salaryThisMonth}}$
+                                {{driverStats.salaryThisMonth}}$
                             </div>
                             <div class="stat-car-description">
                                 <div><fmt:message key="page.driver.stats.stat3.title"/></div>
@@ -157,7 +157,7 @@
                                 <span class="flat-chip status-chip" data-status-code="1">{{invoice.datesRange.start}}</span>
                                 <span style="margin-right: .5rem">[{{invoice.additions.daysBetween}}]</span>
                                 <span class="flat-chip status-chip" data-status-code="2">{{invoice.datesRange.end}}</span>
-                                <span v-if="invoice.additions.daysDiff">(<fmt:message key="page.driver.dates_counter.in"/> {{invoice.additions.daysDiff.days}} {{invoice.additions.daysDiff.suffix}})</span>
+                                <span v-if="invoice.additions.isAlive && invoice.additions.daysDiff">(<fmt:message key="page.driver.dates_counter.in"/> {{invoice.additions.daysDiff.days}} {{invoice.additions.daysDiff.suffix}})</span>
                                 <span v-if="invoice.additions.isActive" class="active-invoice">(active)</span>
                             </td>
                             <td>
@@ -224,9 +224,6 @@
     </div>
 </div>
 <%@include file="components/loader.jspf"%>
-<!-- Design libs-->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://unpkg.com/vue@3"></script>
+<%@include file="components/footerLinks.jspf"%>
 </body>
 </html>

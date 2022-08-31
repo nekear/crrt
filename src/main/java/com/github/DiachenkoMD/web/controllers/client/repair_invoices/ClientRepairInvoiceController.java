@@ -42,9 +42,10 @@ public class ClientRepairInvoiceController extends HttpServlet {
     }
 
     /**
-     * Served under <code>PUT:/client/repairInvoice</code>. Designed to allow client pay for their repairment invoices. Should receive <strong>repairment invoice id</strong> inside under <strong>id</strong> field.
-     * @param req
-     * @param resp
+     * Served under <code>PUT:/client/repairInvoice</code>. Designed to allow client pay for their repairment invoices.
+     * @see ClientService#payRepairmentInvoice(int, AuthUser)
+     * @param req > <code>{"id" (repairment id): String}</code>
+     * @param resp > {@link com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice InformativeInvoice}
      */
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp){

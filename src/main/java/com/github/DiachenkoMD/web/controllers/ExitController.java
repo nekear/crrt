@@ -21,6 +21,9 @@ public class ExitController extends HttpServlet {
 
     private final static Logger logger = LogManager.getLogger(ExitController.class);
 
+    /**
+     * GET route logout user and redirect to /login page.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{

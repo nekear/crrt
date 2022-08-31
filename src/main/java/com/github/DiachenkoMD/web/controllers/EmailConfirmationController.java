@@ -11,6 +11,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
@@ -20,6 +22,8 @@ import static com.github.DiachenkoMD.entities.Constants.END_CONFIRMATION_RESPONS
 @WebServlet("/confirmation")
 public class EmailConfirmationController extends HttpServlet {
 
+    private final static Logger logger = LogManager.getLogger(EmailConfirmationController.class);
+
     private UsersService usersService;
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -28,7 +32,8 @@ public class EmailConfirmationController extends HttpServlet {
     }
 
     /**
-     * Serves /confirmation get-queries. Awaiting url to contain "code" (it is taken from {@link com.github.DiachenkoMD.entities.Constants#REQ_CODE REQ_CODE} parameter. At the end forwards to /confirmation.jsp
+     * Serves /confirmation get-queries. Awaiting url to contain "code" (it is taken from {@link com.github.DiachenkoMD.entities.Constants#REQ_CODE REQ_CODE} parameter. At the end forwards to /confirmation.jsp.
+     * @see UsersService#confirmUserEmail(HttpServletRequest, HttpServletResponse)
      * @param req
      * @param resp
      */
@@ -49,8 +54,7 @@ public class EmailConfirmationController extends HttpServlet {
         try{
             req.getServletContext().getRequestDispatcher("/views/confirmation.jsp").forward(req, resp);
         }catch (IOException | ServletException e){
-            // TODO: use logger on error
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 }

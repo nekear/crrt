@@ -49,7 +49,7 @@ const app = createApp({
             }
 
             if(Object.keys(changedUserData).length){
-                axios.post('http://localhost:8080/crrt_war/profile/updateData', {
+                axios.post('/profile/updateData', {
                     ...changedUserData
                 })
                 .then(function (response) {
@@ -65,7 +65,7 @@ const app = createApp({
             }
         },
         changePasswordAction(){
-            axios.post('http://localhost:8080/crrt_war/profile/updatePassword', {
+            axios.post('/profile/updatePassword', {
                 old_password: app.passwords.old,
                 new_password: app.passwords.new
             })
@@ -81,7 +81,7 @@ const app = createApp({
             });
         },
         replenishBalance(){
-            axios.post('http://localhost:8080/crrt_war/profile/replenish', {
+            axios.post('/profile/replenish', {
                 amount: app.balanceReplenishmentNumber
             })
             .then(function (response) {
@@ -96,7 +96,7 @@ const app = createApp({
             });
         },
         deleteAvatar(){
-            axios.post('http://localhost:8080/crrt_war/profile/deleteAvatar')
+            axios.post('/profile/deleteAvatar')
             .then(function (response) {
                 console.log(response);
                 app.avatarUrl = response.data.avatar;
@@ -110,7 +110,7 @@ const app = createApp({
         },
 
         exitAccount(){
-            window.location.href='http://localhost:8080/crrt_war/exit';
+            window.location.href= baseUrl + '/exit';
         },
     }
 
@@ -128,7 +128,7 @@ $(document).on('submit','.avatar-add-photo-form', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
         console.log("submitting photo");
-        axios.post('http://localhost:8080/crrt_war/profile/uploadAvatar', formData, {
+        axios.post('/profile/uploadAvatar', formData, {
             headers: {
                 'Content-type': 'multipart/form-data'
             }

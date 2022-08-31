@@ -46,11 +46,10 @@ public class RentDataController extends HttpServlet {
         this.gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
-    /** Route for checking the availability of drivers on a certain dates range. Awaiting <strong>start</strong> and <strong>end</strong> parameters, each of them should have format like 2022-08-16.
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
+    /** Route for checking the availability of drivers on a certain dates range.
+     * @see IntroService#getAvailableDriversOnRange(String, String, int)
+     * @param req > "start": String (yyyy-mm-dd) and "end": String (yyyy-mm-dd)
+     * @param resp > <code>{"value" (has drivers or not): boolean, "message": String}</code>
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -74,6 +73,13 @@ public class RentDataController extends HttpServlet {
         }
     }
 
+    /**
+     * Serves /rent/data POST queries and designed to create new invoices.
+     * @implNote Сalled when client clicks "pay" button on /rent page.
+     * @see IntroService#createRent(String, AuthUser)
+     * @param req > Incoming json is parsed with {@link com.github.DiachenkoMD.entities.dto.invoices.NewRent NewRent} class, so it should contain all specified fields.
+     * @param resp > message
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{

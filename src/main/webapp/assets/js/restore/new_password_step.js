@@ -128,7 +128,7 @@ const app = createApp({
 
         performRestore(){
             const newPassword = this.input_list.password.inputData;
-            axios.put('http://localhost:8080/crrt_war/restore', {
+            axios.put('/restore', {
                 password: newPassword,
                 token: jwtToken
             })
@@ -140,7 +140,7 @@ const app = createApp({
                     message: response.data
                 }
 
-                window.location.href = "/crrt_war/login";
+                window.location.href = baseUrl + "/login";
             })
             .catch(error => {
                 console.log(error);

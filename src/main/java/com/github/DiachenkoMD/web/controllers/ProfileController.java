@@ -24,6 +24,10 @@ public class ProfileController extends HttpServlet {
         super.init(config);
         usersService = ((UsersService) config.getServletContext().getAttribute("users_service"));
     }
+
+    /**
+     * GET route to show profile page.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         try{

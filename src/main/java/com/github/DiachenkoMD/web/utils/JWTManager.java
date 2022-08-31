@@ -24,7 +24,7 @@ public class JWTManager {
     static {
         ResourceBundle appProps = ResourceBundle.getBundle("app");
         secret = appProps.getString("jwt.secret");
-        issuer = appProps.getString("jwt.issuer");
+        issuer = appProps.getString("base_url");
         signer = HMACSigner.newSHA256Signer(secret);
         verifier = HMACVerifier.newVerifier(secret);
     }

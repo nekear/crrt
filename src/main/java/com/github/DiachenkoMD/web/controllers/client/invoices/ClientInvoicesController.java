@@ -36,6 +36,14 @@ public class ClientInvoicesController extends HttpServlet {
         gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
+    /**
+     * Route for getting all client invoices and displaying them on "My invoices" page, for example. <br/>
+     * The peculiarity of such invoices lies in the fact that they do not have certain information,
+     * such as the data on the driver, as well as hiding customer mail (because it does not make sense to output it).
+     * @see ClientService#getInvoices(int)
+     * @param req > nothing
+     * @param resp > List<{@link com.github.DiachenkoMD.entities.dto.invoices.ClientInvoice ClientInvoice}>
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         try{

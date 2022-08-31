@@ -67,7 +67,7 @@
             "cities": <%=JSJS.CitiesList((String) pageContext.getAttribute("lang"))%>,
             "invoiceStatuses": <%=JSJS.InvoiceStatusesList((String) pageContext.getAttribute("lang"), false)%>,
         };
-        const invoicesList = ''
+        const invoicesList = '';
     </script>
 </head>
 <body>
@@ -126,6 +126,7 @@
                                                 hide-input-icon
                                                 input-class-name="form-control invoices-dates-range-input"
                                                 auto-apply
+                                                locale="<crrt:lang/>"
                                                 placeholder="<fmt:message key='pages.invoices.dates_range'/>"/>
                                 </div>
                                 <Sorter name="datesRange" :order-by="invoices.search.orderBy"></Sorter>
@@ -222,7 +223,7 @@
                         <div class="mc-item mc-driver-wrapper">
                             <fmt:message key="modal.manager.categories.invoices.driver"/>:
                             <div class="driver-chip" v-if="invoices.details.driver">
-                                <span class="driver-avatar cover-bg-type" :style="{backgroundImage: 'url(${avatarsDir}/'+invoices.details.driver.avatar+')'}"></span>
+                                <span v-if="invoices.details.driver.avatar" class="driver-avatar cover-bg-type" :style="{backgroundImage: 'url(${avatarsDir}/'+invoices.details.driver.avatar+')'}"></span>
                                 <span class="driver-code">{{invoices.details.driver.email}}</span></div>
                             <strong v-else class="ml-2"> <fmt:message key="modal.manager.categories.invoices.without_driver"/></strong>
                         </div>
@@ -232,7 +233,7 @@
                         </div>
                         <div class="mc-item">
                             <div class="row">
-                                <div class="passport-block col-6">
+                                <div class="passport-block col-xl-6 col-md-6 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.firstname"/> / <fmt:message key="pages.passport.surname"/> / <fmt:message key="pages.passport.patronymic"/>
                                     </div>
@@ -240,7 +241,7 @@
                                         {{invoices.details.passport.firstname}} / {{invoices.details.passport.surname}} / {{invoices.details.passport.patronymic}}
                                     </div>
                                 </div>
-                                <div class="passport-block col-5">
+                                <div class="passport-block col-xl-5 col-md-5 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.date_of_birth"/> / <fmt:message key="pages.passport.date_of_issue"/>
                                     </div>
@@ -248,7 +249,7 @@
                                         {{invoices.details.passport.date_of_birth}} / {{invoices.details.passport.date_of_issue}}
                                     </div>
                                 </div>
-                                <div class="passport-block col-4">
+                                <div class="passport-block col-xl-4 col-md-4 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.doc_number"/>
                                     </div>
@@ -256,7 +257,7 @@
                                         {{invoices.details.passport.doc_number}}
                                     </div>
                                 </div>
-                                <div class="passport-block col-2">
+                                <div class="passport-block col-xl-2 col-md-2 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.rntrc"/>
                                     </div>
@@ -264,7 +265,7 @@
                                         {{invoices.details.passport.rntrc}}
                                     </div>
                                 </div>
-                                <div class="passport-block col-2">
+                                <div class="passport-block col-xl-3 col-md-3 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.authority"/>
                                     </div>
@@ -356,11 +357,10 @@
                                         placeholder="<fmt:message key='modal.manager.categories.repair_invoices.exp_date'/>"
                                         :format="getFormattedDate"
                                         <c:if test="${requestScope.get('endTheme') eq VisualThemes.DARK.getFileName()}">dark</c:if>
-                                        input-class-name="form-control"
+                                        input-class-name="form-control rejectInvoiceDatepicker"
                                         :min-date="new Date()"
                                         auto-apply
                                         locale="<crrt:lang/>"
-                                        hide-input-icon
                                         :enable-time-picker="false"
                                         :state="invoices.repairInvoice.expirationDate.isValid"
                             />
@@ -408,10 +408,7 @@
     </div>
 </div>
 <%@include file="components/loader.jspf"%>
-<!-- Design libs-->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://unpkg.com/vue@3"></script>
+<%@include file="components/footerLinks.jspf"%>
 <script src="https://unpkg.com/@vuepic/vue-datepicker@latest"></script>
 </body>
 </html>

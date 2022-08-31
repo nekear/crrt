@@ -192,7 +192,7 @@
                         </div>
                         <div class="mc-item">
                             <div class="row">
-                                <div class="passport-block col-6">
+                                <div class="passport-block col-xl-6 col-md-6 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.firstname"/> / <fmt:message key="pages.passport.surname"/> / <fmt:message key="pages.passport.patronymic"/>
                                     </div>
@@ -200,7 +200,7 @@
                                         {{invoices.details.passport.firstname}} / {{invoices.details.passport.surname}} / {{invoices.details.passport.patronymic}}
                                     </div>
                                 </div>
-                                <div class="passport-block col-5">
+                                <div class="passport-block col-xl-5 col-md-5 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.date_of_birth"/> / <fmt:message key="pages.passport.date_of_issue"/>
                                     </div>
@@ -208,7 +208,7 @@
                                         {{invoices.details.passport.date_of_birth}} / {{invoices.details.passport.date_of_issue}}
                                     </div>
                                 </div>
-                                <div class="passport-block col-4">
+                                <div class="passport-block col-xl-4 col-md-5 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.doc_number"/>
                                     </div>
@@ -216,7 +216,7 @@
                                         {{invoices.details.passport.doc_number}}
                                     </div>
                                 </div>
-                                <div class="passport-block col-2">
+                                <div class="passport-block col-xl-2 col-md-2 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.rntrc"/>
                                     </div>
@@ -224,7 +224,7 @@
                                         {{invoices.details.passport.rntrc}}
                                     </div>
                                 </div>
-                                <div class="passport-block col-2">
+                                <div class="passport-block col-xl-3 col-md-3 col-xs-12">
                                     <div class="title">
                                         <fmt:message key="pages.passport.authority"/>
                                     </div>
@@ -295,9 +295,6 @@
     </div>
 </div>
 <%@include file="components/loader.jspf"%>
-<!-- Design libs-->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://unpkg.com/vue@3"></script>
+<%@include file="components/footerLinks.jspf"%>
 </body>
 </html>

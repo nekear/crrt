@@ -5,6 +5,7 @@ import com.github.DiachenkoMD.entities.dto.drivers.ExtendedDriver;
 import com.github.DiachenkoMD.entities.dto.users.InformativeUser;
 import com.github.DiachenkoMD.entities.dto.users.LimitedUser;
 import com.github.DiachenkoMD.entities.dto.users.PanelUser;
+import com.github.DiachenkoMD.entities.enums.Cities;
 import com.github.DiachenkoMD.entities.enums.Roles;
 import com.github.DiachenkoMD.entities.exceptions.DBException;
 import com.github.DiachenkoMD.web.daos.prototypes.UsersDAO;
@@ -160,14 +161,28 @@ public class MysqlUsersDAO implements UsersDAO {
             int affectedRows = stmt.executeUpdate();
 
             if(affectedRows > 0) {
+                // Creating new user entity in tbl_users
                 try (ResultSet rs = stmt.getGeneratedKeys()) {
                     rs.next();
-                    Object new_id = rs.getInt(1);
+                    int new_id = rs.getInt(1);
 
                     user.setId(new_id);
-
-                    return user;
                 }
+
+                // If user role set to "driver", we should create (so called) driver entity in tbl_drivers to properly register current user as driver.
+                if(user.getRole() == Roles.DRIVER){
+                    Cities defaultDriverCity = Cities.getById(Integer.parseInt(ResourceBundle.getBundle("app").getString("driver.default_city_id")));
+
+                    try(PreparedStatement newDriverEntryStmt = con.prepareStatement("INSERT INTO tbl_drivers (user_id, city_id) VALUES (?, ?)")){
+                        newDriverEntryStmt.setInt(1, (Integer) user.getId());
+                        newDriverEntryStmt.setInt(2, defaultDriverCity.id());
+
+                        if(newDriverEntryStmt.executeUpdate() == 0)
+                            throw new SQLException(String.format("Couldn`t create driver entry in db. User ID: %d, City ID: %d.", (Integer) user.getId(), defaultDriverCity.id()));
+                    }
+                }
+
+                return user;
             }else{
                 return null;
             }
@@ -291,7 +306,7 @@ public class MysqlUsersDAO implements UsersDAO {
     }
 
     @Override
-    public void updateUsersData(int userId, HashMap<String, String> fieldsToUpdate) throws DBException {
+    public void updateUsersData(int userId, Map<String, String> fieldsToUpdate) throws DBException {
         try(Connection con = ds.getConnection()){
             try{
                 con.setAutoCommit(false);
@@ -301,7 +316,7 @@ public class MysqlUsersDAO implements UsersDAO {
 
                 query.append(fieldsToUpdate.keySet().stream().map(s -> s + "=?").collect(Collectors.joining(", ")));
 
-                query.append("WHERE " + DB_Constants.TBL_USERS_USER_ID + " = ?");
+                query.append(" WHERE " + DB_Constants.TBL_USERS_USER_ID + " = ?");
                 try(
 
                         PreparedStatement stmt = con.prepareStatement(query.toString());

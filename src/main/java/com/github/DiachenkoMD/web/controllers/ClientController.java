@@ -17,6 +17,9 @@ import org.apache.logging.log4j.Logger;
 public class ClientController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(ClientController.class);
 
+    /**
+     * GET route to open client page.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         try{

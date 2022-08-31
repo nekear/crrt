@@ -17,16 +17,6 @@
         </taglib>
     </jsp-config>
 
-    <context-param>
-        <param-name>enLocale</param-name>
-        <param-value>en_US</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>ukLocale</param-name>
-        <param-value>uk</param-value>
-    </context-param>
-
     <!--  404 page  -->
     <error-page>
         <error-code>404</error-code>
@@ -51,8 +41,27 @@
     </filter-mapping>
 
     <!-- Context params  -->
+
+    <!--  Default appearance of the website  -->
     <context-param>
         <param-name>default_theme</param-name>
         <param-value>DARK</param-value> <!-- should be taken from VisualThemes enum -->
+    </context-param>
+
+    <!--  Language related params  -->
+    <context-param>
+        <param-name>enLocale</param-name>
+        <param-value>en_US</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>ukLocale</param-name>
+        <param-value>uk</param-value>
+    </context-param>
+
+    <!-- Needed for Guardian and Warden functionality. There controllers will be scanned for having @UseGuards and @UseWards annotations. -->
+    <context-param>
+        <param-name>path_to_controllers</param-name>
+        <param-value>com.github.DiachenkoMD.web.controllers</param-value>
     </context-param>
 </web-app>

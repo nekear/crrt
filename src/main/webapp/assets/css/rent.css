@@ -5,16 +5,6 @@ body {
 .car-carousel-image {
   width: 100%;
   height: 400px;
-  position: relative;
-}
-.car-carousel-image:after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
 }
 
 .rent-container {

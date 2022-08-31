@@ -27,6 +27,12 @@ public class ThemeController extends HttpServlet {
         this.usersService = (UsersService) config.getServletContext().getAttribute("users_service");
     }
 
+    /**
+     * Route, designed to change user`s website appearance. Awaits nothing, but for better UX, client side should have Cookie called "theme".
+     * @see UsersService#changeTheme(HttpServletRequest, HttpServletResponse)
+     * @param req > nothing (should better contain Cookie "theme")
+     * @param resp > nothing (updates Cookie "theme")
+     */
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         try{

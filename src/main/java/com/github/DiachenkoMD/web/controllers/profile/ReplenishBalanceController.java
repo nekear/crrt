@@ -37,6 +37,12 @@ public class ReplenishBalanceController extends HttpServlet {
         this.gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
+    /**
+     * Route for updating user balance.
+     * @see UsersService#replenishBalance(HttpServletRequest, HttpServletResponse)
+     * @param req > <code>{"amount": double}</code>
+     * @param resp > <code>{"newBalance": double, "message": String}</code>
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{

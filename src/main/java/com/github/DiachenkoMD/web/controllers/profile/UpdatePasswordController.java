@@ -33,6 +33,12 @@ public class UpdatePasswordController extends HttpServlet {
         this.usersService = (UsersService) config.getServletContext().getAttribute("users_service");
     }
 
+    /**
+     * Serves /profile/updatePassword POST queries. Designed to change password of the specific user.
+     * @see UsersService#updatePassword(HttpServletRequest, HttpServletResponse) 
+     * @param req > <code>{"new_password": String, "old_password": String}</code>
+     * @param resp > message
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{

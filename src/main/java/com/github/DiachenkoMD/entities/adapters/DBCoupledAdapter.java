@@ -5,6 +5,9 @@ import com.google.gson.*;
 
 import java.lang.reflect.Type;
 
+/**
+ * GSON adapter to convert marked enums to "id" representation on serialization and to Enum representation on deserialization. Works by registering at {@link com.github.DiachenkoMD.web.listeners.ContextListener ContextListener}.
+ */
 public class DBCoupledAdapter implements JsonSerializer<DBCoupled>, JsonDeserializer<DBCoupled>{
     @Override
     public JsonElement serialize(DBCoupled dbCoupled, Type type, JsonSerializationContext jsonSerializationContext) {

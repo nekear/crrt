@@ -92,7 +92,7 @@ public class DriverService {
         String rentStartFormatted = rangeStart.format(formatter);
         String rentEndFormatted = rangeEnd.format(formatter);
 
-        emailNotify(newDriver.getEmail(), "New rent was added to your list", String.format("Hello, driver. New rent, scheduled from <strong>%s</strong> to <strong>%s</strong> on <strong>%s</strong> has been added to your list!", rentStartFormatted, rentEndFormatted, invoice.getBrand() + invoice.getModel()));
+        emailNotify(newDriver.getEmail(), "New rent was added to your list", String.format("<div style=\"margin-bottom: 10px;\">Hello, driver. New rent, scheduled from <strong>%s</strong> to <strong>%s</strong> on <strong>%s %s</strong> has been added to your list!</div>", rentStartFormatted, rentEndFormatted, invoice.getBrand(), invoice.getModel()));
 
         logger.info(DB_MARKER, "Driver [{}] successfully skipped rent [{}]. In was delegated to driver [{}].",
                 driver.getId(),

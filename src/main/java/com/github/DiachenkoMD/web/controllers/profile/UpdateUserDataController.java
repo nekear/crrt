@@ -20,8 +20,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.entities.Constants.SESSION_AUTH;
-import static com.github.DiachenkoMD.web.utils.Utils.getLang;
-import static com.github.DiachenkoMD.web.utils.Utils.sendException;
+import static com.github.DiachenkoMD.web.utils.Utils.*;
+
 @UseGuards({AuthGuard.class})
 @WebServlet("/profile/updateData")
 public class UpdateUserDataController extends HttpServlet {
@@ -34,16 +34,21 @@ public class UpdateUserDataController extends HttpServlet {
         this.usersService = (UsersService) config.getServletContext().getAttribute("users_service");
     }
 
+    /**
+     * Serves /profiel/updateData POST queries. Designed to update users data on profile page, such as firstname, surname, patronymic.
+     * @apiNote Expected that client-side will send only changed fields.
+     * @see UsersService#updateData(HttpServletRequest, HttpServletResponse)
+     * @param req > <code>{"firstname"?: String, "surname"?: String, "patronymic"?: String}</code>
+     * @param resp > message
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{
-            AuthUser updated = this.usersService.updateData(req, resp);
+            AuthUser updated = usersService.updateData(req, resp);
 
             req.getSession().setAttribute(SESSION_AUTH, updated);
 
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(new StatusText("profile.data_changed_successfully", true, StatusStates.SUCCESS).convert(getLang(req)));
-            resp.getWriter().flush();
+            sendSuccess(new StatusText("profile.data_changed_successfully", true, StatusStates.SUCCESS).convert(getLang(req)), resp);
         }catch (Exception e){
             AtomicReference<String> exceptionToClient = new AtomicReference<>("");
 

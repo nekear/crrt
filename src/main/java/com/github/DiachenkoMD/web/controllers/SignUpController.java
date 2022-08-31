@@ -32,9 +32,7 @@ public class SignUpController extends HttpServlet {
     }
 
     /**
-     * Serves /register request and returns registration page in response
-     * @param req
-     * @param resp
+     * Serves /register GET requests and forwards to registration page.
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
@@ -46,9 +44,8 @@ public class SignUpController extends HttpServlet {
     }
 
     /**
-     * Serves /register with post data and at the end redirects to /status with status message (saved to session)
-     * @param req
-     * @param resp
+     * Serves /register POST requests and at the end redirects to /status with status message (saved to session).
+     * @see UsersService#registerUser(HttpServletRequest, HttpServletResponse)
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {

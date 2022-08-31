@@ -32,6 +32,12 @@ public class DeleteAvatarController extends HttpServlet {
         this.usersService = (UsersService) config.getServletContext().getAttribute("users_service");
     }
 
+    /**
+     * Route for deleting user avatar.
+     * @see UsersService#deleteAvatar(HttpServletRequest, HttpServletResponse)
+     * @param req > nothing
+     * @param resp > <code>{"avatar": String}</code>
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{

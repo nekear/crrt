@@ -3,3 +3,10 @@
     padding: 2rem !important;
   }
 }
+@media screen and (max-width: 1300px) {
+  .intro-wrapper .car_preview {
+    -webkit-transform: translateX(-50%) scale(0.6);
+            transform: translateX(-50%) scale(0.6);
+    bottom: -40%;
+  }
+}

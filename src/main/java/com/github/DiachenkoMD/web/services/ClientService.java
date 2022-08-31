@@ -117,7 +117,7 @@ public class ClientService {
         client.setBalance(newBalance.doubleValue());
 
         // Returning updated invoice data
-        return invoicesDAO.getInvoiceDetails(repairInvoice.getOriginInvoiceId());
+        return this.getInvoiceDetails(repairInvoice.getOriginInvoiceId());
     }
 
     /**

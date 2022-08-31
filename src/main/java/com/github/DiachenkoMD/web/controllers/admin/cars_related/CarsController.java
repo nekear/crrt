@@ -31,6 +31,12 @@ public class CarsController extends HttpServlet {
         gson = ((Gson) config.getServletContext().getAttribute("gson"));
     }
 
+    /**
+     * Route for getting all existing cars. Used for displaying cars list at admin-panel.
+     * @see AdminService#getCar(int)
+     * @param req > nothing
+     * @param resp > List<{@link Car}>
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{

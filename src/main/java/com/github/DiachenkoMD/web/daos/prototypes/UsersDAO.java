@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UsersDAO {
@@ -108,7 +109,7 @@ public interface UsersDAO {
      * @implSpec fieldsToUpdated are references to db columns names.
      * @throws DBException
      */
-    void updateUsersData(int userId, HashMap<String, String> fieldsToUpdate) throws DBException;
+    void updateUsersData(int userId, Map<String, String> fieldsToUpdate) throws DBException;
 
     /**
      * Method for getting user password.

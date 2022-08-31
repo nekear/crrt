@@ -450,7 +450,7 @@ const app = createApp({
         // Getting stats
         axios({
             method: "get",
-            url: 'http://localhost:8080/crrt_war/admin/stats',
+            url: '/admin/stats',
             silent: true
         })
         .then(response => {
@@ -464,7 +464,7 @@ const app = createApp({
         // Getting cars list
         axios({
             method: "get",
-            url: `http://localhost:8080/crrt_war/admin/cars`,
+            url: `/admin/cars`,
             silent: true
         })
         .then(response => {
@@ -547,11 +547,11 @@ const app = createApp({
         userUpdateChangedData: function (){
             const inputListReference = this.users.editing.input_list;
 
-            const email = inputListReference.email.inputData;
-            const firstname = inputListReference.firstname.inputData;
-            const surname = inputListReference.surname.inputData;
-            const patronymic = inputListReference.patronymic.inputData;
-            const password = inputListReference.password.inputData;
+            const email = _(inputListReference.email.inputData);
+            const firstname = _(inputListReference.firstname.inputData);
+            const surname = _(inputListReference.surname.inputData);
+            const patronymic = _(inputListReference.patronymic.inputData);
+            const password = _(inputListReference.password.inputData);
             const role = parseInt(this.users.editing.chosenRole);
 
             let resultUpdateData = {
@@ -562,14 +562,19 @@ const app = createApp({
                 role: role
             };
 
-            if(password.length)
+            if(password != null && password.length)
                 resultUpdateData.password = password;
 
             for(let key in resultUpdateData){
-                if(resultUpdateData[key] === this.users.editing.originalData[key]){
+                if(
+                    resultUpdateData[key] != null && resultUpdateData[key] === this.users.editing.originalData[key] || // if we have data and is equal to already present -> don`t mark as updated data
+                    resultUpdateData[key] == null && !(key in this.users.editing.originalData) // if we have empty input, but we hadn`t had some data before -> don`t mark as updated data
+                ){
                     delete resultUpdateData[key];
                 }
             }
+
+            console.log(resultUpdateData, this.users.editing.originalData);
 
             return resultUpdateData;
         },
@@ -677,7 +682,7 @@ const app = createApp({
 
             console.log(searchRequestObject);
 
-            axios.get(`http://localhost:8080/crrt_war/manage/invoices`, {
+            axios.get(`/manage/invoices`, {
                 params:{
                     data: searchRequestObject,
                 }
@@ -702,7 +707,7 @@ const app = createApp({
 
         openInvoiceDetailsModal(invoice_id){
             console.log(invoice_id);
-            axios.get(`http://localhost:8080/crrt_war/manage/invoice`, {
+            axios.get(`/manage/invoice`, {
                 params:{
                     invoice_id: invoice_id
                 }
@@ -720,7 +725,7 @@ const app = createApp({
         },
 
         deleteRepairInvoice(repairInvoiceId){
-            axios.delete('http://localhost:8080/crrt_war/manage/repairInvoice', {
+            axios.delete('/manage/repairInvoice', {
                 data: {
                     repairId: repairInvoiceId
                 }
@@ -750,7 +755,7 @@ const app = createApp({
 
             if(isAllValid){
 
-                axios.post('http://localhost:8080/crrt_war/manage/repairInvoice', {
+                axios.post('/manage/repairInvoice', {
                     originId: this.invoices.repairInvoice.originId,
                     price: this.invoices.repairInvoice.price.value,
                     expirationDate: dayjs(this.invoices.repairInvoice.expirationDate.date).format("YYYY-MM-DD"),
@@ -809,7 +814,7 @@ const app = createApp({
         rejectInvoice(){
             const rejectionReason = _(this.invoices.rejection.reason);
 
-            axios.delete('http://localhost:8080/crrt_war/manage/invoice', {
+            axios.delete('/manage/invoice', {
                 data: {
                     id: this.invoices.details.id,
                     reason: rejectionReason
@@ -830,7 +835,7 @@ const app = createApp({
         generateInvoicesReport(){
             axios({
                 method: "get",
-                url: 'http://localhost:8080/crrt_war/manage/invoices/report',
+                url: '/manage/invoices/report',
                 responseType: 'blob'
             })
             .then(response => {
@@ -923,7 +928,7 @@ const app = createApp({
                 usersFilters: this.users.search.filters
             };
 
-            axios.get(`http://localhost:8080/crrt_war/admin/users`, {
+            axios.get(`/admin/users`, {
                 params:{
                     data: searchRequestObject
                 }
@@ -947,6 +952,13 @@ const app = createApp({
 
         // ---> Creating new user
         openUserCreateModal(){
+            for(let inputName in this.users.creation.input_list){
+                const currentFieldRef = this.users.creation.input_list[inputName];
+                currentFieldRef.inputData = "";
+            }
+
+            this.users.creation.chosenRole = 0;
+
             $("#userCreate_modal").modal("show");
         },
         createUser(){
@@ -982,11 +994,11 @@ const app = createApp({
                 if(firstname)
                     requestUserCreationData.firstname = firstname;
                 if(surname)
-                    requestUserCreationData.firstname = surname;
+                    requestUserCreationData.surname = surname;
                 if(patronymic)
-                    requestUserCreationData.firstname = patronymic;
+                    requestUserCreationData.patronymic = patronymic;
 
-                axios.post('http://localhost:8080/crrt_war/admin/user', {
+                axios.post('/admin/user', {
                     ...requestUserCreationData
                 })
                 .then(response => {
@@ -1006,7 +1018,7 @@ const app = createApp({
         // ---> Updating user
         openUserEditModal(user_id){
 
-            axios.get(`http://localhost:8080/crrt_war/admin/user`, {
+            axios.get(`/admin/user`, {
                 params:{
                     id: user_id
                 }
@@ -1018,6 +1030,8 @@ const app = createApp({
                 Object.keys(targetDestination.input_list).forEach(key => {
                     if(key in response.data){
                         targetDestination.input_list[key].inputData = response.data[key];
+                    }else{
+                        targetDestination.input_list[key].inputData = "";
                     }
                 });
 
@@ -1033,7 +1047,7 @@ const app = createApp({
             });
         },
         setUserState(state){
-            axios.put('http://localhost:8080/crrt_war/admin/user/block', {
+            axios.put('/admin/user/block', {
                 id: this.users.editing.originalData.id,
                 newState: state
             })
@@ -1050,6 +1064,8 @@ const app = createApp({
         updateUser(){
             let doInputsOkay = true;
             const inputs_list = this.users.creation.input_list;
+
+
             Object.keys(inputs_list).forEach(el => {
                 const doesPass = this.doesPassValidation(el, "editing",false);
                 if(!doesPass)
@@ -1067,11 +1083,19 @@ const app = createApp({
 
             if(doInputsOkay && doSelectOkay) {
 
-                const changedData = this.userUpdateChangedData;
+                let requestUserUpdateData = {
+                    ...this.userUpdateChangedData,
+                }
 
-                axios.put('http://localhost:8080/crrt_war/admin/user', {
+                requestUserUpdateData.firstname = _(this.users.editing.input_list.firstname.inputData);
+                requestUserUpdateData.surname = _(this.users.editing.input_list.surname.inputData);
+                requestUserUpdateData.patronymic = _(this.users.editing.input_list.patronymic.inputData);
+
+                requestUserUpdateData.role = this.users.editing.chosenRole;
+
+                axios.put('/admin/user', {
                     id: this.users.editing.originalData.id,
-                    ...changedData
+                    ...requestUserUpdateData
                 })
                 .then(response => {
                     console.log(response);
@@ -1104,7 +1128,7 @@ const app = createApp({
                     udcl.yes,
                     udcl.no,
                     () => {
-                        axios.delete('http://localhost:8080/crrt_war/admin/user', {
+                        axios.delete('/admin/user', {
                             data: {
                                 ids: selectedUsersIds
                             }
@@ -1135,7 +1159,7 @@ const app = createApp({
 
         // ======== STATS RELATED ======== //
         reloadStats(){
-            axios.get('http://localhost:8080/crrt_war/admin/stats')
+            axios.get('/admin/stats')
                 .then(response => {
                     console.log(response);
                     this.stats = response.data;
@@ -1196,7 +1220,7 @@ const app = createApp({
         openCarEditModal(car_id){
             this.cleanCarFieldHighlight("car_edit-");
 
-            axios.get(`http://localhost:8080/crrt_war/admin/car`, {
+            axios.get(`/admin/car`, {
                 params:{
                     id: car_id
                 }
@@ -1215,7 +1239,7 @@ const app = createApp({
             this.cars.imageFocusPrivate.id = this.cars.imageFocusPrivate.id === image_id ? "" : image_id;
         },
         deleteImage(image_id){
-            axios.delete('http://localhost:8080/crrt_war/admin/carImages', {
+            axios.delete('/admin/carImages', {
                 data: {
                     id: image_id
                 }
@@ -1234,7 +1258,7 @@ const app = createApp({
             });
         },
         deleteCar(){
-            axios.delete('http://localhost:8080/crrt_war/admin/car', {
+            axios.delete('/admin/car', {
                 data: {
                     id: this.cars.workingOn.id
                 }
@@ -1259,7 +1283,7 @@ const app = createApp({
             const isAllValid = this.isValidCarFields("car_edit-");
 
             if(isAllValid){
-                axios.put('http://localhost:8080/crrt_war/admin/car', {
+                axios.put('/admin/car', {
                     ...this.cars.workingOn
                 })
                     .then(response => {
@@ -1309,7 +1333,7 @@ const app = createApp({
 
                 axios({
                     method: 'post',
-                    url: `http://localhost:8080/crrt_war/admin/car`,
+                    url: `/admin/car`,
                     data: formData
                 })
                     .then(response => {
@@ -1363,7 +1387,7 @@ $(document).on('submit','#carEdit_modal .car-add-photo-form', function(e) {
 
     axios({
         method: 'post',
-        url: `http://localhost:8080/crrt_war/admin/carImages`,
+        url: `/admin/carImages`,
         data: formData
     })
     .then(function (response) {

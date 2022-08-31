@@ -40,7 +40,7 @@ const app = createApp({
         // Getting invoices list (without loaded = in silent mode)
         axios({
             method: "get",
-            url: `http://localhost:8080/crrt_war/driver/invoices`,
+            url: `/driver/invoices`,
             silent: true
         })
         .then(response => {
@@ -62,7 +62,8 @@ const app = createApp({
                     additions.isAbleToSkip = this.isInvoiceSkipAvailable(listRef[key]);
                     additions.daysDiff = this.daysDiffData(listRef[key].datesRange.start);
                     additions.daysBetween = this.getDaysBetweenDates(listRef[key].datesRange.start, listRef[key].datesRange.end);
-                    additions.isActive = this.isActiveInvoice(listRef[key].datesRange.start, listRef[key].datesRange.end) && !listRef[key].statusList.includes(2) && !listRef[key].statusList.includes(3);
+                    additions.isAlive = !(listRef[key].statusList.includes(2) || listRef[key].statusList.includes(3));
+                    additions.isActive = this.isActiveInvoice(listRef[key].datesRange.start, listRef[key].datesRange.end) && additions.isAlive;
                     listRef[key].additions = additions;
                 });
             }
@@ -130,7 +131,7 @@ const app = createApp({
             return new dayjs().format('DD.MM.YYYY');
         },
 
-        driver(){
+        driverStats(){
             let upcomingRents = 0;
             let estimatedSalary = 0;
 
@@ -142,11 +143,12 @@ const app = createApp({
             Object.keys(listRef).forEach(key => {
                 // Calculating upcoming invoices and salary
                 const dateStart = dayjs(listRef[key].datesRange.start);
+                const isAlive = listRef[key].additions.isAlive;
 
-                if(dateStart.isSameOrAfter(dayjs().add(1, 'day')))
+                if(dateStart.isSameOrAfter(dayjs().add(1, 'day')) && isAlive)
                     upcomingRents++;
 
-                if(dateStart.isBetween(monthStart, monthEnd, 'day', '[]'))
+                if(dateStart.isBetween(monthStart, monthEnd, 'day', '[]') && isAlive)
                     estimatedSalary += listRef[key].salary;
             });
 
@@ -163,7 +165,7 @@ const app = createApp({
             if(dateParsed.isSameOrBefore(dayjs()))
                 return null;
 
-            const inDays = dateParsed.diff(dayjs(), "day");
+            const inDays = dateParsed.diff(dayjs(), "day")+1;
 
             console.log(inDays);
 
@@ -203,7 +205,7 @@ const app = createApp({
 
 
         skipInvoice(invoiceId){
-            axios.delete('http://localhost:8080/crrt_war/driver/invoices', {
+            axios.delete('/driver/invoices', {
                 data: {
                     id: invoiceId
                 }
@@ -232,7 +234,7 @@ const app = createApp({
         },
 
         changeDriverCity(){
-            axios.put('http://localhost:8080/crrt_war/driver/invoices', {
+            axios.put('/driver/invoices', {
                 cityId: this.selectedCity
             })
             .then(response => {

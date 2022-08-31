@@ -29,6 +29,11 @@ public class StatsController extends HttpServlet {
         gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
+    /**
+     * Route for getting 3 different stats for admin-panel.
+     * @param req > nothing
+     * @param resp > List<{@linkplain Double}>
+     */
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{

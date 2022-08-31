@@ -46,6 +46,12 @@ public class CarController extends HttpServlet {
         gson = ((Gson) config.getServletContext().getAttribute("gson"));
     }
 
+    /**
+     * Route for getting detailed information about specific car.
+     * @see AdminService#getCar(int)
+     * @param req > "id": String
+     * @param resp > {@link Car}
+     */
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{
@@ -61,6 +67,12 @@ public class CarController extends HttpServlet {
         }
     }
 
+    /**
+     * Route for creating new car.
+     * @see AdminService#createCar(HttpServletRequest)
+     * @param req > Apart from n-number of images, should contain "document" field with JSON data. JSON is parsed with {@link Car} class, so it should contain all necessary fields.
+     * @param resp > <code>{"carId": String, "message": String}</code>
+     */
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{
@@ -92,6 +104,12 @@ public class CarController extends HttpServlet {
     }
 
 
+    /**
+     * Route for updating car`s data.
+     * @see AdminService#updateCar(HttpServletRequest)
+     * @param req > JSON is parsed with {@link Car} class, so it should contain all necessary fields.
+     * @param resp > message
+     */
     @Override
     public void doPut(HttpServletRequest req, HttpServletResponse resp) {
         try{
@@ -116,8 +134,15 @@ public class CarController extends HttpServlet {
         }
     }
 
+    /**
+     * Route for deleting cars.
+     * @see AdminService#deleteCar(HttpServletRequest)
+     * @implNote If car has connected invoices, it won`t be deleted and controller will send error-message to client-side.
+     * @param req > <code>{"id" (car id): String}</code>
+     * @param resp > message
+     */
     @Override
-    public void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         try{
             adminService.deleteCar(req);
 

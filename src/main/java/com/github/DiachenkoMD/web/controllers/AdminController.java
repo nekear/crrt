@@ -18,6 +18,10 @@ import java.io.IOException;
 @WebServlet("/admin")
 public class AdminController extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(AdminController.class);
+
+    /**
+     * GET route to open admin page.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         try{

@@ -118,7 +118,7 @@ const app = createApp({
         sendLink(){
             const email = this.input_list.email.inputData.trim();
 
-            axios.post('http://localhost:8080/crrt_war/restore', {
+            axios.post('/restore', {
                 email: email
             })
             .then(response => {

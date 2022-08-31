@@ -40,6 +40,12 @@ public class ManagerController extends HttpServlet {
         gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
+    /**
+     * GET route to show manager panel.
+     * @apiNote Since on the manager-panel the filters for the displayed data are passed through the address url,
+     * the controller receives the data and sends it to the service for further processing, and then passes the filter search result to the page.
+     * @see #formPaginationRequest(HttpServletRequest)
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         try{

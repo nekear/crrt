@@ -157,6 +157,31 @@ class ManagerServiceTest {
             assertEquals(1, invoice.getRepairInvoices().size());
         }
 
+        @Test
+        @DisplayName("Origin invoice already cancelled [fail]")
+        void originInvoiceAlreadyCancelledFail() throws DBException {
+            ManagerService.CreateRepairmentInvoiceJPC jpc = new ManagerService.CreateRepairmentInvoiceJPC();
+            jpc.setOriginId(invoiceId);
+
+            invoicesDAO.cancelInvoice(invoiceId);
+
+            DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> managerService.createRepairmentInvoice(gson.toJson(jpc)));
+
+            assertEquals(ExceptionReason.INVOICE_ALREADY_CANCELLED, expectedException.getReason());
+        }
+
+        @Test
+        @DisplayName("Origin invoice already rejected [fail]")
+        void originInvoiceAlreadyRejectedFail() throws DBException {
+            ManagerService.CreateRepairmentInvoiceJPC jpc = new ManagerService.CreateRepairmentInvoiceJPC();
+            jpc.setOriginId(invoiceId);
+
+            invoicesDAO.rejectInvoice(invoiceId, null);
+
+            DescriptiveException expectedException = assertThrows(DescriptiveException.class, () -> managerService.createRepairmentInvoice(gson.toJson(jpc)));
+
+            assertEquals(ExceptionReason.INVOICE_ALREADY_REJECTED, expectedException.getReason());
+        }
 
         @ParameterizedTest
         @DisplayName("Failing validation")

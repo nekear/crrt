@@ -80,13 +80,13 @@ public class AdminService {
 
     /**
      * Method for getting car data for specific car.
-     * @param car_id decrypted car id.
+     * @param carId decrypted car id.
      * @return {@link Car} info.
      * @throws DBException comes from {@link CarsDAO#get(int)}.
      * @throws DescriptiveException rudimentary
      */
-    public Car getCar(int car_id) throws DBException, DescriptiveException {
-        Optional<Car> car = carsDAO.get(car_id);
+    public Car getCar(int carId) throws DBException, DescriptiveException {
+        Optional<Car> car = carsDAO.get(carId);
 
         return car.orElseThrow(() -> new DescriptiveException("Unable to get car", ExceptionReason.DB_ACTION_ERROR));
     }
@@ -242,7 +242,7 @@ public class AdminService {
     }
 
     /**
-     * Method for deleting images from car. Request object should contain "id" parameter. Generally, this method is well documented inside (as others).
+     * Method for deleting images from car. Request object should contain "id" parameter, representing encrypted image id. Generally, this method is well documented inside (as others).
      * @param req should contain "id" parameter.
      * @throws ServletException
      * @throws IOException
@@ -340,7 +340,7 @@ public class AdminService {
         // Getting connected images (from the Car object to let us send pretty message that <brand> <model> was successfully deleted or something like that)
         Car car = carsDAO.get(carId).get();
 
-        if(car.getImages().size() > 0){
+        if(car.getImages() != null && car.getImages().size() > 0){
             String realPath = ctx.getRealPath(IMAGES_UPLOAD_DIR);
             for(Image image : car.getImages()){
                 Path imagePath = Path.of(realPath, image.getFileName());
@@ -469,7 +469,7 @@ public class AdminService {
      * Method for updating user data. Obtaining !only! changed fields, any other field, that is not on json object won`t be updated.
      * @param changedUserDataJSON changed user data in json format. Should correspond to {@link CreationUpdatingUserJPC CreationUpdatingUserJPC}, because will be parsed by Gson into that object.
      * @throws DescriptiveException with reasons {@link ExceptionReason#ACQUIRING_ERROR ACQUIRING_ERROR} (if could not obtain user id from request) and {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR}.
-     * @throws DBException comes from {@link UsersDAO#updateUsersData(int, HashMap)}.
+     * @throws DBException comes from {@link UsersDAO#updateUsersData(int, Map)}.
      */
     public void updateUser(String changedUserDataJSON) throws DescriptiveException, DBException {
         Gson gson = (Gson) ctx.getAttribute("gson");
@@ -491,45 +491,41 @@ public class AdminService {
         int userId = changedUserData.getCleanId().orElseThrow(() -> new DescriptiveException("Could not obtain user id from request json object", ExceptionReason.ACQUIRING_ERROR));
 
         // Validating data
-        if (email != null){
-            if(!validate(email, ValidationParameters.EMAIL))
+        if (email != null) {
+            if (!validate(email, ValidationParameters.EMAIL))
                 throw new DescriptiveException("Email validation failed", ExceptionReason.VALIDATION_ERROR);
             resultFieldsToUpdate.put(DB_Constants.TBL_USERS_EMAIL, email);
         }
 
-        if(firstname != null){
+        if(firstname != null)
             if(!validate(firstname, ValidationParameters.NAME))
                 throw new DescriptiveException("Firstname validation failed", ExceptionReason.VALIDATION_ERROR);
-            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_FIRSTNAME, firstname);
-        }
+        resultFieldsToUpdate.put(DB_Constants.TBL_USERS_FIRSTNAME, firstname);
 
-        if(surname != null){
+        if(surname != null)
             if(!validate(surname, ValidationParameters.NAME))
                 throw new DescriptiveException("Surname validation failed", ExceptionReason.VALIDATION_ERROR);
-            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_SURNAME, surname);
-        }
+        resultFieldsToUpdate.put(DB_Constants.TBL_USERS_SURNAME, surname);
 
-        if(patronymic != null){
+        if(patronymic != null)
             if(!validate(patronymic, ValidationParameters.NAME))
                 throw new DescriptiveException("Patronymic validation failed", ExceptionReason.VALIDATION_ERROR);
-            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_PATRONYMIC, patronymic);
-        }
+        resultFieldsToUpdate.put(DB_Constants.TBL_USERS_PATRONYMIC, patronymic);
 
-        if (password != null){
-            if(!validate(password, ValidationParameters.PASSWORD))
+        if (password != null) {
+            if (!validate(password, ValidationParameters.PASSWORD))
                 throw new DescriptiveException("Password validation failed", ExceptionReason.VALIDATION_ERROR);
             resultFieldsToUpdate.put(DB_Constants.TBL_USERS_PASSWORD, encryptPassword(password));
         }
 
-        if (role != null) {
+        if (role != null)
             if (role == Roles.ANY)
                 throw new DescriptiveException("Role validation failed", ExceptionReason.VALIDATION_ERROR);
-            resultFieldsToUpdate.put(DB_Constants.TBL_USERS_ROLE_ID, String.valueOf(role.id()));
-        }
+        resultFieldsToUpdate.put(DB_Constants.TBL_USERS_ROLE_ID, String.valueOf(role.id()));
 
+        logger.debug("Result fields to updated: {}", resultFieldsToUpdate);
 
-        if(resultFieldsToUpdate.size() > 0)
-            usersDAO.updateUsersData(userId, resultFieldsToUpdate);
+        usersDAO.updateUsersData(userId, resultFieldsToUpdate);
 
         // Adding user id to updating queue (to update his rights on any next action)
         rightsManager.add(userId);

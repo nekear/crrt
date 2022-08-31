@@ -5,6 +5,8 @@
 
 <%@ include file="components/generals.jspf"%>
 
+${sessionScope.auth = null}
+
 <!doctype html>
 <html lang="<crrt:lang/>">
 <head>

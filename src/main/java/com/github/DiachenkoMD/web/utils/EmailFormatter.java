@@ -114,7 +114,7 @@ public class EmailFormatter {
                     "        </svg>\n" +
                     "    </div>\n" +
                     "    <div class=\"email-content\">\n" +
-                    "        <h2 class=\"email-title\">"+title+"</h2>\n" +
+                    "        <h2 class=\"email-title\" style=\"margin-bottom: 15px\">"+title+"</h2>\n" +
                     "        <div class=\"email-description\">\n" +
                     body +
                     "        </div>\n" +

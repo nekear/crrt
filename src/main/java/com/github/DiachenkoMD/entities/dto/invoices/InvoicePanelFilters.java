@@ -91,10 +91,8 @@ public class InvoicePanelFilters extends Filters {
 
         // Dates should be formatted before use in db query
         if(datesRange != null){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-            res.put(TBL_INVOICES_DATE_START, formatter.format(datesRange.getStart()));
-            res.put(TBL_INVOICES_DATE_END, formatter.format(datesRange.getEnd()));
+            res.put(TBL_INVOICES_DATE_START, localDateFormatter.format(datesRange.getStart()));
+            res.put(TBL_INVOICES_DATE_END, localDateFormatter.format(datesRange.getEnd()));
         }
 
         return res;

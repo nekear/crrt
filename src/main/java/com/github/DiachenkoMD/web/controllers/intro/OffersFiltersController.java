@@ -32,6 +32,11 @@ public class OffersFiltersController extends HttpServlet {
         this.gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
+    /**
+     * Route for getting date range and return id`s of available cars for renting on that dates range.
+     * @param req > "start": String (yyyy-mm-dd) and "end": String (yyyy-mm-dd).
+     * @param resp > id`s of cars available on specified dates range.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{

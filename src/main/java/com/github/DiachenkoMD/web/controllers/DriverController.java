@@ -32,6 +32,9 @@ public class DriverController extends HttpServlet {
         this.driverService = (DriverService) config.getServletContext().getAttribute("driver_service");
     }
 
+    /**
+     * GET route to open driver page + inside gets driver city to display in on the page.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         Cities city;

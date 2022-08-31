@@ -83,9 +83,9 @@ public class MysqlInvoicesDAO implements InvoicesDAO {
                             return "CONCAT_WS(' ', tbl_cars.brand, tbl_cars.model) LIKE ?";
                         // Concatenation for Date format
                         case TBL_INVOICES_DATE_START:
-                            return TBL_INVOICES_DATE_START + " >= ?";
+                            return TBL_INVOICES_DATE_END + " >= ?";
                         case TBL_INVOICES_DATE_END:
-                            return TBL_INVOICES_DATE_END + " <= ?";
+                            return TBL_INVOICES_DATE_START + " <= ?";
                         // For different statuses
                         case "tbl_invoices."+TBL_INVOICES_IS_CANCELED:
                             return "tbl_invoices."+TBL_INVOICES_IS_CANCELED + " = ?";

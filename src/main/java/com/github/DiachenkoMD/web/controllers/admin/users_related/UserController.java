@@ -38,6 +38,13 @@ public class UserController extends HttpServlet {
         gson = ((Gson) config.getServletContext().getAttribute("gson"));
     }
 
+    /**
+     * Route for creating new user.
+     * @see AdminService#createUser(String)
+     * @param req > incoming json is parsed with {@link AdminService.CreationUpdatingUserJPC} class, so make sure that request contains all necessary fields. <br/>
+     * Note: "firstname", "surname" and "patronymic" are optional.
+     * @param resp > message
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{
@@ -62,8 +69,14 @@ public class UserController extends HttpServlet {
         }
     }
 
+    /**
+     * Route for getting detailed information about user. Can be called when admin clicks "details" on user row on admin-panel page.
+     * @see AdminService#getUser(String)
+     * @param req > "id" (user id): String.
+     * @param resp > {@link com.github.DiachenkoMD.entities.dto.users.InformativeUser InformativeUser}.
+     */
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{
             String userIdEncrypted = req.getParameter("id");
             logger.debug(userIdEncrypted);
@@ -81,8 +94,15 @@ public class UserController extends HttpServlet {
         }
     }
 
+    /**
+     * Route for updating user data. Will be called, when admin clicks "save changes" on user.
+     * @see AdminService#updateUser(String)
+     * @param req > json is parsed with {@link AdminService.CreationUpdatingUserJPC}, so make sure to include all necessary fields. <br/>
+     * Note: "firstname", "surname" and "patronymic", as well as "role" should be present always. "Email" and "password" might not be present.
+     * @param resp > message
+     */
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         try{
             String changedUserDataJSON = new BufferedReader(req.getReader()).lines().collect(Collectors.joining());
 
@@ -105,8 +125,14 @@ public class UserController extends HttpServlet {
         }
     }
 
+    /**
+     * Route for deleting user<strong>s</strong>. Can accept one or many users` ids.
+     * @see AdminService#deleteUsers(String)
+     * @param req > List<{@linkplain String}> (list of encrypted users` ids to delete)
+     * @param resp > nothing
+     */
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         try{
             String idsToDeleteListJSON = req.getReader().lines().collect(Collectors.joining());
 

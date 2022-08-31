@@ -42,6 +42,11 @@ public class PasswordRestoreController extends HttpServlet {
         this.usersService = (UsersService) config.getServletContext().getAttribute("users_service");
     }
 
+    /**
+     * Serves /restore GET queries and forwards to restoration page with email if JWT token was not found or has any problems (they will be displayed on the page).
+     * If JWT verified without any issues, forward will be done to restoration page with "new password" input. <br/>
+     * Note: JWT token is being processed by {@link JWTWard}.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JWTAnalysis jwtAnalysis = (JWTAnalysis) req.getAttribute("jwtAnalysis");
@@ -63,6 +68,9 @@ public class PasswordRestoreController extends HttpServlet {
         }
     }
 
+    /**
+     * Serves /restore POST queries and designed to send restoration email to user.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp){
         try{
@@ -89,6 +97,10 @@ public class PasswordRestoreController extends HttpServlet {
         }
     }
 
+    /**
+     * Serves /restore PUT queries and designed for updating user`s password (setting it to newly inputted on the restoration page). <br/>
+     * If flow is successful, redirects to /login page.
+     */
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         try{

@@ -36,7 +36,7 @@ const app = createApp({
         // Getting invoices list (without loaded = in silent mode)
         axios({
             method: "get",
-            url: `http://localhost:8080/crrt_war/client/invoices`,
+            url: `/client/invoices`,
             silent: true
         })
         .then(response => {
@@ -125,7 +125,7 @@ const app = createApp({
 
         openInvoiceDetailsModal(invoice_id){
             console.log(invoice_id);
-            axios.get(`http://localhost:8080/crrt_war/client/invoice`, {
+            axios.get(`/client/invoice`, {
                 params:{
                     invoice_id: invoice_id
                 }
@@ -143,7 +143,7 @@ const app = createApp({
         },
 
         payRepairInvoice(repairInvoiceId){
-            axios.put('http://localhost:8080/crrt_war/client/repairInvoice', {
+            axios.put('/client/repairInvoice', {
                 id: repairInvoiceId
             })
             .then(response => {
@@ -183,7 +183,7 @@ const app = createApp({
         },
 
         cancelInvoice(){
-            axios.delete('http://localhost:8080/crrt_war/client/invoice', {
+            axios.delete('/client/invoice', {
                 data: {
                     id: this.invoices.details.id,
                 }

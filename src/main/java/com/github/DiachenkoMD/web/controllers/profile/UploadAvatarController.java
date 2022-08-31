@@ -39,6 +39,12 @@ public class UploadAvatarController extends HttpServlet {
         this.usersService = (UsersService) config.getServletContext().getAttribute("users_service");
     }
 
+    /**
+     * Serves /profile/uploadAvatar queries. The purpose of this method is to upload the user's avatar to the server.
+     * @see UsersService#uploadAvatar(HttpServletRequest, HttpServletResponse)
+     * @param req > incoming multipart-form data should contain "avatar" fields inside.
+     * @param resp > <code>{"avatar": String}</code>
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{

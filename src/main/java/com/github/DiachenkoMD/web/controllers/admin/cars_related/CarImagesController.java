@@ -43,6 +43,12 @@ public class CarImagesController extends HttpServlet {
         gson = ((Gson) config.getServletContext().getAttribute("gson"));
     }
 
+    /**
+     * Route for adding images to car.
+     * @see AdminService#addImageToCar(HttpServletRequest)
+     * @param req > should contain "car-image" fields with image data + "document" field with "car_id" field.
+     * @param resp > {@link Image} (new car image data)
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{
@@ -63,6 +69,12 @@ public class CarImagesController extends HttpServlet {
         }
     }
 
+    /**
+     * Route for deleting image from car.
+     * @see AdminService#deleteImageFromCar(HttpServletRequest)
+     * @param req > <code>{"id" (image id): String}</code>
+     * @param resp > message
+     */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         try{

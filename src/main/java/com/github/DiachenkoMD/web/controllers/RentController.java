@@ -9,6 +9,7 @@ import com.github.DiachenkoMD.web.utils.CryptoStore;
 import com.github.DiachenkoMD.web.utils.middlewares.guardian.UseGuards;
 import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.AuthGuard;
 import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.PageGuard;
+import com.github.DiachenkoMD.web.utils.middlewares.guardian.guards.roles.ClientRGuard;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -27,22 +28,25 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.DiachenkoMD.web.utils.Utils.getLang;
 
-@UseGuards({PageGuard.class, AuthGuard.class})
+@UseGuards({PageGuard.class, AuthGuard.class, ClientRGuard.class})
 @WebServlet("/rent")
 public class RentController extends HttpServlet {
     private final static Logger logger = LogManager.getLogger(RentController.class);
 
     private IntroService introService;
 
-    private Gson gson;
-
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         this.introService = (IntroService) config.getServletContext().getAttribute("intro_service");
-        this.gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
+    /**
+     * GET route to show renting page.
+     * @apiNote The vehicle we want to rent is identified by specifying the encrypted parameter <strong>ref</strong> in the address line.
+     * If such parameter is not found, there will be a redirect to the main page, otherwise the system will try to display the necessary car.
+     * @see IntroService#getRentingInfo(int)
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{

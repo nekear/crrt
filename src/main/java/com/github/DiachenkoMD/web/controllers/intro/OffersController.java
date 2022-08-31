@@ -29,6 +29,11 @@ public class OffersController extends HttpServlet {
         this.gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
+    /**
+     * Route for getting all existing cars on main page. Does not await any parameters or filters. Just returns all cars and that`s all.
+     * @param req > nothing
+     * @param resp > List<{@link com.github.DiachenkoMD.entities.dto.Car Car}>
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{

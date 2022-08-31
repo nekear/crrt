@@ -171,6 +171,7 @@
   font-weight: bold;
   font-size: 80px;
   letter-spacing: 3px;
+  margin-bottom: 20px;
 }
 .intro-wrapper .intro-content .centered-data .gradient-rotator-wrapper {
   position: relative;
@@ -188,14 +189,15 @@
   height: 250px;
   position: absolute;
   top: -60px;
-  left: 10px;
+  left: 20px;
   -webkit-animation: rotationWScale 2s linear infinite;
           animation: rotationWScale 2s linear infinite;
 }
 .intro-wrapper .intro-content .centered-data .additional-title {
   color: #9A9A9A;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 18px;
+  margin-bottom: 40px;
 }
 .intro-wrapper .intro-content .centered-data .find_car-button {
   padding: 0.8rem 1rem;
@@ -282,7 +284,7 @@
 .search-wrapper {
   min-height: 100vh;
   height: 100%;
-  padding: 100px 0;
+  padding: 100px 30px;
 }
 .search-wrapper .search-container {
   max-width: 1840px;

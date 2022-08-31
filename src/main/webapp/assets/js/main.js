@@ -56,7 +56,7 @@ const app = createApp({
    mounted(){
       axios({
          method: "get",
-         url: `http://localhost:8080/crrt_war/offers`,
+         url: `/offers`,
          silent: true
       })
        .then(response => {
@@ -199,7 +199,7 @@ const app = createApp({
 
             axios({
                method: "get",
-               url: `http://localhost:8080/crrt_war/filtered_offers`,
+               url: `/filtered_offers`,
                params:{
                   start: start,
                   end: end

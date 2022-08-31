@@ -35,9 +35,10 @@ public class InvoicesReportController extends HttpServlet {
     }
 
     /**
-     * Route for obtaining report with extended invoices data as xlsx file.
-     * @param req doesn`t accept anything. Final file will contain all available info.
-     * @param resp
+     * Route for obtaining report with extended invoices data as xlsx file. Final file will contain all available info.
+     * @see ManagerService#generateInvoicesReport()
+     * @param req > nothing
+     * @param resp > xlsx file
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {

@@ -8,6 +8,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Type;
 
+/**
+ * GSON adapter to automatically encrypt (on serialization) and decrypt (on deserialization) marked fields. Examples of usage can be found in almost any DTO class.
+ */
 public class CryptoAdapter implements JsonSerializer<Object>, JsonDeserializer<Object> {
     private final static Logger logger = LogManager.getLogger(CryptoAdapter.class);
 

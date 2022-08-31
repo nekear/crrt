@@ -69,7 +69,6 @@ public class UserServiceTest {
     @Nested
     @DisplayName("registerUser")
     class registerUserTests{
-
         private final String email = "test@gmail.com", password = "manitstest0204";
         private AuthUser processedUser;
 
@@ -313,7 +312,6 @@ public class UserServiceTest {
 
             AuthUser _user = mock(AuthUser.class);
 
-            when(_user.getCleanId()).thenReturn(Optional.of(1));
             when(_user.getId()).thenReturn(1);
             when(_usersDao.get(email)).thenReturn(_user); // to bypass checks
 
@@ -750,7 +748,6 @@ public class UserServiceTest {
         void generateForExistingEmail() throws DBException {
             String email = "test@gmail.com";
             when(_usersDao.doesExist(email)).thenReturn(true);
-            when(_ctx.getContextPath()).thenReturn("/crrt_war");
 
             assertDoesNotThrow(() -> usersService.sendRestorationLink(email));
         }

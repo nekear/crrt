@@ -41,6 +41,11 @@ public class DriverInvoicesController extends HttpServlet {
         gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
+    /**
+     * Route for getting invoices for driver panel. The peculiarity of such invoices is that they have very little information.
+     * @param req > nothing
+     * @param resp > List<{@link com.github.DiachenkoMD.entities.dto.invoices.DriverInvoice DriverInvoice}>
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         try{
@@ -54,6 +59,11 @@ public class DriverInvoicesController extends HttpServlet {
         }
     }
 
+    /**
+     * Route for updating driver city. That city is needed to allow system couple invoice from some city only with drivers in that city.
+     * @param req > <code>{"cityId": String}</code>
+     * @param resp > nothing
+     */
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp){
         try{
@@ -70,6 +80,11 @@ public class DriverInvoicesController extends HttpServlet {
         }
     }
 
+    /**
+     * Despite it`s name, this route is designed for delegating (button for that action is called "skip") invoices to other drivers if available drivers found.
+     * @param req > <code>{"id"(invoice id): String}</code>
+     * @param resp > <code>{"status": boolean, "message": String}</code>
+     */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         try{

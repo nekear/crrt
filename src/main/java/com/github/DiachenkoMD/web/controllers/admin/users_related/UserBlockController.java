@@ -36,6 +36,12 @@ public class UserBlockController extends HttpServlet {
         gson = ((Gson) config.getServletContext().getAttribute("gson"));
     }
 
+    /**
+     * Route for updating user state (blocking / unblocking user).
+     * @see AdminService#updateUserState(String, int)
+     * @param req > <code>{"id" (user id): String, "newState": int}</code>
+     * @param resp > nothing
+     */
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         try{

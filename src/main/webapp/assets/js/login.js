@@ -129,7 +129,7 @@ const app = createApp({
             });
 
             if(isEverythingOkay){
-                axios.post('http://localhost:8080/crrt_war/login', {
+                axios.post('/login', {
                     email: this.input_list.email.inputData,
                     password: this.input_list.password.inputData,
                     remember: this.shouldRemember
@@ -137,7 +137,7 @@ const app = createApp({
                     .then(function (response) {
                         console.log(response);
                         Notiflix.Notify.success(js_localization.notiflix.login_success);
-                        document.location.href = "http://localhost:8080/crrt_war/profile";
+                        document.location.href = baseUrl + "/profile";
                     })
                     .catch(function (error) {
                         console.log(error);

@@ -69,43 +69,49 @@ const sorterComponent = {
 };
 
 // Notiflix styles
+try{
+    Notiflix.Notify.init({
+        position: "center-bottom",
+        fontFamily: 'Montserrat',
+        closeButton: true,
+        timeout: 3000,
 
-Notiflix.Notify.init({
-    position: "center-bottom",
-    fontFamily: 'Montserrat',
-    closeButton: true,
-    timeout: 3000,
+        failure: {
+            background: 'rgba(var(--a-systemPink_default), .4)',
+            notiflixIconColor: 'var(--systemPink_default)',
+            textColor: 'var(--ascentColor)'
+        },
 
-    failure: {
-        background: 'rgba(var(--a-systemPink_default), .4)',
-        notiflixIconColor: 'var(--systemPink_default)',
-        textColor: 'var(--ascentColor)'
-    },
+        success: {
+            background: 'rgba(var(--a-systemGreen_default), .4)',
+            notiflixIconColor: 'var(--systemGreen_default)',
+            textColor: 'var(--ascentColor)'
+        },
 
-    success: {
-        background: 'rgba(var(--a-systemGreen_default), .4)',
-        notiflixIconColor: 'var(--systemGreen_default)',
-        textColor: 'var(--ascentColor)'
-    },
+        warning: {
+            background: 'rgba(var(--a-systemOrange_default), .4)',
+            notiflixIconColor: 'var(--systemOrange_default)',
+            textColor: 'var(--ascentColor)'
+        },
 
-    warning: {
-        background: 'rgba(var(--a-systemOrange_default), .4)',
-        notiflixIconColor: 'var(--systemOrange_default)',
-        textColor: 'var(--ascentColor)'
-    },
+        info: {
+            background: 'rgba(var(--a-systemBlue_default), .4)',
+            notiflixIconColor: 'var(--systemBlue_default)',
+            textColor: 'var(--ascentColor)'
+        },
+    });
 
-    info: {
-        background: 'rgba(var(--a-systemBlue_default), .4)',
-        notiflixIconColor: 'var(--systemBlue_default)',
-        textColor: 'var(--ascentColor)'
-    },
-});
+    Notiflix.Confirm.init({
+        backgroundColor: 'var(--systemGray6_default)',
+        titleColor: 'var(--systemGray_accessible)',
+        messageColor: 'var(--systemGray_accessible)'
+    });
+}catch (e){
+    console.warn("Notiflix is not defined");
+}
 
-Notiflix.Confirm.init({
-   backgroundColor: 'var(--systemGray6_default)',
-   titleColor: 'var(--systemGray_accessible)',
-   messageColor: 'var(--systemGray_accessible)'
-});
+
+
 
 
 $(document).on("change", "#theme-checkbox", function (e) {
@@ -133,7 +139,7 @@ $(document).on("change", "#theme-checkbox", function (e) {
 
     axios({
             method: "put",
-            url: 'http://localhost:8080/crrt_war/profile/theme',
+            url: '/profile/theme',
             silent: true
         })
         .then(response => {
@@ -154,6 +160,7 @@ function loader(action) {
 }
 
 // Axios middleware for showing / hiding loader + ability to pass "silent" parameter to hide loader on request
+axios.defaults.baseURL = baseUrl;
 axios.interceptors.request.use(function (config) {
     console.log(config);
 

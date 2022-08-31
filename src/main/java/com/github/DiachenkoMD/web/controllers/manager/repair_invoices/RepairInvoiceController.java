@@ -38,6 +38,12 @@ public class RepairInvoiceController extends HttpServlet {
         gson = ((Gson) config.getServletContext().getAttribute("gson"));
     }
 
+    /**
+     * Route for creating repairment invoices.
+     * @see ManagerService#createRepairmentInvoice(String)
+     * @param req > json is being parsed with {@link ManagerService.CreateRepairmentInvoiceJPC} class, so it should contain all necessary fields.
+     * @param resp > {@link com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice InformativeInvoice}
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try{
@@ -45,22 +51,30 @@ public class RepairInvoiceController extends HttpServlet {
 
             sendSuccess(gson.toJson(managerService.createRepairmentInvoice(jsonBody)), resp);
         }catch (Exception e) {
-            AtomicReference<String> exceptionToClient = new AtomicReference<>("");
+            AtomicReference<String> exceptionToClient = new AtomicReference<>();
 
             logger.error(e);
 
             if (e instanceof DescriptiveException descExc){
+                descExc.execute(ExceptionReason.INVOICE_ALREADY_CANCELLED, () -> exceptionToClient.set(new StatusText("manager.repair_invoices.invoice_already_cancelled").convert(getLang(req))));
+                descExc.execute(ExceptionReason.INVOICE_ALREADY_REJECTED, () -> exceptionToClient.set(new StatusText("manager.repair_invoices.invoice_already_rejected").convert(getLang(req))));
                 descExc.execute(ExceptionReason.VALIDATION_ERROR, () -> exceptionToClient.set(new StatusText("manager.repair_invoices.creation_validation_fail").convert(getLang(req))));
                 descExc.execute(ExceptionReason.REP_INVOICE_EXPIRATION_SHOULD_BE_LATER, () -> exceptionToClient.set(new StatusText("manager.repair_invoices.expiration_date_should_be_greater").convert(getLang(req))));
             }
 
-            if(exceptionToClient.get().isEmpty())
+            if(exceptionToClient.get() == null)
                 exceptionToClient.set(new StatusText("global.unexpectedError").convert(getLang(req)));
 
-            sendException(new StatusText("global.unexpectedError").convert(Utils.getLang(req)), resp);
+            sendException(exceptionToClient.get(), resp);
         }
     }
 
+    /**
+     * Route for deleting repairment invoices. <br/>
+     * @see ManagerService#deleteRepairmentInvoice(String)
+     * @param req > <code>{"repairId": String}</code>
+     * @param resp > {@link com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice InformativeInvoice}
+     */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         try{

@@ -135,11 +135,24 @@ class UsersDAOTest {
     @DisplayName("register")
     class registerTests{
         @Test
-        @DisplayName("Create new user")
-        void testCreateNewUser() throws Exception {
+        @DisplayName("Successful creation user (default role)")
+        void testCreateNewUserClient() throws Exception {
             AuthUser newUser = AuthUser.of("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
 
             assertInstanceOf(Integer.class, usersDAO.register(newUser, "1").getId());
+        }
+
+        @Test
+        @DisplayName("Successful creation user (driver role)")
+        void testCreateNewUserDriver() throws Exception {
+            AuthUser newUser = AuthUser.of("test@gmail.com", "Mykhailo", "Diachenko", "Dmytrovich");
+            newUser.setRole(Roles.DRIVER);
+
+            assertInstanceOf(Integer.class, usersDAO.register(newUser, "1").getId());
+
+            var driver = usersDAO.getDriverFromUser(1);
+            assertTrue(driver.isPresent());
+            assertEquals(newUser.getEmail(), driver.get().getEmail());
         }
 
         @Test

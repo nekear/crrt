@@ -40,7 +40,7 @@ const app = createApp({
                 },
             },
             cities: {},
-            invoiceStatuses:{},
+            invoiceStatuses:{}
         }
     },
     created(){
@@ -88,7 +88,6 @@ const app = createApp({
     },
 
     methods:{
-
         getSortOrder(name){
             let sortOrder = "null";
             for(index in this.invoices.search.orderBy){
@@ -194,7 +193,7 @@ const app = createApp({
 
         openInvoiceDetailsModal(invoice_id){
             console.log(invoice_id);
-            axios.get(`http://localhost:8080/crrt_war/manage/invoice`, {
+            axios.get(`/manage/invoice`, {
                 params:{
                     invoice_id: invoice_id
                 }
@@ -216,7 +215,7 @@ const app = createApp({
         },
 
         deleteRepairInvoice(repairInvoiceId){
-            axios.delete('http://localhost:8080/crrt_war/manage/repairInvoice', {
+            axios.delete('/manage/repairInvoice', {
                 data: {
                     originId: this.invoices.details.id,
                     repairId: repairInvoiceId
@@ -247,7 +246,7 @@ const app = createApp({
 
             if(isAllValid){
 
-                axios.post('http://localhost:8080/crrt_war/manage/repairInvoice', {
+                axios.post('/manage/repairInvoice', {
                     originId: this.invoices.repairInvoice.originId,
                     price: this.invoices.repairInvoice.price.value,
                     expirationDate: dayjs(this.invoices.repairInvoice.expirationDate.date).format("YYYY-MM-DD"),
@@ -306,7 +305,7 @@ const app = createApp({
         rejectInvoice(){
             const rejectionReason = _(this.invoices.rejection.reason);
 
-            axios.delete('http://localhost:8080/crrt_war/manage/invoice', {
+            axios.delete('/manage/invoice', {
                 data: {
                     id: this.invoices.details.id,
                     reason: rejectionReason
@@ -328,7 +327,7 @@ const app = createApp({
         generateInvoicesReport(){
             axios({
                 method: "get",
-                url: 'http://localhost:8080/crrt_war/manage/invoices/report',
+                url: '/manage/invoices/report',
                 responseType: 'blob'
             })
                 .then(response => {

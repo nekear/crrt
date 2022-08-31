@@ -76,7 +76,7 @@ public class ManagerService {
 
         HashMap<String, String> searchCriteria = paginationRequest.getInvoicesFilters().getDBPresentation();
 
-        logger.info(searchCriteria);
+        logger.debug(searchCriteria);
 
         List<String> orderBy = paginationRequest.getInvoicesFilters().getOrderPresentation();
 
@@ -104,7 +104,11 @@ public class ManagerService {
      * Method for creating repairment invoices. Inside chained with {@link InvoicesDAO#getInvoiceDetails(int)} to return updated invoice data and reload it on the admin`s/manager`s page.
      * @param jsonBody should contain originId! (id of the invoice for which we create repairment invoice), price!, expirationDate! and comment?.
      * @return {@link InformativeInvoice} with updated invoice data
-     * @throws DescriptiveException with {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR} or {@link ExceptionReason#REP_INVOICE_EXPIRATION_SHOULD_BE_LATER REP_INVOICE_EXPIRATION_SHOULD_BE_LATER}.
+     * @throws DescriptiveException with
+     * {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR},
+     * {@link ExceptionReason#REP_INVOICE_EXPIRATION_SHOULD_BE_LATER REP_INVOICE_EXPIRATION_SHOULD_BE_LATER},
+     * {@link ExceptionReason#INVOICE_ALREADY_CANCELLED INVOICE_ALREADY_CANCELLED},
+     * {@link ExceptionReason#INVOICE_ALREADY_REJECTED INVOICE_ALREADY_REJECTED}.
      * @throws DBException caused by {@link InvoicesDAO#createRepairInvoice(int, BigDecimal, LocalDate, String) createRepairInvoice} or {@link InvoicesDAO#getInvoiceDetails(int) getInvoiceDetails}
      */
     public InformativeInvoice createRepairmentInvoice(String jsonBody) throws DescriptiveException, DBException {
@@ -117,13 +121,36 @@ public class ManagerService {
         LocalDate expirationDate = parsedBody.getExpirationDate();
         String comment = parsedBody.getComment();
 
+        // Getting invoice data to check, whether we can create repairment invoice or not
+        InformativeInvoice invoice = invoicesDAO.getInvoiceDetails(invoiceId);
+
+        if(invoice.isCancelled())
+            throw new DescriptiveException("You can not add repairment invoices to cancelled invoice", ExceptionReason.INVOICE_ALREADY_CANCELLED);
+
+        if(invoice.isRejected())
+            throw new DescriptiveException("You can not add repairment invoices to rejected invoice", ExceptionReason.INVOICE_ALREADY_REJECTED);
+
+        // Verifying acquired price and date
         if(price == null || price.compareTo(BigDecimal.valueOf(0)) <= 0 || expirationDate == null)
             throw new DescriptiveException("Price or expiration can`t pass validation!", ExceptionReason.VALIDATION_ERROR);
 
         if(expirationDate.isBefore(LocalDate.now()))
-            throw new DescriptiveException("Repairment invoice expiration date should be greater than previuos date", ExceptionReason.REP_INVOICE_EXPIRATION_SHOULD_BE_LATER);
+            throw new DescriptiveException("Repairment invoice expiration date should be greater than previous date", ExceptionReason.REP_INVOICE_EXPIRATION_SHOULD_BE_LATER);
 
         invoicesDAO.createRepairInvoice(invoiceId, price, expirationDate, comment);
+
+        emailNotify(
+                invoice.getClientEmail(),
+                "New repairment invoice added to your account",
+                String.format(
+                        "Good afternoon, to rent of <strong>%s %s</strong> a repairment invoice has been added for the amount of <strong>%s$</strong>. Please pay it by <strong>%s</strong>.\n" +
+                        "<p style=\"margin-top: 10px; margin-bottom: 10px;\">Comment: <i>%s</i></p>",
+                        invoice.getBrand(), invoice.getModel(),
+                        price,
+                        expirationDate.format(localDateFormatter),
+                        comment
+                )
+        );
 
         return invoicesDAO.getInvoiceDetails(invoiceId);
     }
@@ -150,10 +177,22 @@ public class ManagerService {
             if(!client.isBlocked()){
                 BigDecimal newBalance = BigDecimal.valueOf(client.getBalance()).add(repairInvoice.getPrice()); // should better use BigDecimal for balance from the start but now it`s too late to change it
                 usersDAO.setBalance((Integer) client.getId(), newBalance);
-                emailNotify(client, "Refund for cancelled repairment invoice", "We apologize for the inconvenience. Apparently, this repairment invoice was billed by mistake, but since you paid for it, we gave you your money back.");
+
+                // Getting informative invoice data to prettify email
+                InformativeInvoice invoice = invoicesDAO.getInvoiceDetails(repairInvoice.getOriginInvoiceId());
+
+                emailNotify(client,
+                        "Refund for cancelled repairment invoice",
+                        String.format(
+                                "We apologize for the inconvenience. Apparently, repairment invoice on <strong>%s %s</strong> was billed by mistake, but since you have paid for it, we gave you your money back." +
+                                "<p style=\"margin-top: 10px; margin-bottom: 10px;\">Refunded: <strong>%s$</strong>",
+                                invoice.getBrand(), invoice.getModel(),
+                                repairInvoice.getPrice()
+                        )
+                );
                 logger.info(DB_MARKER, "Money refunded from repairment invoice [#{}] to {} at amount of {}$.", repairInvoice.getId(), repairInvoice.getClientEmail(), repairInvoice.getPrice());
 
-                // Adding user id to updating queue (to update his rights on any next action)
+                // Adding user id to updating queue (to update his balance on any next action)
                 rightsManager.add((Integer) client.getId());
             }
         }

@@ -48,13 +48,18 @@ public class IntroService {
     }
 
     /**
-     * Method for getting all cars from db for showing them to client as "available cars for rent". May work in pair with TODO:: add
-     * @return
+     * Method for getting all cars from db for showing them to client as "available cars for rent".
      */
     public List<Car> getAllCars() throws DBException {
        return carsDAO.getAll();
     }
 
+    /**
+     * Method for getting ids of cars not rented in range (available for rent on specified dates range).
+     * @param datesRange
+     * @return List of car ids not rented in range
+     * @throws DBException might be thrown from {@link CarsDAO#getIdsOfCarsNotRentedInRange(LocalDate, LocalDate)}.
+     */
     public List<String> getCarsNotRentedInDatesRange(DatesRange datesRange) throws DBException {
         LocalDate start = datesRange.getStart();
         LocalDate end = datesRange.getEnd();
@@ -155,14 +160,14 @@ public class IntroService {
         // --> Validating driver
         List<Integer> availableDrivers = null;
         if(rentData.isWithDriver()){
-            availableDrivers = getAvailableDriversOnRange(start, end, (Integer) car.getId());
+            availableDrivers = getAvailableDriversOnRange(start, end, car.getCity().id());
 
             if(availableDrivers.size() == 0)
                 throw new DescriptiveException("User selected [With driver: true] but there is no drivers available", ExceptionReason.DRIVER_NOT_ALLOWED);
         }
 
         // --> Getting final price
-        BigDecimal price = BigDecimal.valueOf(Math.abs(Period.between(start, end).getDays()) * car.getPrice());
+        BigDecimal price = BigDecimal.valueOf((Math.abs(Period.between(start, end).getDays())+1) * car.getPrice());
         BigDecimal clientBalance = BigDecimal.valueOf(usersDAO.getBalance((Integer) currentUser.getId()));
 
         // Validating user balance (does he have enough money to pay)
@@ -172,7 +177,7 @@ public class IntroService {
         // Creating invoice and deducting the money from the user's account (all in one, because under the hood dao`s method uses transactions)
         Integer driverId = availableDrivers == null ? null : availableDrivers.get(new Random().nextInt(availableDrivers.size()));
 
-
+        // Creating invoice (money are withdrawn inside the method)
         invoicesDAO.createInvoice(
                 (Integer) car.getId(),
                 (Integer) currentUser.getId(),
@@ -182,6 +187,7 @@ public class IntroService {
                 driverId
         );
 
+        // Updating balance in session
         currentUser.setBalance(clientBalance.subtract(price).doubleValue()); // The problem of using double instead of BigDecimal keeps catching up with me...
 
         String rentStartFormatted = start.format(Utils.localDateFormatter);
@@ -192,9 +198,10 @@ public class IntroService {
             LimitedUser driver = usersDAO.getFromDriver(driverId).get();
             String driverEmail = driver.getEmail();
 
-            emailNotify(driverEmail, "New rent was added to your list", String.format("Hello, driver. New rent, scheduled from <strong>%s</strong> to <strong>%s</strong> on <strong>%s</strong> has been added to your list!", rentStartFormatted, rentEndFormatted, car.getBrand() + car.getModel()));
+            emailNotify(driverEmail, "New rent was added to your list", String.format("Hello, driver. New rent, scheduled from <strong>%s</strong> to <strong>%s %s</strong> on <strong>%s</strong> has been added to your list!", rentStartFormatted, rentEndFormatted, car.getBrand(), car.getModel()));
         }
 
+        // Logging event to db
         logger.info(DB_MARKER, "User [{}] rented car [{}] for date range [{}] to [{}]. Rent price was [{}]. With driver -> [{}]",
                 currentUser.getId(),
                 car.getId(),
@@ -203,15 +210,18 @@ public class IntroService {
                 price,
                 driverId);
 
+        // Notifying user about successful renting
         emailNotify(
                 currentUser.getEmail(),
                 String.format("Thank you for renting <strong>%s %s</strong>!", car.getBrand(), car.getModel()),
-                String.format("Good afternoon. Thank you for using our services. Your order for <strong>%s %s</strong> has been successfully paid and added to the list. We are waiting for you in our office in %s on %s. \n" +
-                        "<p>Price: %s</p>\n" +
-                        "<p>Auto: %s %s</p>\n" +
-                        "<p>With driver: %s</p>"+
-                        "<p>Rent start: %s</p>"+
-                        "<p>Rent end: %s</p>",
+                String.format("Good afternoon. Thank you for using our services. Your order for <strong>%s %s</strong> has been successfully paid and added to the list. We are waiting for you in our office in <strong>%s</strong> on <strong>%s</strong>. " +
+                        "<ul style=\"margin-top: 20px; margin-bottom: 20px;\">" +
+                            "<li>Price: <strong>%s$</strong></li>\n" +
+                            "<li>Auto: <strong>%s %s</strong></li>\n" +
+                            "<li>With driver: <strong>%s</strong></li>"+
+                            "<li>Rent start: <strong>%s</strong></li>"+
+                            "<li>Rent end: <strong>%s</strong></li>" +
+                        "</ul>",
                         car.getBrand(), car.getModel(),
                         ResourceBundle.getBundle("langs.i18n_en_US").getString("cities."+car.getCity().keyword()),
                         rentStartFormatted,

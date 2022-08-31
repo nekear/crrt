@@ -37,6 +37,11 @@ public class InvoiceController extends HttpServlet {
         gson = ((Gson) config.getServletContext().getAttribute("gson"));
     }
 
+    /**
+     * Route for getting detailed information about specified invoice id. Used at admin-panel and manager-panel to get details about invoice, when clicking on it.
+     * @param req > "invoice_id": String.
+     * @param resp > {@link com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice InformativeInvoice}.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{
@@ -51,8 +56,9 @@ public class InvoiceController extends HttpServlet {
 
     /**
      * Served under <code>DELETE:/manage/invoice</code>. Despite its naming, this route was developed for rejecting invoices.
-     * @param req should contain "id" field inside json body, representing encrypted invoice id, which we are going to reject and "reason" field with rejection reason (but it is optional).
-     * @param resp
+     * @see ManagerService#rejectInvoice(String, String)
+     * @param req > <code>{"id" (invoice id): String, "reason"?: String}</code>
+     * @param resp > {@link com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice InformativeInvoice}
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {

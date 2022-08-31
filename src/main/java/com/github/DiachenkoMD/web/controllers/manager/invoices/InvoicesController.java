@@ -33,9 +33,10 @@ public class InvoicesController extends HttpServlet {
     }
 
     /**
-     * Route for obtaining invoices list at admin-panel.
-     * @param req incoming json object should have structure of {@link PaginationRequest} with {@link com.github.DiachenkoMD.entities.dto.invoices.InvoicePanelFilters InvoicePanelFilters}
-     * @param resp
+     * Route for obtaining invoices list at admin-panel. Can contain empty or filled filters.
+     * @see ManagerService#getInvoices(PaginationRequest)
+     * @param req > incoming json object should have structure of {@link PaginationRequest} with {@link com.github.DiachenkoMD.entities.dto.invoices.InvoicePanelFilters InvoicePanelFilters}
+     * @param resp > {@link com.github.DiachenkoMD.entities.dto.PaginationResponse PaginationResponse<T>} with {@link com.github.DiachenkoMD.entities.dto.invoices.PanelInvoice PanelInvoice}.
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {

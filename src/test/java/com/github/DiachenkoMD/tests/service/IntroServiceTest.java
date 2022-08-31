@@ -326,7 +326,7 @@ class IntroServiceTest {
         }
 
         @Test
-        @DisplayName("Rent creation successful [fail]")
+        @DisplayName("Rent creation successful")
         void rentCreationSuccessful() throws DBException {
             int clientId = (Integer) client.getId();
 
@@ -345,7 +345,7 @@ class IntroServiceTest {
             usersDAO.insertDriver(driverUserId, car.getCity().id());
 
             // Setting user balance
-            usersDAO.setBalance(clientId, newRent.getDatesRange().getLength().getDays()*car.getPrice());
+            usersDAO.setBalance(clientId, (newRent.getDatesRange().getLength().getDays()+1)*car.getPrice());
 
             assertDoesNotThrow(() -> introService.createRent(gson.toJson(newRent), currentUser));
 

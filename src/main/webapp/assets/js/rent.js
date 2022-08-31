@@ -327,7 +327,7 @@ const app = createApp({
                 const formattedStart = dayjs(dateStart).format("YYYY-MM-DD");
                 const formattedEnd = dayjs(dateEnd).format("YYYY-MM-DD");
 
-                await axios.get(`http://localhost:8080/crrt_war/rent/data`, {
+                await axios.get(`/rent/data`, {
                     params:{
                         start: formattedStart,
                         end: formattedEnd,
@@ -438,13 +438,13 @@ const app = createApp({
                     carId: this.rent.id
                 }
 
-                axios.post('http://localhost:8080/crrt_war/rent/data', {
+                axios.post('/rent/data', {
                     ...finalRentData
                 })
                 .then(function (response) {
                     console.log(response);
                     Notiflix.Notify.success(response.data);
-                    window.location.href = "http://localhost:8080/crrt_war/client";
+                    window.location.href = baseUrl + "/client";
                 })
                 .catch(function (error) {
                     console.log(error);

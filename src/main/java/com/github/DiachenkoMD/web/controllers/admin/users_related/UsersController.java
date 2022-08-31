@@ -32,6 +32,14 @@ public class UsersController extends HttpServlet {
         gson = ((Gson) config.getServletContext().getAttribute("gson"));
     }
 
+    /**
+     * Route for getting all available users with filters in {@link com.github.DiachenkoMD.entities.dto.PaginationRequest PaginationRequest}
+     * with {@link com.github.DiachenkoMD.entities.dto.users.UsersPanelFilters UsersPanelFilters} inside. If you need to select all users, just pass empty filters.
+     * @see AdminService#getUsers(String)
+     * @param req > {@link com.github.DiachenkoMD.entities.dto.PaginationRequest PaginationRequest}
+     * with {@link com.github.DiachenkoMD.entities.dto.users.UsersPanelFilters UsersPanelFilters} inside.
+     * @param resp > {@link com.github.DiachenkoMD.entities.dto.PaginationResponse PaginationResponse<T>}, where <i>T</i> is {@link com.github.DiachenkoMD.entities.dto.users.PanelUser PanelUser}.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try{

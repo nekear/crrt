@@ -187,12 +187,13 @@ public class MysqlCarsDAO implements CarsDAO {
     public boolean update(Car car) throws DBException {
         try(
                 Connection con = ds.getConnection();
-                PreparedStatement stmt = con.prepareStatement("UPDATE tbl_cars SET brand=?, model=?, segment_id=?, city_id=? WHERE id=?");
+                PreparedStatement stmt = con.prepareStatement("UPDATE tbl_cars SET brand=?, model=?, segment_id=?, price=?, city_id=? WHERE id=?");
         ){
             int index = 0;
             stmt.setString(++index, car.getBrand());
             stmt.setString(++index, car.getModel());
             stmt.setInt(++index, car.getSegment().id());
+            stmt.setDouble(++index, car.getPrice());
             stmt.setInt(++index, car.getCity().id());
             stmt.setInt(++index, (Integer) car.getId());
 

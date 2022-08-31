@@ -45,6 +45,12 @@ public class ClientInvoiceController extends HttpServlet {
         gson = (Gson) config.getServletContext().getAttribute("gson");
     }
 
+    /**
+     * Route for getting invoice details for client. Called, for example, when client clicks "details" on specific invoice on "My invoices" page.
+     * @see ClientService#getInvoiceDetails(int)
+     * @param req > "invoice_id": String
+     * @param resp > {@link com.github.DiachenkoMD.entities.dto.invoices.InformativeInvoice InformativeInvoice}
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         try{
@@ -64,8 +70,9 @@ public class ClientInvoiceController extends HttpServlet {
      * Served under <code>DELETE:/client/invoice</code>. Designed to allow client disable their invoices. Should receive <strong>invoice id</strong> inside under <strong>id</strong> field. <br/>
      * NOTE: if successful, returns only id (int) of {@link com.github.DiachenkoMD.entities.enums.InvoiceStatuses#CANCELED CANCELED} status, because on the client side its expected that
      * developer (me) will just add that id to list of status of the invoice and Vue will handle all other rendering-related stuff.
-     * @param req should contain "id" field representing encrypted id of invoice.
-     * @param resp
+     * @see ClientService#cancelInvoice(int, AuthUser)
+     * @param req > <code>{"id"(invoice id): String}</code>
+     * @param resp > <code>{"status": int, "newBalance": double}</code>
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {

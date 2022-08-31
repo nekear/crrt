@@ -1,5 +1,6 @@
 package com.github.DiachenkoMD.web.listeners;
 
+import com.github.DiachenkoMD.entities.Constants;
 import com.github.DiachenkoMD.entities.adapters.*;
 import com.github.DiachenkoMD.entities.enums.DBCoupled;
 import com.github.DiachenkoMD.web.daos.prototypes.CarsDAO;
@@ -25,9 +26,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -62,6 +65,8 @@ public class ContextListener implements ServletContextListener {
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        initFolders(ctx);
     }
 
     private static void initServices(ServletContext ctx){
@@ -130,7 +135,7 @@ public class ContextListener implements ServletContextListener {
     }
 
     private static void initMiddlewares(ServletContext ctx) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        Reflections reflections = new Reflections("com.github.DiachenkoMD.web.controllers");
+        Reflections reflections = new Reflections(ctx.getInitParameter("path_to_controllers"));
         Set<Class<?>> guardedRoutes = reflections.get(SubTypes.of(TypesAnnotated.with(UseGuards.class)).asClass());
         Set<Class<?>> wardedRoutes = reflections.get(SubTypes.of(TypesAnnotated.with(UseWards.class)).asClass());
 
@@ -145,6 +150,26 @@ public class ContextListener implements ServletContextListener {
 
         logger.info("[✓] Guardian -> initialized");
         logger.info("[✓] Warden -> initialized");
+    }
+
+    private static void initFolders(ServletContext ctx){
+        List<String> foldersToGenerate = List.of(
+                Constants.AVATAR_UPLOAD_DIR,
+                Constants.IMAGES_UPLOAD_DIR
+        );
+
+
+        for(String folderName : foldersToGenerate){
+            File folder = new File(ctx.getRealPath(folderName));
+
+            if(!folder.exists())
+                if(folder.mkdirs()){
+                    logger.info("Folder {} has been successfully created!", folder.getAbsolutePath());
+                }else{
+                    logger.warn("Couldn`t create folder {}!", folder.getAbsolutePath());
+                }
+        }
+
     }
 
     @Override

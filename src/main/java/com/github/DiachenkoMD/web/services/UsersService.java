@@ -35,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class UsersService {
@@ -113,7 +114,9 @@ public class UsersService {
 
         String confirmationCode = registeredUserEntity.getConfirmationCode();
 
-        emailNotify(registeringUser, "Account confirmation email from CRRT", "You can confirm your account by clicking on <a href='http://localhost:8080/crrt_war/confirmation?code="+confirmationCode+"'>this</a> link.");
+
+        String baseUrl = ResourceBundle.getBundle("app").getString("base_url");
+        emailNotify(registeringUser, "Account confirmation email from CRRT", "You can confirm your account by clicking on <a href='"+baseUrl+"/confirmation?code="+confirmationCode+"'>this</a> link.");
 
         return email;
     }
@@ -173,9 +176,9 @@ public class UsersService {
         if(user.getConfirmationCode() != null)
             throw new DescriptiveException("This account was not confirmed by email", ExceptionReason.LOGIN_NOT_CONFIRMED);
 
-        String current_password = usersDAO.getPassword(user.getCleanId().get());
+        String currentPassword = usersDAO.getPassword((Integer) user.getId());
 
-        if(!encryptedPasswordsCompare(password, current_password))
+        if(!encryptedPasswordsCompare(password, currentPassword))
             throw new DescriptiveException("Password or email are invalid", ExceptionReason.LOGIN_WRONG_PASSWORD);
 
         // Removing user from rights manager queue, because there is no any sense to make another data update right after login (in fact, login already contains data reloading)
@@ -191,7 +194,7 @@ public class UsersService {
      * @return updated user data as {@link AuthUser} object.
      * @throws DescriptiveException might be thrown with {@link ExceptionReason#VALIDATION_ERROR VALIDATION_ERROR} reason.
      * @throws IOException might be thrown from {@link HttpServletRequest#getReader() getReader()} method.
-     * @throws DBException might be thrown from {@link UsersDAO#updateUsersData(int, HashMap) updateUsersData(int, HashMap)} or {@link UsersDAO#get(String) get(String)}.
+     * @throws DBException might be thrown from {@link UsersDAO#updateUsersData(int, Map)}} or {@link UsersDAO#get(String) get(String)}.
      */
     public AuthUser updateData(HttpServletRequest req, HttpServletResponse resp) throws DescriptiveException, IOException, DBException{
         // Getting incoming json data
@@ -231,7 +234,7 @@ public class UsersService {
 
         logger.debug("Going to update user data via HashMap: {}", resultFieldsToUpdate);
 
-        // Upadting user data and returning updated data from db
+        // Updating user data and returning updated data from db
         AuthUser current = (AuthUser) req.getSession().getAttribute(SESSION_AUTH);
 
         int userId = (Integer) current.getId();
@@ -362,7 +365,7 @@ public class UsersService {
         }
 
         // Generating new file name and saving avatar
-        String fileName = String.format("%s%s",System.currentTimeMillis(), random.nextInt(100000) + filePart.getSubmittedFileName());
+        String fileName = String.format("%s%s",System.currentTimeMillis(), random.nextInt(100000) + Utils.generateRandomString(6) + Utils.getFileExtension(filePart.getSubmittedFileName()));
 
         filePart.write(realPath + "/" + fileName);
 
@@ -447,8 +450,8 @@ public class UsersService {
         emailNotify(email,
                 "Account password recovery",
                 String.format(
-                        "Good afternoon. To reset your account password, follow this <a href='http://localhost:8080%s/restore?token=%s'>link</a>. <p>This link is available till %s.<p/>",
-                        ctx.getContextPath(),
+                        "Good afternoon. To reset your account password, follow this <a href='%s/restore?token=%s'>link</a>. <p>This link is available till %s.<p/>",
+                        ResourceBundle.getBundle("app").getString("base_url"),
                         restorationToken,
                         expirationDate.format(localDateTimeFormatter)
                 )

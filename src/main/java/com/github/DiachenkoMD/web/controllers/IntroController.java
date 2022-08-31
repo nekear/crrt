@@ -16,6 +16,9 @@ public class IntroController extends HttpServlet {
 
     private final static Logger logger = LogManager.getLogger(IntroController.class);
 
+    /**
+     * GET route to open main page of the CRRT website.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try{

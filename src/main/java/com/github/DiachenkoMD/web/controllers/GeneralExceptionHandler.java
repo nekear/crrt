@@ -24,6 +24,9 @@ public class GeneralExceptionHandler extends HttpServlet {
         processError(req, resp);
     }
 
+    /**
+     * Method to process errors and log them into console, file etc. At the end forwards to 500.jsp or, if /exception url is accessed directly, forwards to 404.jsp.
+     */
     private void processError(HttpServletRequest req, HttpServletResponse resp){
         try{
             Throwable throwable = (Throwable) req.getAttribute("jakarta.servlet.error.exception");

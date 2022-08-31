@@ -35,9 +35,7 @@ public class SignInController extends HttpServlet {
     }
 
     /**
-     * Serves /login get-queries and redirects to login page
-     * @param req
-     * @param resp
+     * Serves /login GET queries and redirects to login page.
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
@@ -49,9 +47,10 @@ public class SignInController extends HttpServlet {
     }
 
     /**
-     * Serves /login post-queries (from js) and at the end logins user (redirection is held by js-side). <br/>
-     * @param req - should contain {@link com.github.DiachenkoMD.entities.Constants#REQ_EMAIL REQ_EMAIL} and {@link com.github.DiachenkoMD.entities.Constants#REQ_PASSWORD REQ_PASSWORD} parameters.
-     * @param resp
+     * Serves /login POST queries (from js) and at the end logins user (redirection is held by js-side). <br/>
+     * @see UsersService#loginUser(HttpServletRequest, HttpServletResponse)
+     * @param req > <code>{"email": String, "password": String}</code>.
+     * @param resp > nothing
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp){

@@ -5,6 +5,7 @@
 
 body {
   font-family: "Montserrat", "Segoe UI", sans-serif;
+  overflow-x: hidden;
 }
 
 ::-webkit-scrollbar-track {

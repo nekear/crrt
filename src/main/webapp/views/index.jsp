@@ -36,7 +36,7 @@
 
     <!--  Custom  -->
     <script src="${assets}js/mdx.js"></script>
-    <script src="${assets}js/global.js"></script>
+    <script src="${assets}js/global.js" defer></script>
     <script src="${assets}js/main.js" defer></script>
 
     <script>
@@ -109,7 +109,7 @@
     <div class="intro-content">
         <div class="centered-data">
             <h1 class="main-title"><fmt:message key="page.main.intro.title.p1"/> <div class="gradient-rotator-wrapper"><fmt:message key="page.main.intro.title.p2"/><div class="rotatable"></div></div>.</h1>
-            <h3 class="additional-title"><strong>CARRENT</strong> - <fmt:message key="page.main.intro.subtitle"/> </h3>
+            <h3 class="additional-title"><fmt:message key="page.main.intro.subtitle"/></h3>
             <div style="text-align: center; margin-top: 50px; margin-bottom: 100px">
                 <a href="#" class="find_car-button">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -322,10 +322,7 @@
     </div>
 </footer>
 <%@include file="components/loader.jspf"%>
-<!-- Design libs-->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://unpkg.com/vue@3"></script>
+<%@include file="components/footerLinks.jspf"%>
 <script src="https://unpkg.com/@vuepic/vue-datepicker@latest"></script>
 </body>
 </html>
