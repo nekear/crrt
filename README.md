@@ -57,7 +57,7 @@ I went further and divided the project into modules, so as not to miss all the d
 
 ☑️ Integration and unit tests presence
 
-✅️ Database testing via H2 in-memory database and MySQL database (the latter for specific tests).
+✅️ DAO layer unit-testing via H2 in-memory database and MySQL database (the latter for specific tests)
 
 ☑️ Usage of Mockito framework
 
@@ -95,7 +95,7 @@ I went further and divided the project into modules, so as not to miss all the d
 
 
 ## Detailed features description
-As I said in the section "[Introduction](#introduction)", my goal was to make a viable product, which is why it was implemented a lot of interesting functionality, 
+As I said in the section "[Motivation](#motivation)", my goal was to make a viable product, which is why it was implemented a lot of interesting functionality, 
 such as a separate module of driver management, driver panel, renting "availability" of certain cars on dates ranges, etc. 
 
 All that stuff is described in more detail in the appropriate categories.
