@@ -1,0 +1,19 @@
+services:
+  db:
+    container_name: crrt-mysql
+    image: mysql:8.0.30
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=crrt
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    volumes:
+      - ./docker/mysql/init-files:/docker-entrypoint-initdb.d
+  core:
+    depends_on:
+      - db
+    container_name: crrt-tomcat
+    image: nekear/crrt_core:1.0
+    ports:
+      - "8080:8080"

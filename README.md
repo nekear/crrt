@@ -12,9 +12,10 @@ with an <a href="https://ru.wikipedia.org/wiki/Model-View-Controller">MVC patter
 
 ## Table of contents
 1. [Motivation](#motivation)
-2. [Key features](#key-features)
-3. [Required functionality](#required-functionality)
-4. [Detailed features description](#detailed-features-description)
+2. [Want to try?](#want-to-try)
+3. [Key features](#key-features)
+4. [Required functionality](#required-functionality)
+5. [Detailed features description](#detailed-features-description)
    1. [Introduction page](#-introduction-page)
    2. [Registration page](#-registration-page)
    3. [Login page](#-login-page)
@@ -24,14 +25,43 @@ with an <a href="https://ru.wikipedia.org/wiki/Model-View-Controller">MVC patter
    7. [Admin-panel](#-admin-panel)
    8. [Driver-panel](#-driver-panel)
    9. [Renting page](#-renting-page)
-5. [About new driver system](#about-new-driver-system)
-6. [Glossary](#glossary)
-7. [Database structure](#database-structure)
+6. [About new driver system](#about-new-driver-system)
+7. [Glossary](#glossary)
+8. [Database structure](#database-structure)
 
 ## Motivation
 While developing the project, I wanted not only to meet the objectives, but also to expand the project to a state where it could be fully used in real life. 
 For this reason, the description of the project below will not be limited to the list of required functionality and a few features that I made.
 I went further and divided the project into modules, so as not to miss all the details and describe the functionality in as much detail as possible.
+
+## Want to try?
+To test an application, all you need is a [Docker](https://www.docker.com/) and a CRRT repository.
+
+#### Demo setup:
+
+1. Clone current repository.
+2. Run:
+   ```console
+   docker-compose up
+   ```
+3. 🌀 Checkout demo on `http://localhost:8080/crrt_war`!
+
+#### Available roles:
+- 🌑 **Admin**: 
+  - email: admin@crrt.com
+  - password: admin1
+- 🌒 **Manager**:
+  - email: manager@crrt.com
+  - password: manager1
+- 🌓 **Driver #1**
+  - email: driver@crrt.com
+  - password: driver1
+- 🌔 **Driver #2**
+  - email: driver2@crrt.com
+  - password: driver2
+- 🌕 **Client (customer)**
+  - email: client@mail.ua
+  - password: client1
 
 ## Key features
 

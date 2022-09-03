@@ -5,6 +5,10 @@ target/
 
 graveyard
 
+docker/tomcat
+docker/tomcat/Dockerfile
+docker/mysql/data
+
 ### IntelliJ IDEA ###
 .idea
 .idea/modules.xml
