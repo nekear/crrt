@@ -15,5 +15,7 @@ services:
       - db
     container_name: crrt-tomcat
     image: nekear/crrt_core:1.0
+    volumes:
+      - ./docker/tomcat/app.properties:/usr/local/tomcat/webapps/crrt_war/WEB-INF/classes/app.properties
     ports:
       - "8080:8080"
