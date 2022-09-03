@@ -46,6 +46,9 @@ To test an application, all you need is a [Docker](https://www.docker.com/) and 
    ```
 3. 🌀 Checkout demo on `http://localhost:8080/crrt_war`!
 
+> Note: By default, all email notifications are printed to console. To change that, go to docker/tomcat/app.properties,
+> set "mail.active" to "true" and configure appropriate variables.
+
 #### Available roles:
 - 🌑 **Admin**: 
   - email: admin@crrt.com
